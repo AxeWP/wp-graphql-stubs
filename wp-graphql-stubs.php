@@ -3389,6 +3389,16 @@ namespace WPGraphQL\Data {
         {
         }
         /**
+         * Format the setting group name to our standard.
+         *
+         * @param string $group
+         *
+         * @return string $group
+         */
+        public static function format_group_name(string $group)
+        {
+        }
+        /**
          * Get all of the allowed settings by group and return the
          * settings group that matches the group param
          *
@@ -5124,6 +5134,7 @@ namespace WPGraphQL\Model {
      *
      * @property string $id
      * @property int    $term_id
+     * @property int    $databaseId
      * @property int    $count
      * @property string $description
      * @property string $name
@@ -9094,6 +9105,28 @@ namespace WPGraphQL\Type {
         {
         }
     }
+    /**
+     * Trait WPInterfaceTrait
+     *
+     * This Trait includes methods to help Interfaces and ObjectTypes ensure they implement
+     * the proper inherited interfaces
+     *
+     * @package WPGraphQL\Type
+     */
+    trait WPInterfaceTrait
+    {
+        /**
+         * Given an array of interfaces, this gets the Interfaces the Type should implement including
+         * inherited interfaces.
+         *
+         * @param array $interfaces Array of interfaces the type implements
+         *
+         * @return array
+         */
+        protected function get_implemented_interfaces(array $interfaces)
+        {
+        }
+    }
 }
 namespace GraphQL\Type\Definition {
     /**
@@ -9122,18 +9155,87 @@ namespace GraphQL\Type\Definition {
     interface CompositeType
     {
     }
-    class InterfaceType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\AbstractType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
+    /**
+    export type GraphQLImplementingType =
+    GraphQLObjectType |
+    GraphQLInterfaceType;
+    */
+    interface ImplementingType
+    {
+        public function implementsInterface(\GraphQL\Type\Definition\InterfaceType $interfaceType) : bool;
+        /**
+         * @return array<int, InterfaceType>
+         */
+        public function getInterfaces() : array;
+    }
+    interface HasFieldsType
+    {
+        /**
+         * @throws InvariantViolation
+         */
+        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition;
+        public function hasField(string $name) : bool;
+        public function findField(string $name) : ?\GraphQL\Type\Definition\FieldDefinition;
+        /**
+         * @return array<string, FieldDefinition>
+         *
+         * @throws InvariantViolation
+         */
+        public function getFields() : array;
+        /**
+         * @return array<int, string>
+         *
+         * @throws InvariantViolation
+         */
+        public function getFieldNames() : array;
+    }
+    abstract class TypeWithFields extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\HasFieldsType
+    {
+        /**
+         * Lazily initialized.
+         *
+         * @var array<string, FieldDefinition>
+         */
+        private $fields;
+        private function initializeFields() : void
+        {
+        }
+        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition
+        {
+        }
+        public function findField(string $name) : ?\GraphQL\Type\Definition\FieldDefinition
+        {
+        }
+        public function hasField(string $name) : bool
+        {
+        }
+        /** @inheritDoc */
+        public function getFields() : array
+        {
+        }
+        /** @inheritDoc */
+        public function getFieldNames() : array
+        {
+        }
+    }
+    class InterfaceType extends \GraphQL\Type\Definition\TypeWithFields implements \GraphQL\Type\Definition\AbstractType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType, \GraphQL\Type\Definition\ImplementingType
     {
         /** @var InterfaceTypeDefinitionNode|null */
         public $astNode;
-        /** @var InterfaceTypeExtensionNode[] */
+        /** @var array<int, InterfaceTypeExtensionNode> */
         public $extensionASTNodes;
         /**
          * Lazily initialized.
          *
-         * @var FieldDefinition[]
+         * @var array<int, InterfaceType>
          */
-        private $fields;
+        private $interfaces;
+        /**
+         * Lazily initialized.
+         *
+         * @var array<string, InterfaceType>
+         */
+        private $interfaceMap;
         /**
          * @param mixed[] $config
          */
@@ -9150,19 +9252,13 @@ namespace GraphQL\Type\Definition {
         public static function assertInterfaceType($type) : self
         {
         }
-        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition
-        {
-        }
-        public function hasField(string $name) : bool
+        public function implementsInterface(\GraphQL\Type\Definition\InterfaceType $interfaceType) : bool
         {
         }
         /**
-         * @return FieldDefinition[]
+         * @return array<int, InterfaceType>
          */
-        public function getFields() : array
-        {
-        }
-        protected function initializeFields() : void
+        public function getInterfaces() : array
         {
         }
         /**
@@ -9187,6 +9283,7 @@ namespace GraphQL\Type\Definition {
 namespace WPGraphQL\Type {
     class WPInterfaceType extends \GraphQL\Type\Definition\InterfaceType
     {
+        use \WPGraphQL\Type\WPInterfaceTrait;
         /**
          * Instance of the TypeRegistry as an Interface needs knowledge of available Types
          *
@@ -9198,8 +9295,18 @@ namespace WPGraphQL\Type {
          *
          * @param array        $config
          * @param TypeRegistry $type_registry
+         *
+         * @throws Exception
          */
         public function __construct(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+        /**
+         * Get interfaces implemented by this Interface
+         *
+         * @return array
+         */
+        public function getInterfaces() : array
         {
         }
         /**
@@ -9257,7 +9364,7 @@ namespace GraphQL\Type\Definition {
      *        }
      *     ]);
      */
-    class ObjectType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
+    class ObjectType extends \GraphQL\Type\Definition\TypeWithFields implements \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType, \GraphQL\Type\Definition\ImplementingType
     {
         /** @var ObjectTypeDefinitionNode|null */
         public $astNode;
@@ -9268,19 +9375,13 @@ namespace GraphQL\Type\Definition {
         /**
          * Lazily initialized.
          *
-         * @var FieldDefinition[]
-         */
-        private $fields;
-        /**
-         * Lazily initialized.
-         *
-         * @var InterfaceType[]
+         * @var array<int, InterfaceType>
          */
         private $interfaces;
         /**
          * Lazily initialized.
          *
-         * @var InterfaceType[]
+         * @var array<string, InterfaceType>
          */
         private $interfaceMap;
         /**
@@ -9299,31 +9400,11 @@ namespace GraphQL\Type\Definition {
         public static function assertObjectType($type) : self
         {
         }
-        /**
-         * @throws InvariantViolation
-         */
-        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition
-        {
-        }
-        public function hasField(string $name) : bool
-        {
-        }
-        /**
-         * @return FieldDefinition[]
-         *
-         * @throws InvariantViolation
-         */
-        public function getFields() : array
-        {
-        }
-        protected function initializeFields() : void
-        {
-        }
         public function implementsInterface(\GraphQL\Type\Definition\InterfaceType $interfaceType) : bool
         {
         }
         /**
-         * @return InterfaceType[]
+         * @return array<int, InterfaceType>
          */
         public function getInterfaces() : array
         {
@@ -9360,6 +9441,7 @@ namespace WPGraphQL\Type {
      */
     class WPObjectType extends \GraphQL\Type\Definition\ObjectType
     {
+        use \WPGraphQL\Type\WPInterfaceTrait;
         /**
          * Holds the node_interface definition allowing WPObjectTypes
          * to easily define themselves as a node type by implementing
@@ -9381,9 +9463,18 @@ namespace WPGraphQL\Type {
          * @param array        $config
          * @param TypeRegistry $type_registry
          *
+         * @throws \Exception
          * @since 0.0.5
          */
         public function __construct($config, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+        /**
+         * Get the interfaces implemented by the ObjectType
+         *
+         * @return array
+         */
+        public function getInterfaces() : array
         {
         }
         /**
@@ -9678,7 +9769,7 @@ namespace WPGraphQL\Utils {
          *
          * @return WPSchema
          */
-        public static function instrument_schema(\WPGraphQL\WPSchema $schema)
+        public static function instrument_schema(\WPGraphQL\WPSchema $schema) : \WPGraphQL\WPSchema
         {
         }
         /**
@@ -9692,7 +9783,7 @@ namespace WPGraphQL\Utils {
          *
          * @return mixed
          */
-        protected static function wrap_fields($fields, $type_name)
+        protected static function wrap_fields(array $fields, string $type_name)
         {
         }
         /**
@@ -10360,11 +10451,11 @@ namespace GraphQL\Type {
          */
         private $resolvedTypes = [];
         /**
-         * Lazily initialized.
+         * Lazily initialised.
          *
-         * @var array<string, array<string, ObjectType|UnionType>>
+         * @var array<string, InterfaceImplementations>
          */
-        private $possibleTypeMap;
+        private $implementationsMap;
         /**
          * True when $resolvedTypes contain all possible schema types
          *
@@ -10395,11 +10486,11 @@ namespace GraphQL\Type {
          *
          * This operation requires full schema scan. Do not use in production environment.
          *
-         * @return Type[]
+         * @return array<string, Type>
          *
          * @api
          */
-        public function getTypeMap()
+        public function getTypeMap() : array
         {
         }
         /**
@@ -10506,18 +10597,42 @@ namespace GraphQL\Type {
         {
         }
         /**
-         * @return array<string, array<string, ObjectType|UnionType>>
+         * Returns all types that implement a given interface type.
+         *
+         * This operations requires full schema scan. Do not use in production environment.
+         *
+         * @api
          */
-        private function getPossibleTypeMap() : array
+        public function getImplementations(\GraphQL\Type\Definition\InterfaceType $abstractType) : \GraphQL\Utils\InterfaceImplementations
         {
         }
         /**
+         * @return array<string, InterfaceImplementations>
+         */
+        private function collectImplementations() : array
+        {
+        }
+        /**
+         * @deprecated as of 14.4.0 use isSubType instead, will be removed in 15.0.0.
+         *
          * Returns true if object type is concrete type of given abstract type
          * (implementation for interfaces and members of union type for unions)
          *
          * @api
+         * @codeCoverageIgnore
          */
         public function isPossibleType(\GraphQL\Type\Definition\AbstractType $abstractType, \GraphQL\Type\Definition\ObjectType $possibleType) : bool
+        {
+        }
+        /**
+         * Returns true if the given type is a sub type of the given abstract type.
+         *
+         * @param UnionType|InterfaceType  $abstractType
+         * @param ObjectType|InterfaceType $maybeSubType
+         *
+         * @api
+         */
+        public function isSubType(\GraphQL\Type\Definition\AbstractType $abstractType, \GraphQL\Type\Definition\ImplementingType $maybeSubType) : bool
         {
         }
         /**
@@ -10593,7 +10708,7 @@ namespace WPGraphQL {
 }
 namespace {
     // autoload_real.php @generated by Composer
-    class ComposerAutoloaderInitdaff871f095cff82fbce195c2e9c1fd6
+    class ComposerAutoloaderInit6d979f7db16fd60e774aea70a704ddcf
     {
         private static $loader;
         public static function loadClassLoader($class)
@@ -10608,12 +10723,12 @@ namespace {
     }
 }
 namespace Composer\Autoload {
-    class ComposerStaticInitdaff871f095cff82fbce195c2e9c1fd6
+    class ComposerStaticInit6d979f7db16fd60e774aea70a704ddcf
     {
         public static $files = array('a3ed03db03d57650e139da3e8903943c' => __DIR__ . '/../..' . '/access-functions.php', 'f23fb2f3f8f0b37aeaa2e54bba971cf2' => __DIR__ . '/../..' . '/activation.php', '041a301cb7808aeb8a9086a5113fbadc' => __DIR__ . '/../..' . '/deactivation.php');
         public static $prefixLengthsPsr4 = array('W' => array('WPGraphQL\\' => 10), 'G' => array('GraphQL\\' => 8));
         public static $prefixDirsPsr4 = array('WPGraphQL\\' => array(0 => __DIR__ . '/../..' . '/src'), 'GraphQL\\' => array(0 => __DIR__ . '/..' . '/webonyx/graphql-php/src'));
-        public static $classMap = array('Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php', 'GraphQLRelay\\Connection\\ArrayConnection' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Connection/ArrayConnection.php', 'GraphQLRelay\\Connection\\Connection' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Connection/Connection.php', 'GraphQLRelay\\Mutation\\Mutation' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Mutation/Mutation.php', 'GraphQLRelay\\Node\\Node' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Node/Node.php', 'GraphQLRelay\\Node\\Plural' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Node/Plural.php', 'GraphQLRelay\\Relay' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Relay.php', 'GraphQL\\Deferred' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Deferred.php', 'GraphQL\\Error\\ClientAware' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/ClientAware.php', 'GraphQL\\Error\\DebugFlag' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/DebugFlag.php', 'GraphQL\\Error\\Error' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/Error.php', 'GraphQL\\Error\\FormattedError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/FormattedError.php', 'GraphQL\\Error\\InvariantViolation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/InvariantViolation.php', 'GraphQL\\Error\\SyntaxError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/SyntaxError.php', 'GraphQL\\Error\\UserError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/UserError.php', 'GraphQL\\Error\\Warning' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/Warning.php', 'GraphQL\\Exception\\InvalidArgument' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Exception/InvalidArgument.php', 'GraphQL\\Executor\\ExecutionContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutionContext.php', 'GraphQL\\Executor\\ExecutionResult' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutionResult.php', 'GraphQL\\Executor\\Executor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Executor.php', 'GraphQL\\Executor\\ExecutorImplementation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutorImplementation.php', 'GraphQL\\Executor\\Promise\\Adapter\\AmpPromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/AmpPromiseAdapter.php', 'GraphQL\\Executor\\Promise\\Adapter\\ReactPromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/ReactPromiseAdapter.php', 'GraphQL\\Executor\\Promise\\Adapter\\SyncPromise' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/SyncPromise.php', 'GraphQL\\Executor\\Promise\\Adapter\\SyncPromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/SyncPromiseAdapter.php', 'GraphQL\\Executor\\Promise\\Promise' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Promise.php', 'GraphQL\\Executor\\Promise\\PromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/PromiseAdapter.php', 'GraphQL\\Executor\\ReferenceExecutor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ReferenceExecutor.php', 'GraphQL\\Executor\\Values' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Values.php', 'GraphQL\\Experimental\\Executor\\Collector' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/Collector.php', 'GraphQL\\Experimental\\Executor\\CoroutineContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/CoroutineContext.php', 'GraphQL\\Experimental\\Executor\\CoroutineContextShared' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/CoroutineContextShared.php', 'GraphQL\\Experimental\\Executor\\CoroutineExecutor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/CoroutineExecutor.php', 'GraphQL\\Experimental\\Executor\\Runtime' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/Runtime.php', 'GraphQL\\Experimental\\Executor\\Strand' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/Strand.php', 'GraphQL\\GraphQL' => __DIR__ . '/..' . '/webonyx/graphql-php/src/GraphQL.php', 'GraphQL\\Language\\AST\\ArgumentNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ArgumentNode.php', 'GraphQL\\Language\\AST\\BooleanValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/BooleanValueNode.php', 'GraphQL\\Language\\AST\\DefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DefinitionNode.php', 'GraphQL\\Language\\AST\\DirectiveDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DirectiveDefinitionNode.php', 'GraphQL\\Language\\AST\\DirectiveNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DirectiveNode.php', 'GraphQL\\Language\\AST\\DocumentNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DocumentNode.php', 'GraphQL\\Language\\AST\\EnumTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\EnumTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumTypeExtensionNode.php', 'GraphQL\\Language\\AST\\EnumValueDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumValueDefinitionNode.php', 'GraphQL\\Language\\AST\\EnumValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumValueNode.php', 'GraphQL\\Language\\AST\\ExecutableDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ExecutableDefinitionNode.php', 'GraphQL\\Language\\AST\\FieldDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FieldDefinitionNode.php', 'GraphQL\\Language\\AST\\FieldNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FieldNode.php', 'GraphQL\\Language\\AST\\FloatValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FloatValueNode.php', 'GraphQL\\Language\\AST\\FragmentDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FragmentDefinitionNode.php', 'GraphQL\\Language\\AST\\FragmentSpreadNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FragmentSpreadNode.php', 'GraphQL\\Language\\AST\\HasSelectionSet' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/HasSelectionSet.php', 'GraphQL\\Language\\AST\\InlineFragmentNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InlineFragmentNode.php', 'GraphQL\\Language\\AST\\InputObjectTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InputObjectTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\InputObjectTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InputObjectTypeExtensionNode.php', 'GraphQL\\Language\\AST\\InputValueDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InputValueDefinitionNode.php', 'GraphQL\\Language\\AST\\IntValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/IntValueNode.php', 'GraphQL\\Language\\AST\\InterfaceTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InterfaceTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\InterfaceTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InterfaceTypeExtensionNode.php', 'GraphQL\\Language\\AST\\ListTypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ListTypeNode.php', 'GraphQL\\Language\\AST\\ListValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ListValueNode.php', 'GraphQL\\Language\\AST\\Location' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/Location.php', 'GraphQL\\Language\\AST\\NameNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NameNode.php', 'GraphQL\\Language\\AST\\NamedTypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NamedTypeNode.php', 'GraphQL\\Language\\AST\\Node' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/Node.php', 'GraphQL\\Language\\AST\\NodeKind' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NodeKind.php', 'GraphQL\\Language\\AST\\NodeList' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NodeList.php', 'GraphQL\\Language\\AST\\NonNullTypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NonNullTypeNode.php', 'GraphQL\\Language\\AST\\NullValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NullValueNode.php', 'GraphQL\\Language\\AST\\ObjectFieldNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectFieldNode.php', 'GraphQL\\Language\\AST\\ObjectTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\ObjectTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectTypeExtensionNode.php', 'GraphQL\\Language\\AST\\ObjectValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectValueNode.php', 'GraphQL\\Language\\AST\\OperationDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/OperationDefinitionNode.php', 'GraphQL\\Language\\AST\\OperationTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/OperationTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\ScalarTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ScalarTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\ScalarTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ScalarTypeExtensionNode.php', 'GraphQL\\Language\\AST\\SchemaDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SchemaDefinitionNode.php', 'GraphQL\\Language\\AST\\SchemaTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SchemaTypeExtensionNode.php', 'GraphQL\\Language\\AST\\SelectionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SelectionNode.php', 'GraphQL\\Language\\AST\\SelectionSetNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SelectionSetNode.php', 'GraphQL\\Language\\AST\\StringValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/StringValueNode.php', 'GraphQL\\Language\\AST\\TypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeDefinitionNode.php', 'GraphQL\\Language\\AST\\TypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeExtensionNode.php', 'GraphQL\\Language\\AST\\TypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeNode.php', 'GraphQL\\Language\\AST\\TypeSystemDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeSystemDefinitionNode.php', 'GraphQL\\Language\\AST\\UnionTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/UnionTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\UnionTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/UnionTypeExtensionNode.php', 'GraphQL\\Language\\AST\\ValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ValueNode.php', 'GraphQL\\Language\\AST\\VariableDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/VariableDefinitionNode.php', 'GraphQL\\Language\\AST\\VariableNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/VariableNode.php', 'GraphQL\\Language\\DirectiveLocation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/DirectiveLocation.php', 'GraphQL\\Language\\Lexer' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Lexer.php', 'GraphQL\\Language\\Parser' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Parser.php', 'GraphQL\\Language\\Printer' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Printer.php', 'GraphQL\\Language\\Source' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Source.php', 'GraphQL\\Language\\SourceLocation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/SourceLocation.php', 'GraphQL\\Language\\Token' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Token.php', 'GraphQL\\Language\\Visitor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Visitor.php', 'GraphQL\\Language\\VisitorOperation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/VisitorOperation.php', 'GraphQL\\Server\\Helper' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/Helper.php', 'GraphQL\\Server\\OperationParams' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/OperationParams.php', 'GraphQL\\Server\\RequestError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/RequestError.php', 'GraphQL\\Server\\ServerConfig' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/ServerConfig.php', 'GraphQL\\Server\\StandardServer' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/StandardServer.php', 'GraphQL\\Type\\Definition\\AbstractType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/AbstractType.php', 'GraphQL\\Type\\Definition\\BooleanType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/BooleanType.php', 'GraphQL\\Type\\Definition\\CompositeType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/CompositeType.php', 'GraphQL\\Type\\Definition\\CustomScalarType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/CustomScalarType.php', 'GraphQL\\Type\\Definition\\Directive' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/Directive.php', 'GraphQL\\Type\\Definition\\EnumType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/EnumType.php', 'GraphQL\\Type\\Definition\\EnumValueDefinition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/EnumValueDefinition.php', 'GraphQL\\Type\\Definition\\FieldArgument' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/FieldArgument.php', 'GraphQL\\Type\\Definition\\FieldDefinition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/FieldDefinition.php', 'GraphQL\\Type\\Definition\\FloatType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/FloatType.php', 'GraphQL\\Type\\Definition\\IDType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/IDType.php', 'GraphQL\\Type\\Definition\\InputObjectField' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InputObjectField.php', 'GraphQL\\Type\\Definition\\InputObjectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InputObjectType.php', 'GraphQL\\Type\\Definition\\InputType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InputType.php', 'GraphQL\\Type\\Definition\\IntType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/IntType.php', 'GraphQL\\Type\\Definition\\InterfaceType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InterfaceType.php', 'GraphQL\\Type\\Definition\\LeafType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/LeafType.php', 'GraphQL\\Type\\Definition\\ListOfType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ListOfType.php', 'GraphQL\\Type\\Definition\\NamedType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/NamedType.php', 'GraphQL\\Type\\Definition\\NonNull' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/NonNull.php', 'GraphQL\\Type\\Definition\\NullableType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/NullableType.php', 'GraphQL\\Type\\Definition\\ObjectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ObjectType.php', 'GraphQL\\Type\\Definition\\OutputType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/OutputType.php', 'GraphQL\\Type\\Definition\\QueryPlan' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/QueryPlan.php', 'GraphQL\\Type\\Definition\\ResolveInfo' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ResolveInfo.php', 'GraphQL\\Type\\Definition\\ScalarType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ScalarType.php', 'GraphQL\\Type\\Definition\\StringType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/StringType.php', 'GraphQL\\Type\\Definition\\Type' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/Type.php', 'GraphQL\\Type\\Definition\\UnionType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/UnionType.php', 'GraphQL\\Type\\Definition\\UnmodifiedType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/UnmodifiedType.php', 'GraphQL\\Type\\Definition\\WrappingType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/WrappingType.php', 'GraphQL\\Type\\Introspection' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Introspection.php', 'GraphQL\\Type\\Schema' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Schema.php', 'GraphQL\\Type\\SchemaConfig' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/SchemaConfig.php', 'GraphQL\\Type\\SchemaValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/SchemaValidationContext.php', 'GraphQL\\Type\\TypeKind' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/TypeKind.php', 'GraphQL\\Type\\Validation\\InputObjectCircularRefs' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Validation/InputObjectCircularRefs.php', 'GraphQL\\Utils\\AST' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/AST.php', 'GraphQL\\Utils\\ASTDefinitionBuilder' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/ASTDefinitionBuilder.php', 'GraphQL\\Utils\\BlockString' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BlockString.php', 'GraphQL\\Utils\\BreakingChangesFinder' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BreakingChangesFinder.php', 'GraphQL\\Utils\\BuildClientSchema' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BuildClientSchema.php', 'GraphQL\\Utils\\BuildSchema' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BuildSchema.php', 'GraphQL\\Utils\\MixedStore' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/MixedStore.php', 'GraphQL\\Utils\\PairSet' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/PairSet.php', 'GraphQL\\Utils\\SchemaExtender' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/SchemaExtender.php', 'GraphQL\\Utils\\SchemaPrinter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/SchemaPrinter.php', 'GraphQL\\Utils\\TypeComparators' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/TypeComparators.php', 'GraphQL\\Utils\\TypeInfo' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/TypeInfo.php', 'GraphQL\\Utils\\Utils' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/Utils.php', 'GraphQL\\Utils\\Value' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/Value.php', 'GraphQL\\Validator\\ASTValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/ASTValidationContext.php', 'GraphQL\\Validator\\DocumentValidator' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/DocumentValidator.php', 'GraphQL\\Validator\\Rules\\CustomValidationRule' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/CustomValidationRule.php', 'GraphQL\\Validator\\Rules\\DisableIntrospection' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/DisableIntrospection.php', 'GraphQL\\Validator\\Rules\\ExecutableDefinitions' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ExecutableDefinitions.php', 'GraphQL\\Validator\\Rules\\FieldsOnCorrectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/FieldsOnCorrectType.php', 'GraphQL\\Validator\\Rules\\FragmentsOnCompositeTypes' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/FragmentsOnCompositeTypes.php', 'GraphQL\\Validator\\Rules\\KnownArgumentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownArgumentNames.php', 'GraphQL\\Validator\\Rules\\KnownArgumentNamesOnDirectives' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownArgumentNamesOnDirectives.php', 'GraphQL\\Validator\\Rules\\KnownDirectives' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownDirectives.php', 'GraphQL\\Validator\\Rules\\KnownFragmentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownFragmentNames.php', 'GraphQL\\Validator\\Rules\\KnownTypeNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownTypeNames.php', 'GraphQL\\Validator\\Rules\\LoneAnonymousOperation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/LoneAnonymousOperation.php', 'GraphQL\\Validator\\Rules\\LoneSchemaDefinition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/LoneSchemaDefinition.php', 'GraphQL\\Validator\\Rules\\NoFragmentCycles' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoFragmentCycles.php', 'GraphQL\\Validator\\Rules\\NoUndefinedVariables' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoUndefinedVariables.php', 'GraphQL\\Validator\\Rules\\NoUnusedFragments' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoUnusedFragments.php', 'GraphQL\\Validator\\Rules\\NoUnusedVariables' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoUnusedVariables.php', 'GraphQL\\Validator\\Rules\\OverlappingFieldsCanBeMerged' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/OverlappingFieldsCanBeMerged.php', 'GraphQL\\Validator\\Rules\\PossibleFragmentSpreads' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/PossibleFragmentSpreads.php', 'GraphQL\\Validator\\Rules\\ProvidedRequiredArguments' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ProvidedRequiredArguments.php', 'GraphQL\\Validator\\Rules\\ProvidedRequiredArgumentsOnDirectives' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php', 'GraphQL\\Validator\\Rules\\QueryComplexity' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/QueryComplexity.php', 'GraphQL\\Validator\\Rules\\QueryDepth' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/QueryDepth.php', 'GraphQL\\Validator\\Rules\\QuerySecurityRule' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/QuerySecurityRule.php', 'GraphQL\\Validator\\Rules\\ScalarLeafs' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ScalarLeafs.php', 'GraphQL\\Validator\\Rules\\SingleFieldSubscription' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/SingleFieldSubscription.php', 'GraphQL\\Validator\\Rules\\UniqueArgumentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueArgumentNames.php', 'GraphQL\\Validator\\Rules\\UniqueDirectivesPerLocation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueDirectivesPerLocation.php', 'GraphQL\\Validator\\Rules\\UniqueFragmentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueFragmentNames.php', 'GraphQL\\Validator\\Rules\\UniqueInputFieldNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueInputFieldNames.php', 'GraphQL\\Validator\\Rules\\UniqueOperationNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueOperationNames.php', 'GraphQL\\Validator\\Rules\\UniqueVariableNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueVariableNames.php', 'GraphQL\\Validator\\Rules\\ValidationRule' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ValidationRule.php', 'GraphQL\\Validator\\Rules\\ValuesOfCorrectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ValuesOfCorrectType.php', 'GraphQL\\Validator\\Rules\\VariablesAreInputTypes' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/VariablesAreInputTypes.php', 'GraphQL\\Validator\\Rules\\VariablesInAllowedPosition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/VariablesInAllowedPosition.php', 'GraphQL\\Validator\\SDLValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/SDLValidationContext.php', 'GraphQL\\Validator\\ValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/ValidationContext.php', 'WPGraphQL\\Admin\\Admin' => __DIR__ . '/../..' . '/src/Admin/Admin.php', 'WPGraphQL\\Admin\\GraphiQL\\GraphiQL' => __DIR__ . '/../..' . '/src/Admin/GraphiQL/GraphiQL.php', 'WPGraphQL\\Admin\\Settings\\Settings' => __DIR__ . '/../..' . '/src/Admin/Settings/Settings.php', 'WPGraphQL\\Admin\\Settings\\SettingsRegistry' => __DIR__ . '/../..' . '/src/Admin/Settings/SettingsRegistry.php', 'WPGraphQL\\AppContext' => __DIR__ . '/../..' . '/src/AppContext.php', 'WPGraphQL\\Connection\\Commenter' => __DIR__ . '/../..' . '/src/Connection/Commenter.php', 'WPGraphQL\\Connection\\Comments' => __DIR__ . '/../..' . '/src/Connection/Comments.php', 'WPGraphQL\\Connection\\ContentTypes' => __DIR__ . '/../..' . '/src/Connection/ContentTypes.php', 'WPGraphQL\\Connection\\EnqueuedScripts' => __DIR__ . '/../..' . '/src/Connection/EnqueuedScripts.php', 'WPGraphQL\\Connection\\EnqueuedStylesheets' => __DIR__ . '/../..' . '/src/Connection/EnqueuedStylesheets.php', 'WPGraphQL\\Connection\\MediaItems' => __DIR__ . '/../..' . '/src/Connection/MediaItems.php', 'WPGraphQL\\Connection\\MenuItemLinkableConnection' => __DIR__ . '/../..' . '/src/Connection/MenuItemLinkableConnection.php', 'WPGraphQL\\Connection\\MenuItems' => __DIR__ . '/../..' . '/src/Connection/MenuItems.php', 'WPGraphQL\\Connection\\Menus' => __DIR__ . '/../..' . '/src/Connection/Menus.php', 'WPGraphQL\\Connection\\Plugins' => __DIR__ . '/../..' . '/src/Connection/Plugins.php', 'WPGraphQL\\Connection\\PostObjects' => __DIR__ . '/../..' . '/src/Connection/PostObjects.php', 'WPGraphQL\\Connection\\Revisions' => __DIR__ . '/../..' . '/src/Connection/Revisions.php', 'WPGraphQL\\Connection\\Taxonomies' => __DIR__ . '/../..' . '/src/Connection/Taxonomies.php', 'WPGraphQL\\Connection\\TermObjects' => __DIR__ . '/../..' . '/src/Connection/TermObjects.php', 'WPGraphQL\\Connection\\Themes' => __DIR__ . '/../..' . '/src/Connection/Themes.php', 'WPGraphQL\\Connection\\UserRoles' => __DIR__ . '/../..' . '/src/Connection/UserRoles.php', 'WPGraphQL\\Connection\\Users' => __DIR__ . '/../..' . '/src/Connection/Users.php', 'WPGraphQL\\Data\\CommentMutation' => __DIR__ . '/../..' . '/src/Data/CommentMutation.php', 'WPGraphQL\\Data\\Config' => __DIR__ . '/../..' . '/src/Data/Config.php', 'WPGraphQL\\Data\\Connection\\AbstractConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/AbstractConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\CommentConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/CommentConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\ContentTypeConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/ContentTypeConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\EnqueuedScriptsConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/EnqueuedScriptsConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\EnqueuedStylesheetConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/EnqueuedStylesheetConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\MenuConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/MenuConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\MenuItemConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/MenuItemConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\PluginConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/PluginConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\PostObjectConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/PostObjectConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\TaxonomyConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/TaxonomyConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\TermObjectConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/TermObjectConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\ThemeConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/ThemeConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\UserConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/UserConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\UserRoleConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/UserRoleConnectionResolver.php', 'WPGraphQL\\Data\\Cursor\\CursorBuilder' => __DIR__ . '/../..' . '/src/Data/Cursor/CursorBuilder.php', 'WPGraphQL\\Data\\Cursor\\PostObjectCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/PostObjectCursor.php', 'WPGraphQL\\Data\\Cursor\\TermObjectCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/TermObjectCursor.php', 'WPGraphQL\\Data\\Cursor\\UserCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/UserCursor.php', 'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php', 'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => __DIR__ . '/../..' . '/src/Data/Loader/AbstractDataLoader.php', 'WPGraphQL\\Data\\Loader\\CommentAuthorLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentAuthorLoader.php', 'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php', 'WPGraphQL\\Data\\Loader\\EnqueuedScriptLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedScriptLoader.php', 'WPGraphQL\\Data\\Loader\\EnqueuedStylesheetLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedStylesheetLoader.php', 'WPGraphQL\\Data\\Loader\\PluginLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PluginLoader.php', 'WPGraphQL\\Data\\Loader\\PostObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostObjectLoader.php', 'WPGraphQL\\Data\\Loader\\PostTypeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostTypeLoader.php', 'WPGraphQL\\Data\\Loader\\TaxonomyLoader' => __DIR__ . '/../..' . '/src/Data/Loader/TaxonomyLoader.php', 'WPGraphQL\\Data\\Loader\\TermObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/TermObjectLoader.php', 'WPGraphQL\\Data\\Loader\\ThemeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/ThemeLoader.php', 'WPGraphQL\\Data\\Loader\\UserLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserLoader.php', 'WPGraphQL\\Data\\Loader\\UserRoleLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserRoleLoader.php', 'WPGraphQL\\Data\\MediaItemMutation' => __DIR__ . '/../..' . '/src/Data/MediaItemMutation.php', 'WPGraphQL\\Data\\NodeResolver' => __DIR__ . '/../..' . '/src/Data/NodeResolver.php', 'WPGraphQL\\Data\\PostObjectMutation' => __DIR__ . '/../..' . '/src/Data/PostObjectMutation.php', 'WPGraphQL\\Data\\TermObjectMutation' => __DIR__ . '/../..' . '/src/Data/TermObjectMutation.php', 'WPGraphQL\\Data\\UserMutation' => __DIR__ . '/../..' . '/src/Data/UserMutation.php', 'WPGraphQL\\Model\\Avatar' => __DIR__ . '/../..' . '/src/Model/Avatar.php', 'WPGraphQL\\Model\\Comment' => __DIR__ . '/../..' . '/src/Model/Comment.php', 'WPGraphQL\\Model\\CommentAuthor' => __DIR__ . '/../..' . '/src/Model/CommentAuthor.php', 'WPGraphQL\\Model\\Menu' => __DIR__ . '/../..' . '/src/Model/Menu.php', 'WPGraphQL\\Model\\MenuItem' => __DIR__ . '/../..' . '/src/Model/MenuItem.php', 'WPGraphQL\\Model\\Model' => __DIR__ . '/../..' . '/src/Model/Model.php', 'WPGraphQL\\Model\\Plugin' => __DIR__ . '/../..' . '/src/Model/Plugin.php', 'WPGraphQL\\Model\\Post' => __DIR__ . '/../..' . '/src/Model/Post.php', 'WPGraphQL\\Model\\PostType' => __DIR__ . '/../..' . '/src/Model/PostType.php', 'WPGraphQL\\Model\\Taxonomy' => __DIR__ . '/../..' . '/src/Model/Taxonomy.php', 'WPGraphQL\\Model\\Term' => __DIR__ . '/../..' . '/src/Model/Term.php', 'WPGraphQL\\Model\\Theme' => __DIR__ . '/../..' . '/src/Model/Theme.php', 'WPGraphQL\\Model\\User' => __DIR__ . '/../..' . '/src/Model/User.php', 'WPGraphQL\\Model\\UserRole' => __DIR__ . '/../..' . '/src/Model/UserRole.php', 'WPGraphQL\\Mutation\\CommentCreate' => __DIR__ . '/../..' . '/src/Mutation/CommentCreate.php', 'WPGraphQL\\Mutation\\CommentDelete' => __DIR__ . '/../..' . '/src/Mutation/CommentDelete.php', 'WPGraphQL\\Mutation\\CommentRestore' => __DIR__ . '/../..' . '/src/Mutation/CommentRestore.php', 'WPGraphQL\\Mutation\\CommentUpdate' => __DIR__ . '/../..' . '/src/Mutation/CommentUpdate.php', 'WPGraphQL\\Mutation\\MediaItemCreate' => __DIR__ . '/../..' . '/src/Mutation/MediaItemCreate.php', 'WPGraphQL\\Mutation\\MediaItemDelete' => __DIR__ . '/../..' . '/src/Mutation/MediaItemDelete.php', 'WPGraphQL\\Mutation\\MediaItemUpdate' => __DIR__ . '/../..' . '/src/Mutation/MediaItemUpdate.php', 'WPGraphQL\\Mutation\\PostObjectCreate' => __DIR__ . '/../..' . '/src/Mutation/PostObjectCreate.php', 'WPGraphQL\\Mutation\\PostObjectDelete' => __DIR__ . '/../..' . '/src/Mutation/PostObjectDelete.php', 'WPGraphQL\\Mutation\\PostObjectUpdate' => __DIR__ . '/../..' . '/src/Mutation/PostObjectUpdate.php', 'WPGraphQL\\Mutation\\ResetUserPassword' => __DIR__ . '/../..' . '/src/Mutation/ResetUserPassword.php', 'WPGraphQL\\Mutation\\SendPasswordResetEmail' => __DIR__ . '/../..' . '/src/Mutation/SendPasswordResetEmail.php', 'WPGraphQL\\Mutation\\TermObjectCreate' => __DIR__ . '/../..' . '/src/Mutation/TermObjectCreate.php', 'WPGraphQL\\Mutation\\TermObjectDelete' => __DIR__ . '/../..' . '/src/Mutation/TermObjectDelete.php', 'WPGraphQL\\Mutation\\TermObjectUpdate' => __DIR__ . '/../..' . '/src/Mutation/TermObjectUpdate.php', 'WPGraphQL\\Mutation\\UpdateSettings' => __DIR__ . '/../..' . '/src/Mutation/UpdateSettings.php', 'WPGraphQL\\Mutation\\UserCreate' => __DIR__ . '/../..' . '/src/Mutation/UserCreate.php', 'WPGraphQL\\Mutation\\UserDelete' => __DIR__ . '/../..' . '/src/Mutation/UserDelete.php', 'WPGraphQL\\Mutation\\UserRegister' => __DIR__ . '/../..' . '/src/Mutation/UserRegister.php', 'WPGraphQL\\Mutation\\UserUpdate' => __DIR__ . '/../..' . '/src/Mutation/UserUpdate.php', 'WPGraphQL\\Registry\\SchemaRegistry' => __DIR__ . '/../..' . '/src/Registry/SchemaRegistry.php', 'WPGraphQL\\Registry\\TypeRegistry' => __DIR__ . '/../..' . '/src/Registry/TypeRegistry.php', 'WPGraphQL\\Request' => __DIR__ . '/../..' . '/src/Request.php', 'WPGraphQL\\Router' => __DIR__ . '/../..' . '/src/Router.php', 'WPGraphQL\\Server\\ValidationRules\\DisableIntrospection' => __DIR__ . '/../..' . '/src/Server/ValidationRules/DisableIntrospection.php', 'WPGraphQL\\Server\\ValidationRules\\QueryDepth' => __DIR__ . '/../..' . '/src/Server/ValidationRules/QueryDepth.php', 'WPGraphQL\\Server\\ValidationRules\\RequireAuthentication' => __DIR__ . '/../..' . '/src/Server/ValidationRules/RequireAuthentication.php', 'WPGraphQL\\Server\\WPHelper' => __DIR__ . '/../..' . '/src/Server/WPHelper.php', 'WPGraphQL\\Type\\Enum\\AvatarRatingEnum' => __DIR__ . '/../..' . '/src/Type/Enum/AvatarRatingEnum.php', 'WPGraphQL\\Type\\Enum\\CommentsConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/CommentsConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\ContentNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/ContentNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\ContentTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/ContentTypeEnum.php', 'WPGraphQL\\Type\\Enum\\ContentTypeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/ContentTypeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\MediaItemSizeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemSizeEnum.php', 'WPGraphQL\\Type\\Enum\\MediaItemStatusEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemStatusEnum.php', 'WPGraphQL\\Type\\Enum\\MenuItemNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MenuItemNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\MenuLocationEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MenuLocationEnum.php', 'WPGraphQL\\Type\\Enum\\MenuNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MenuNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\MimeTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MimeTypeEnum.php', 'WPGraphQL\\Type\\Enum\\OrderEnum' => __DIR__ . '/../..' . '/src/Type/Enum/OrderEnum.php', 'WPGraphQL\\Type\\Enum\\PostObjectFieldFormatEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectFieldFormatEnum.php', 'WPGraphQL\\Type\\Enum\\PostObjectsConnectionDateColumnEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectsConnectionDateColumnEnum.php', 'WPGraphQL\\Type\\Enum\\PostObjectsConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectsConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\PostStatusEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostStatusEnum.php', 'WPGraphQL\\Type\\Enum\\RelationEnum' => __DIR__ . '/../..' . '/src/Type/Enum/RelationEnum.php', 'WPGraphQL\\Type\\Enum\\TaxonomyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TaxonomyEnum.php', 'WPGraphQL\\Type\\Enum\\TaxonomyIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TaxonomyIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\TermNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TermNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\TermObjectsConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TermObjectsConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\TimezoneEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TimezoneEnum.php', 'WPGraphQL\\Type\\Enum\\UserNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UserNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\UserRoleEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UserRoleEnum.php', 'WPGraphQL\\Type\\Enum\\UsersConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UsersConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\UsersConnectionSearchColumnEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UsersConnectionSearchColumnEnum.php', 'WPGraphQL\\Type\\Input\\DateInput' => __DIR__ . '/../..' . '/src/Type/Input/DateInput.php', 'WPGraphQL\\Type\\Input\\DateQueryInput' => __DIR__ . '/../..' . '/src/Type/Input/DateQueryInput.php', 'WPGraphQL\\Type\\Input\\MenuItemsConnectionWhereArgs' => __DIR__ . '/../..' . '/src/Type/Input/MenuItemsConnectionWhereArgs.php', 'WPGraphQL\\Type\\Input\\PostObjectsConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/PostObjectsConnectionOrderbyInput.php', 'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/UsersConnectionOrderbyInput.php', 'WPGraphQL\\Type\\InterfaceType\\CommenterInterface' => __DIR__ . '/../..' . '/src/Type/InterfaceType/CommenterInterface.php', 'WPGraphQL\\Type\\InterfaceType\\ContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentNode.php', 'WPGraphQL\\Type\\InterfaceType\\ContentTemplate' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentTemplate.php', 'WPGraphQL\\Type\\InterfaceType\\DatabaseIdentifier' => __DIR__ . '/../..' . '/src/Type/InterfaceType/DatabaseIdentifier.php', 'WPGraphQL\\Type\\InterfaceType\\EnqueuedAsset' => __DIR__ . '/../..' . '/src/Type/InterfaceType/EnqueuedAsset.php', 'WPGraphQL\\Type\\InterfaceType\\HierarchicalContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/HierarchicalContentNode.php', 'WPGraphQL\\Type\\InterfaceType\\HierarchicalTermNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/HierarchicalTermNode.php', 'WPGraphQL\\Type\\InterfaceType\\MenuItemLinkable' => __DIR__ . '/../..' . '/src/Type/InterfaceType/MenuItemLinkable.php', 'WPGraphQL\\Type\\InterfaceType\\Node' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Node.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithAuthor' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithAuthor.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithComments' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithComments.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithContentEditor' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithContentEditor.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithExcerpt' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithExcerpt.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithFeaturedImage' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithFeaturedImage.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithPageAttributes' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithPageAttributes.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithRevisions' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithRevisions.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithTemplate' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTemplate.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithTitle' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTitle.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithTrackbacks' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTrackbacks.php', 'WPGraphQL\\Type\\InterfaceType\\TermNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/TermNode.php', 'WPGraphQL\\Type\\InterfaceType\\UniformResourceIdentifiable' => __DIR__ . '/../..' . '/src/Type/InterfaceType/UniformResourceIdentifiable.php', 'WPGraphQL\\Type\\ObjectType\\Avatar' => __DIR__ . '/../..' . '/src/Type/ObjectType/Avatar.php', 'WPGraphQL\\Type\\ObjectType\\Comment' => __DIR__ . '/../..' . '/src/Type/ObjectType/Comment.php', 'WPGraphQL\\Type\\ObjectType\\CommentAuthor' => __DIR__ . '/../..' . '/src/Type/ObjectType/CommentAuthor.php', 'WPGraphQL\\Type\\ObjectType\\ContentType' => __DIR__ . '/../..' . '/src/Type/ObjectType/ContentType.php', 'WPGraphQL\\Type\\ObjectType\\EnqueuedScript' => __DIR__ . '/../..' . '/src/Type/ObjectType/EnqueuedScript.php', 'WPGraphQL\\Type\\ObjectType\\EnqueuedStylesheet' => __DIR__ . '/../..' . '/src/Type/ObjectType/EnqueuedStylesheet.php', 'WPGraphQL\\Type\\ObjectType\\MediaDetails' => __DIR__ . '/../..' . '/src/Type/ObjectType/MediaDetails.php', 'WPGraphQL\\Type\\ObjectType\\MediaItemMeta' => __DIR__ . '/../..' . '/src/Type/ObjectType/MediaItemMeta.php', 'WPGraphQL\\Type\\ObjectType\\MediaSize' => __DIR__ . '/../..' . '/src/Type/ObjectType/MediaSize.php', 'WPGraphQL\\Type\\ObjectType\\Menu' => __DIR__ . '/../..' . '/src/Type/ObjectType/Menu.php', 'WPGraphQL\\Type\\ObjectType\\MenuItem' => __DIR__ . '/../..' . '/src/Type/ObjectType/MenuItem.php', 'WPGraphQL\\Type\\ObjectType\\PageInfo' => __DIR__ . '/../..' . '/src/Type/ObjectType/PageInfo.php', 'WPGraphQL\\Type\\ObjectType\\Plugin' => __DIR__ . '/../..' . '/src/Type/ObjectType/Plugin.php', 'WPGraphQL\\Type\\ObjectType\\PostObject' => __DIR__ . '/../..' . '/src/Type/ObjectType/PostObject.php', 'WPGraphQL\\Type\\ObjectType\\PostTypeLabelDetails' => __DIR__ . '/../..' . '/src/Type/ObjectType/PostTypeLabelDetails.php', 'WPGraphQL\\Type\\ObjectType\\RootMutation' => __DIR__ . '/../..' . '/src/Type/ObjectType/RootMutation.php', 'WPGraphQL\\Type\\ObjectType\\RootQuery' => __DIR__ . '/../..' . '/src/Type/ObjectType/RootQuery.php', 'WPGraphQL\\Type\\ObjectType\\SettingGroup' => __DIR__ . '/../..' . '/src/Type/ObjectType/SettingGroup.php', 'WPGraphQL\\Type\\ObjectType\\Settings' => __DIR__ . '/../..' . '/src/Type/ObjectType/Settings.php', 'WPGraphQL\\Type\\ObjectType\\Taxonomy' => __DIR__ . '/../..' . '/src/Type/ObjectType/Taxonomy.php', 'WPGraphQL\\Type\\ObjectType\\TermObject' => __DIR__ . '/../..' . '/src/Type/ObjectType/TermObject.php', 'WPGraphQL\\Type\\ObjectType\\Theme' => __DIR__ . '/../..' . '/src/Type/ObjectType/Theme.php', 'WPGraphQL\\Type\\ObjectType\\User' => __DIR__ . '/../..' . '/src/Type/ObjectType/User.php', 'WPGraphQL\\Type\\ObjectType\\UserRole' => __DIR__ . '/../..' . '/src/Type/ObjectType/UserRole.php', 'WPGraphQL\\Type\\Union\\ContentRevisionUnion' => __DIR__ . '/../..' . '/src/Type/Union/ContentRevisionUnion.php', 'WPGraphQL\\Type\\Union\\MenuItemObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/MenuItemObjectUnion.php', 'WPGraphQL\\Type\\Union\\PostObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/PostObjectUnion.php', 'WPGraphQL\\Type\\Union\\TermObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/TermObjectUnion.php', 'WPGraphQL\\Type\\WPEnumType' => __DIR__ . '/../..' . '/src/Type/WPEnumType.php', 'WPGraphQL\\Type\\WPInputObjectType' => __DIR__ . '/../..' . '/src/Type/WPInputObjectType.php', 'WPGraphQL\\Type\\WPInterfaceType' => __DIR__ . '/../..' . '/src/Type/WPInterfaceType.php', 'WPGraphQL\\Type\\WPObjectType' => __DIR__ . '/../..' . '/src/Type/WPObjectType.php', 'WPGraphQL\\Type\\WPScalar' => __DIR__ . '/../..' . '/src/Type/WPScalar.php', 'WPGraphQL\\Type\\WPUnionType' => __DIR__ . '/../..' . '/src/Type/WPUnionType.php', 'WPGraphQL\\Types' => __DIR__ . '/../..' . '/src/Types.php', 'WPGraphQL\\Utils\\DebugLog' => __DIR__ . '/../..' . '/src/Utils/DebugLog.php', 'WPGraphQL\\Utils\\InstrumentSchema' => __DIR__ . '/../..' . '/src/Utils/InstrumentSchema.php', 'WPGraphQL\\Utils\\Preview' => __DIR__ . '/../..' . '/src/Utils/Preview.php', 'WPGraphQL\\Utils\\QueryLog' => __DIR__ . '/../..' . '/src/Utils/QueryLog.php', 'WPGraphQL\\Utils\\Tracing' => __DIR__ . '/../..' . '/src/Utils/Tracing.php', 'WPGraphQL\\Utils\\Utils' => __DIR__ . '/../..' . '/src/Utils/Utils.php', 'WPGraphQL\\WPSchema' => __DIR__ . '/../..' . '/src/WPSchema.php');
+        public static $classMap = array('Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php', 'GraphQLRelay\\Connection\\ArrayConnection' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Connection/ArrayConnection.php', 'GraphQLRelay\\Connection\\Connection' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Connection/Connection.php', 'GraphQLRelay\\Mutation\\Mutation' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Mutation/Mutation.php', 'GraphQLRelay\\Node\\Node' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Node/Node.php', 'GraphQLRelay\\Node\\Plural' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Node/Plural.php', 'GraphQLRelay\\Relay' => __DIR__ . '/..' . '/ivome/graphql-relay-php/src/Relay.php', 'GraphQL\\Deferred' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Deferred.php', 'GraphQL\\Error\\ClientAware' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/ClientAware.php', 'GraphQL\\Error\\DebugFlag' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/DebugFlag.php', 'GraphQL\\Error\\Error' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/Error.php', 'GraphQL\\Error\\FormattedError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/FormattedError.php', 'GraphQL\\Error\\InvariantViolation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/InvariantViolation.php', 'GraphQL\\Error\\SyntaxError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/SyntaxError.php', 'GraphQL\\Error\\UserError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/UserError.php', 'GraphQL\\Error\\Warning' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Error/Warning.php', 'GraphQL\\Exception\\InvalidArgument' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Exception/InvalidArgument.php', 'GraphQL\\Executor\\ExecutionContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutionContext.php', 'GraphQL\\Executor\\ExecutionResult' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutionResult.php', 'GraphQL\\Executor\\Executor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Executor.php', 'GraphQL\\Executor\\ExecutorImplementation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ExecutorImplementation.php', 'GraphQL\\Executor\\Promise\\Adapter\\AmpPromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/AmpPromiseAdapter.php', 'GraphQL\\Executor\\Promise\\Adapter\\ReactPromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/ReactPromiseAdapter.php', 'GraphQL\\Executor\\Promise\\Adapter\\SyncPromise' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/SyncPromise.php', 'GraphQL\\Executor\\Promise\\Adapter\\SyncPromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Adapter/SyncPromiseAdapter.php', 'GraphQL\\Executor\\Promise\\Promise' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/Promise.php', 'GraphQL\\Executor\\Promise\\PromiseAdapter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Promise/PromiseAdapter.php', 'GraphQL\\Executor\\ReferenceExecutor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/ReferenceExecutor.php', 'GraphQL\\Executor\\Values' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Executor/Values.php', 'GraphQL\\Experimental\\Executor\\Collector' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/Collector.php', 'GraphQL\\Experimental\\Executor\\CoroutineContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/CoroutineContext.php', 'GraphQL\\Experimental\\Executor\\CoroutineContextShared' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/CoroutineContextShared.php', 'GraphQL\\Experimental\\Executor\\CoroutineExecutor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/CoroutineExecutor.php', 'GraphQL\\Experimental\\Executor\\Runtime' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/Runtime.php', 'GraphQL\\Experimental\\Executor\\Strand' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Experimental/Executor/Strand.php', 'GraphQL\\GraphQL' => __DIR__ . '/..' . '/webonyx/graphql-php/src/GraphQL.php', 'GraphQL\\Language\\AST\\ArgumentNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ArgumentNode.php', 'GraphQL\\Language\\AST\\BooleanValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/BooleanValueNode.php', 'GraphQL\\Language\\AST\\DefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DefinitionNode.php', 'GraphQL\\Language\\AST\\DirectiveDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DirectiveDefinitionNode.php', 'GraphQL\\Language\\AST\\DirectiveNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DirectiveNode.php', 'GraphQL\\Language\\AST\\DocumentNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/DocumentNode.php', 'GraphQL\\Language\\AST\\EnumTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\EnumTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumTypeExtensionNode.php', 'GraphQL\\Language\\AST\\EnumValueDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumValueDefinitionNode.php', 'GraphQL\\Language\\AST\\EnumValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/EnumValueNode.php', 'GraphQL\\Language\\AST\\ExecutableDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ExecutableDefinitionNode.php', 'GraphQL\\Language\\AST\\FieldDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FieldDefinitionNode.php', 'GraphQL\\Language\\AST\\FieldNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FieldNode.php', 'GraphQL\\Language\\AST\\FloatValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FloatValueNode.php', 'GraphQL\\Language\\AST\\FragmentDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FragmentDefinitionNode.php', 'GraphQL\\Language\\AST\\FragmentSpreadNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/FragmentSpreadNode.php', 'GraphQL\\Language\\AST\\HasSelectionSet' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/HasSelectionSet.php', 'GraphQL\\Language\\AST\\InlineFragmentNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InlineFragmentNode.php', 'GraphQL\\Language\\AST\\InputObjectTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InputObjectTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\InputObjectTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InputObjectTypeExtensionNode.php', 'GraphQL\\Language\\AST\\InputValueDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InputValueDefinitionNode.php', 'GraphQL\\Language\\AST\\IntValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/IntValueNode.php', 'GraphQL\\Language\\AST\\InterfaceTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InterfaceTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\InterfaceTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/InterfaceTypeExtensionNode.php', 'GraphQL\\Language\\AST\\ListTypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ListTypeNode.php', 'GraphQL\\Language\\AST\\ListValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ListValueNode.php', 'GraphQL\\Language\\AST\\Location' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/Location.php', 'GraphQL\\Language\\AST\\NameNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NameNode.php', 'GraphQL\\Language\\AST\\NamedTypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NamedTypeNode.php', 'GraphQL\\Language\\AST\\Node' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/Node.php', 'GraphQL\\Language\\AST\\NodeKind' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NodeKind.php', 'GraphQL\\Language\\AST\\NodeList' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NodeList.php', 'GraphQL\\Language\\AST\\NonNullTypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NonNullTypeNode.php', 'GraphQL\\Language\\AST\\NullValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/NullValueNode.php', 'GraphQL\\Language\\AST\\ObjectFieldNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectFieldNode.php', 'GraphQL\\Language\\AST\\ObjectTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\ObjectTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectTypeExtensionNode.php', 'GraphQL\\Language\\AST\\ObjectValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ObjectValueNode.php', 'GraphQL\\Language\\AST\\OperationDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/OperationDefinitionNode.php', 'GraphQL\\Language\\AST\\OperationTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/OperationTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\ScalarTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ScalarTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\ScalarTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ScalarTypeExtensionNode.php', 'GraphQL\\Language\\AST\\SchemaDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SchemaDefinitionNode.php', 'GraphQL\\Language\\AST\\SchemaTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SchemaTypeExtensionNode.php', 'GraphQL\\Language\\AST\\SelectionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SelectionNode.php', 'GraphQL\\Language\\AST\\SelectionSetNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/SelectionSetNode.php', 'GraphQL\\Language\\AST\\StringValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/StringValueNode.php', 'GraphQL\\Language\\AST\\TypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeDefinitionNode.php', 'GraphQL\\Language\\AST\\TypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeExtensionNode.php', 'GraphQL\\Language\\AST\\TypeNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeNode.php', 'GraphQL\\Language\\AST\\TypeSystemDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/TypeSystemDefinitionNode.php', 'GraphQL\\Language\\AST\\UnionTypeDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/UnionTypeDefinitionNode.php', 'GraphQL\\Language\\AST\\UnionTypeExtensionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/UnionTypeExtensionNode.php', 'GraphQL\\Language\\AST\\ValueNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/ValueNode.php', 'GraphQL\\Language\\AST\\VariableDefinitionNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/VariableDefinitionNode.php', 'GraphQL\\Language\\AST\\VariableNode' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/AST/VariableNode.php', 'GraphQL\\Language\\DirectiveLocation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/DirectiveLocation.php', 'GraphQL\\Language\\Lexer' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Lexer.php', 'GraphQL\\Language\\Parser' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Parser.php', 'GraphQL\\Language\\Printer' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Printer.php', 'GraphQL\\Language\\Source' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Source.php', 'GraphQL\\Language\\SourceLocation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/SourceLocation.php', 'GraphQL\\Language\\Token' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Token.php', 'GraphQL\\Language\\Visitor' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/Visitor.php', 'GraphQL\\Language\\VisitorOperation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Language/VisitorOperation.php', 'GraphQL\\Server\\Helper' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/Helper.php', 'GraphQL\\Server\\OperationParams' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/OperationParams.php', 'GraphQL\\Server\\RequestError' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/RequestError.php', 'GraphQL\\Server\\ServerConfig' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/ServerConfig.php', 'GraphQL\\Server\\StandardServer' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Server/StandardServer.php', 'GraphQL\\Type\\Definition\\AbstractType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/AbstractType.php', 'GraphQL\\Type\\Definition\\BooleanType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/BooleanType.php', 'GraphQL\\Type\\Definition\\CompositeType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/CompositeType.php', 'GraphQL\\Type\\Definition\\CustomScalarType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/CustomScalarType.php', 'GraphQL\\Type\\Definition\\Directive' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/Directive.php', 'GraphQL\\Type\\Definition\\EnumType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/EnumType.php', 'GraphQL\\Type\\Definition\\EnumValueDefinition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/EnumValueDefinition.php', 'GraphQL\\Type\\Definition\\FieldArgument' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/FieldArgument.php', 'GraphQL\\Type\\Definition\\FieldDefinition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/FieldDefinition.php', 'GraphQL\\Type\\Definition\\FloatType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/FloatType.php', 'GraphQL\\Type\\Definition\\HasFieldsType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/HasFieldsType.php', 'GraphQL\\Type\\Definition\\IDType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/IDType.php', 'GraphQL\\Type\\Definition\\ImplementingType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ImplementingType.php', 'GraphQL\\Type\\Definition\\InputObjectField' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InputObjectField.php', 'GraphQL\\Type\\Definition\\InputObjectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InputObjectType.php', 'GraphQL\\Type\\Definition\\InputType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InputType.php', 'GraphQL\\Type\\Definition\\IntType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/IntType.php', 'GraphQL\\Type\\Definition\\InterfaceType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/InterfaceType.php', 'GraphQL\\Type\\Definition\\LeafType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/LeafType.php', 'GraphQL\\Type\\Definition\\ListOfType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ListOfType.php', 'GraphQL\\Type\\Definition\\NamedType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/NamedType.php', 'GraphQL\\Type\\Definition\\NonNull' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/NonNull.php', 'GraphQL\\Type\\Definition\\NullableType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/NullableType.php', 'GraphQL\\Type\\Definition\\ObjectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ObjectType.php', 'GraphQL\\Type\\Definition\\OutputType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/OutputType.php', 'GraphQL\\Type\\Definition\\QueryPlan' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/QueryPlan.php', 'GraphQL\\Type\\Definition\\ResolveInfo' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ResolveInfo.php', 'GraphQL\\Type\\Definition\\ScalarType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/ScalarType.php', 'GraphQL\\Type\\Definition\\StringType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/StringType.php', 'GraphQL\\Type\\Definition\\Type' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/Type.php', 'GraphQL\\Type\\Definition\\TypeWithFields' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/TypeWithFields.php', 'GraphQL\\Type\\Definition\\UnionType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/UnionType.php', 'GraphQL\\Type\\Definition\\UnmodifiedType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/UnmodifiedType.php', 'GraphQL\\Type\\Definition\\UnresolvedFieldDefinition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/UnresolvedFieldDefinition.php', 'GraphQL\\Type\\Definition\\WrappingType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Definition/WrappingType.php', 'GraphQL\\Type\\Introspection' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Introspection.php', 'GraphQL\\Type\\Schema' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Schema.php', 'GraphQL\\Type\\SchemaConfig' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/SchemaConfig.php', 'GraphQL\\Type\\SchemaValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/SchemaValidationContext.php', 'GraphQL\\Type\\TypeKind' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/TypeKind.php', 'GraphQL\\Type\\Validation\\InputObjectCircularRefs' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Type/Validation/InputObjectCircularRefs.php', 'GraphQL\\Utils\\AST' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/AST.php', 'GraphQL\\Utils\\ASTDefinitionBuilder' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/ASTDefinitionBuilder.php', 'GraphQL\\Utils\\BlockString' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BlockString.php', 'GraphQL\\Utils\\BreakingChangesFinder' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BreakingChangesFinder.php', 'GraphQL\\Utils\\BuildClientSchema' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BuildClientSchema.php', 'GraphQL\\Utils\\BuildSchema' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/BuildSchema.php', 'GraphQL\\Utils\\InterfaceImplementations' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/InterfaceImplementations.php', 'GraphQL\\Utils\\MixedStore' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/MixedStore.php', 'GraphQL\\Utils\\PairSet' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/PairSet.php', 'GraphQL\\Utils\\SchemaExtender' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/SchemaExtender.php', 'GraphQL\\Utils\\SchemaPrinter' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/SchemaPrinter.php', 'GraphQL\\Utils\\TypeComparators' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/TypeComparators.php', 'GraphQL\\Utils\\TypeInfo' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/TypeInfo.php', 'GraphQL\\Utils\\Utils' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/Utils.php', 'GraphQL\\Utils\\Value' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Utils/Value.php', 'GraphQL\\Validator\\ASTValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/ASTValidationContext.php', 'GraphQL\\Validator\\DocumentValidator' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/DocumentValidator.php', 'GraphQL\\Validator\\Rules\\CustomValidationRule' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/CustomValidationRule.php', 'GraphQL\\Validator\\Rules\\DisableIntrospection' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/DisableIntrospection.php', 'GraphQL\\Validator\\Rules\\ExecutableDefinitions' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ExecutableDefinitions.php', 'GraphQL\\Validator\\Rules\\FieldsOnCorrectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/FieldsOnCorrectType.php', 'GraphQL\\Validator\\Rules\\FragmentsOnCompositeTypes' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/FragmentsOnCompositeTypes.php', 'GraphQL\\Validator\\Rules\\KnownArgumentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownArgumentNames.php', 'GraphQL\\Validator\\Rules\\KnownArgumentNamesOnDirectives' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownArgumentNamesOnDirectives.php', 'GraphQL\\Validator\\Rules\\KnownDirectives' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownDirectives.php', 'GraphQL\\Validator\\Rules\\KnownFragmentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownFragmentNames.php', 'GraphQL\\Validator\\Rules\\KnownTypeNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/KnownTypeNames.php', 'GraphQL\\Validator\\Rules\\LoneAnonymousOperation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/LoneAnonymousOperation.php', 'GraphQL\\Validator\\Rules\\LoneSchemaDefinition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/LoneSchemaDefinition.php', 'GraphQL\\Validator\\Rules\\NoFragmentCycles' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoFragmentCycles.php', 'GraphQL\\Validator\\Rules\\NoUndefinedVariables' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoUndefinedVariables.php', 'GraphQL\\Validator\\Rules\\NoUnusedFragments' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoUnusedFragments.php', 'GraphQL\\Validator\\Rules\\NoUnusedVariables' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/NoUnusedVariables.php', 'GraphQL\\Validator\\Rules\\OverlappingFieldsCanBeMerged' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/OverlappingFieldsCanBeMerged.php', 'GraphQL\\Validator\\Rules\\PossibleFragmentSpreads' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/PossibleFragmentSpreads.php', 'GraphQL\\Validator\\Rules\\ProvidedRequiredArguments' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ProvidedRequiredArguments.php', 'GraphQL\\Validator\\Rules\\ProvidedRequiredArgumentsOnDirectives' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php', 'GraphQL\\Validator\\Rules\\QueryComplexity' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/QueryComplexity.php', 'GraphQL\\Validator\\Rules\\QueryDepth' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/QueryDepth.php', 'GraphQL\\Validator\\Rules\\QuerySecurityRule' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/QuerySecurityRule.php', 'GraphQL\\Validator\\Rules\\ScalarLeafs' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ScalarLeafs.php', 'GraphQL\\Validator\\Rules\\SingleFieldSubscription' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/SingleFieldSubscription.php', 'GraphQL\\Validator\\Rules\\UniqueArgumentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueArgumentNames.php', 'GraphQL\\Validator\\Rules\\UniqueDirectivesPerLocation' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueDirectivesPerLocation.php', 'GraphQL\\Validator\\Rules\\UniqueFragmentNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueFragmentNames.php', 'GraphQL\\Validator\\Rules\\UniqueInputFieldNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueInputFieldNames.php', 'GraphQL\\Validator\\Rules\\UniqueOperationNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueOperationNames.php', 'GraphQL\\Validator\\Rules\\UniqueVariableNames' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/UniqueVariableNames.php', 'GraphQL\\Validator\\Rules\\ValidationRule' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ValidationRule.php', 'GraphQL\\Validator\\Rules\\ValuesOfCorrectType' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/ValuesOfCorrectType.php', 'GraphQL\\Validator\\Rules\\VariablesAreInputTypes' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/VariablesAreInputTypes.php', 'GraphQL\\Validator\\Rules\\VariablesInAllowedPosition' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/Rules/VariablesInAllowedPosition.php', 'GraphQL\\Validator\\SDLValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/SDLValidationContext.php', 'GraphQL\\Validator\\ValidationContext' => __DIR__ . '/..' . '/webonyx/graphql-php/src/Validator/ValidationContext.php', 'WPGraphQL\\Admin\\Admin' => __DIR__ . '/../..' . '/src/Admin/Admin.php', 'WPGraphQL\\Admin\\GraphiQL\\GraphiQL' => __DIR__ . '/../..' . '/src/Admin/GraphiQL/GraphiQL.php', 'WPGraphQL\\Admin\\Settings\\Settings' => __DIR__ . '/../..' . '/src/Admin/Settings/Settings.php', 'WPGraphQL\\Admin\\Settings\\SettingsRegistry' => __DIR__ . '/../..' . '/src/Admin/Settings/SettingsRegistry.php', 'WPGraphQL\\AppContext' => __DIR__ . '/../..' . '/src/AppContext.php', 'WPGraphQL\\Connection\\Commenter' => __DIR__ . '/../..' . '/src/Connection/Commenter.php', 'WPGraphQL\\Connection\\Comments' => __DIR__ . '/../..' . '/src/Connection/Comments.php', 'WPGraphQL\\Connection\\ContentTypes' => __DIR__ . '/../..' . '/src/Connection/ContentTypes.php', 'WPGraphQL\\Connection\\EnqueuedScripts' => __DIR__ . '/../..' . '/src/Connection/EnqueuedScripts.php', 'WPGraphQL\\Connection\\EnqueuedStylesheets' => __DIR__ . '/../..' . '/src/Connection/EnqueuedStylesheets.php', 'WPGraphQL\\Connection\\MediaItems' => __DIR__ . '/../..' . '/src/Connection/MediaItems.php', 'WPGraphQL\\Connection\\MenuItemLinkableConnection' => __DIR__ . '/../..' . '/src/Connection/MenuItemLinkableConnection.php', 'WPGraphQL\\Connection\\MenuItems' => __DIR__ . '/../..' . '/src/Connection/MenuItems.php', 'WPGraphQL\\Connection\\Menus' => __DIR__ . '/../..' . '/src/Connection/Menus.php', 'WPGraphQL\\Connection\\Plugins' => __DIR__ . '/../..' . '/src/Connection/Plugins.php', 'WPGraphQL\\Connection\\PostObjects' => __DIR__ . '/../..' . '/src/Connection/PostObjects.php', 'WPGraphQL\\Connection\\Revisions' => __DIR__ . '/../..' . '/src/Connection/Revisions.php', 'WPGraphQL\\Connection\\Taxonomies' => __DIR__ . '/../..' . '/src/Connection/Taxonomies.php', 'WPGraphQL\\Connection\\TermObjects' => __DIR__ . '/../..' . '/src/Connection/TermObjects.php', 'WPGraphQL\\Connection\\Themes' => __DIR__ . '/../..' . '/src/Connection/Themes.php', 'WPGraphQL\\Connection\\UserRoles' => __DIR__ . '/../..' . '/src/Connection/UserRoles.php', 'WPGraphQL\\Connection\\Users' => __DIR__ . '/../..' . '/src/Connection/Users.php', 'WPGraphQL\\Data\\CommentMutation' => __DIR__ . '/../..' . '/src/Data/CommentMutation.php', 'WPGraphQL\\Data\\Config' => __DIR__ . '/../..' . '/src/Data/Config.php', 'WPGraphQL\\Data\\Connection\\AbstractConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/AbstractConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\CommentConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/CommentConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\ContentTypeConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/ContentTypeConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\EnqueuedScriptsConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/EnqueuedScriptsConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\EnqueuedStylesheetConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/EnqueuedStylesheetConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\MenuConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/MenuConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\MenuItemConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/MenuItemConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\PluginConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/PluginConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\PostObjectConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/PostObjectConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\TaxonomyConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/TaxonomyConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\TermObjectConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/TermObjectConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\ThemeConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/ThemeConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\UserConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/UserConnectionResolver.php', 'WPGraphQL\\Data\\Connection\\UserRoleConnectionResolver' => __DIR__ . '/../..' . '/src/Data/Connection/UserRoleConnectionResolver.php', 'WPGraphQL\\Data\\Cursor\\CursorBuilder' => __DIR__ . '/../..' . '/src/Data/Cursor/CursorBuilder.php', 'WPGraphQL\\Data\\Cursor\\PostObjectCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/PostObjectCursor.php', 'WPGraphQL\\Data\\Cursor\\TermObjectCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/TermObjectCursor.php', 'WPGraphQL\\Data\\Cursor\\UserCursor' => __DIR__ . '/../..' . '/src/Data/Cursor/UserCursor.php', 'WPGraphQL\\Data\\DataSource' => __DIR__ . '/../..' . '/src/Data/DataSource.php', 'WPGraphQL\\Data\\Loader\\AbstractDataLoader' => __DIR__ . '/../..' . '/src/Data/Loader/AbstractDataLoader.php', 'WPGraphQL\\Data\\Loader\\CommentAuthorLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentAuthorLoader.php', 'WPGraphQL\\Data\\Loader\\CommentLoader' => __DIR__ . '/../..' . '/src/Data/Loader/CommentLoader.php', 'WPGraphQL\\Data\\Loader\\EnqueuedScriptLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedScriptLoader.php', 'WPGraphQL\\Data\\Loader\\EnqueuedStylesheetLoader' => __DIR__ . '/../..' . '/src/Data/Loader/EnqueuedStylesheetLoader.php', 'WPGraphQL\\Data\\Loader\\PluginLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PluginLoader.php', 'WPGraphQL\\Data\\Loader\\PostObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostObjectLoader.php', 'WPGraphQL\\Data\\Loader\\PostTypeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/PostTypeLoader.php', 'WPGraphQL\\Data\\Loader\\TaxonomyLoader' => __DIR__ . '/../..' . '/src/Data/Loader/TaxonomyLoader.php', 'WPGraphQL\\Data\\Loader\\TermObjectLoader' => __DIR__ . '/../..' . '/src/Data/Loader/TermObjectLoader.php', 'WPGraphQL\\Data\\Loader\\ThemeLoader' => __DIR__ . '/../..' . '/src/Data/Loader/ThemeLoader.php', 'WPGraphQL\\Data\\Loader\\UserLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserLoader.php', 'WPGraphQL\\Data\\Loader\\UserRoleLoader' => __DIR__ . '/../..' . '/src/Data/Loader/UserRoleLoader.php', 'WPGraphQL\\Data\\MediaItemMutation' => __DIR__ . '/../..' . '/src/Data/MediaItemMutation.php', 'WPGraphQL\\Data\\NodeResolver' => __DIR__ . '/../..' . '/src/Data/NodeResolver.php', 'WPGraphQL\\Data\\PostObjectMutation' => __DIR__ . '/../..' . '/src/Data/PostObjectMutation.php', 'WPGraphQL\\Data\\TermObjectMutation' => __DIR__ . '/../..' . '/src/Data/TermObjectMutation.php', 'WPGraphQL\\Data\\UserMutation' => __DIR__ . '/../..' . '/src/Data/UserMutation.php', 'WPGraphQL\\Model\\Avatar' => __DIR__ . '/../..' . '/src/Model/Avatar.php', 'WPGraphQL\\Model\\Comment' => __DIR__ . '/../..' . '/src/Model/Comment.php', 'WPGraphQL\\Model\\CommentAuthor' => __DIR__ . '/../..' . '/src/Model/CommentAuthor.php', 'WPGraphQL\\Model\\Menu' => __DIR__ . '/../..' . '/src/Model/Menu.php', 'WPGraphQL\\Model\\MenuItem' => __DIR__ . '/../..' . '/src/Model/MenuItem.php', 'WPGraphQL\\Model\\Model' => __DIR__ . '/../..' . '/src/Model/Model.php', 'WPGraphQL\\Model\\Plugin' => __DIR__ . '/../..' . '/src/Model/Plugin.php', 'WPGraphQL\\Model\\Post' => __DIR__ . '/../..' . '/src/Model/Post.php', 'WPGraphQL\\Model\\PostType' => __DIR__ . '/../..' . '/src/Model/PostType.php', 'WPGraphQL\\Model\\Taxonomy' => __DIR__ . '/../..' . '/src/Model/Taxonomy.php', 'WPGraphQL\\Model\\Term' => __DIR__ . '/../..' . '/src/Model/Term.php', 'WPGraphQL\\Model\\Theme' => __DIR__ . '/../..' . '/src/Model/Theme.php', 'WPGraphQL\\Model\\User' => __DIR__ . '/../..' . '/src/Model/User.php', 'WPGraphQL\\Model\\UserRole' => __DIR__ . '/../..' . '/src/Model/UserRole.php', 'WPGraphQL\\Mutation\\CommentCreate' => __DIR__ . '/../..' . '/src/Mutation/CommentCreate.php', 'WPGraphQL\\Mutation\\CommentDelete' => __DIR__ . '/../..' . '/src/Mutation/CommentDelete.php', 'WPGraphQL\\Mutation\\CommentRestore' => __DIR__ . '/../..' . '/src/Mutation/CommentRestore.php', 'WPGraphQL\\Mutation\\CommentUpdate' => __DIR__ . '/../..' . '/src/Mutation/CommentUpdate.php', 'WPGraphQL\\Mutation\\MediaItemCreate' => __DIR__ . '/../..' . '/src/Mutation/MediaItemCreate.php', 'WPGraphQL\\Mutation\\MediaItemDelete' => __DIR__ . '/../..' . '/src/Mutation/MediaItemDelete.php', 'WPGraphQL\\Mutation\\MediaItemUpdate' => __DIR__ . '/../..' . '/src/Mutation/MediaItemUpdate.php', 'WPGraphQL\\Mutation\\PostObjectCreate' => __DIR__ . '/../..' . '/src/Mutation/PostObjectCreate.php', 'WPGraphQL\\Mutation\\PostObjectDelete' => __DIR__ . '/../..' . '/src/Mutation/PostObjectDelete.php', 'WPGraphQL\\Mutation\\PostObjectUpdate' => __DIR__ . '/../..' . '/src/Mutation/PostObjectUpdate.php', 'WPGraphQL\\Mutation\\ResetUserPassword' => __DIR__ . '/../..' . '/src/Mutation/ResetUserPassword.php', 'WPGraphQL\\Mutation\\SendPasswordResetEmail' => __DIR__ . '/../..' . '/src/Mutation/SendPasswordResetEmail.php', 'WPGraphQL\\Mutation\\TermObjectCreate' => __DIR__ . '/../..' . '/src/Mutation/TermObjectCreate.php', 'WPGraphQL\\Mutation\\TermObjectDelete' => __DIR__ . '/../..' . '/src/Mutation/TermObjectDelete.php', 'WPGraphQL\\Mutation\\TermObjectUpdate' => __DIR__ . '/../..' . '/src/Mutation/TermObjectUpdate.php', 'WPGraphQL\\Mutation\\UpdateSettings' => __DIR__ . '/../..' . '/src/Mutation/UpdateSettings.php', 'WPGraphQL\\Mutation\\UserCreate' => __DIR__ . '/../..' . '/src/Mutation/UserCreate.php', 'WPGraphQL\\Mutation\\UserDelete' => __DIR__ . '/../..' . '/src/Mutation/UserDelete.php', 'WPGraphQL\\Mutation\\UserRegister' => __DIR__ . '/../..' . '/src/Mutation/UserRegister.php', 'WPGraphQL\\Mutation\\UserUpdate' => __DIR__ . '/../..' . '/src/Mutation/UserUpdate.php', 'WPGraphQL\\Registry\\SchemaRegistry' => __DIR__ . '/../..' . '/src/Registry/SchemaRegistry.php', 'WPGraphQL\\Registry\\TypeRegistry' => __DIR__ . '/../..' . '/src/Registry/TypeRegistry.php', 'WPGraphQL\\Request' => __DIR__ . '/../..' . '/src/Request.php', 'WPGraphQL\\Router' => __DIR__ . '/../..' . '/src/Router.php', 'WPGraphQL\\Server\\ValidationRules\\DisableIntrospection' => __DIR__ . '/../..' . '/src/Server/ValidationRules/DisableIntrospection.php', 'WPGraphQL\\Server\\ValidationRules\\QueryDepth' => __DIR__ . '/../..' . '/src/Server/ValidationRules/QueryDepth.php', 'WPGraphQL\\Server\\ValidationRules\\RequireAuthentication' => __DIR__ . '/../..' . '/src/Server/ValidationRules/RequireAuthentication.php', 'WPGraphQL\\Server\\WPHelper' => __DIR__ . '/../..' . '/src/Server/WPHelper.php', 'WPGraphQL\\Type\\Enum\\AvatarRatingEnum' => __DIR__ . '/../..' . '/src/Type/Enum/AvatarRatingEnum.php', 'WPGraphQL\\Type\\Enum\\CommentsConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/CommentsConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\ContentNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/ContentNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\ContentTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/ContentTypeEnum.php', 'WPGraphQL\\Type\\Enum\\ContentTypeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/ContentTypeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\MediaItemSizeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemSizeEnum.php', 'WPGraphQL\\Type\\Enum\\MediaItemStatusEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MediaItemStatusEnum.php', 'WPGraphQL\\Type\\Enum\\MenuItemNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MenuItemNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\MenuLocationEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MenuLocationEnum.php', 'WPGraphQL\\Type\\Enum\\MenuNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MenuNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\MimeTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/MimeTypeEnum.php', 'WPGraphQL\\Type\\Enum\\OrderEnum' => __DIR__ . '/../..' . '/src/Type/Enum/OrderEnum.php', 'WPGraphQL\\Type\\Enum\\PostObjectFieldFormatEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectFieldFormatEnum.php', 'WPGraphQL\\Type\\Enum\\PostObjectsConnectionDateColumnEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectsConnectionDateColumnEnum.php', 'WPGraphQL\\Type\\Enum\\PostObjectsConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostObjectsConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\PostStatusEnum' => __DIR__ . '/../..' . '/src/Type/Enum/PostStatusEnum.php', 'WPGraphQL\\Type\\Enum\\RelationEnum' => __DIR__ . '/../..' . '/src/Type/Enum/RelationEnum.php', 'WPGraphQL\\Type\\Enum\\TaxonomyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TaxonomyEnum.php', 'WPGraphQL\\Type\\Enum\\TaxonomyIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TaxonomyIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\TermNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TermNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\TermObjectsConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TermObjectsConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\TimezoneEnum' => __DIR__ . '/../..' . '/src/Type/Enum/TimezoneEnum.php', 'WPGraphQL\\Type\\Enum\\UserNodeIdTypeEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UserNodeIdTypeEnum.php', 'WPGraphQL\\Type\\Enum\\UserRoleEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UserRoleEnum.php', 'WPGraphQL\\Type\\Enum\\UsersConnectionOrderbyEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UsersConnectionOrderbyEnum.php', 'WPGraphQL\\Type\\Enum\\UsersConnectionSearchColumnEnum' => __DIR__ . '/../..' . '/src/Type/Enum/UsersConnectionSearchColumnEnum.php', 'WPGraphQL\\Type\\Input\\DateInput' => __DIR__ . '/../..' . '/src/Type/Input/DateInput.php', 'WPGraphQL\\Type\\Input\\DateQueryInput' => __DIR__ . '/../..' . '/src/Type/Input/DateQueryInput.php', 'WPGraphQL\\Type\\Input\\MenuItemsConnectionWhereArgs' => __DIR__ . '/../..' . '/src/Type/Input/MenuItemsConnectionWhereArgs.php', 'WPGraphQL\\Type\\Input\\PostObjectsConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/PostObjectsConnectionOrderbyInput.php', 'WPGraphQL\\Type\\Input\\UsersConnectionOrderbyInput' => __DIR__ . '/../..' . '/src/Type/Input/UsersConnectionOrderbyInput.php', 'WPGraphQL\\Type\\InterfaceType\\CommenterInterface' => __DIR__ . '/../..' . '/src/Type/InterfaceType/CommenterInterface.php', 'WPGraphQL\\Type\\InterfaceType\\ContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentNode.php', 'WPGraphQL\\Type\\InterfaceType\\ContentTemplate' => __DIR__ . '/../..' . '/src/Type/InterfaceType/ContentTemplate.php', 'WPGraphQL\\Type\\InterfaceType\\DatabaseIdentifier' => __DIR__ . '/../..' . '/src/Type/InterfaceType/DatabaseIdentifier.php', 'WPGraphQL\\Type\\InterfaceType\\EnqueuedAsset' => __DIR__ . '/../..' . '/src/Type/InterfaceType/EnqueuedAsset.php', 'WPGraphQL\\Type\\InterfaceType\\HierarchicalContentNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/HierarchicalContentNode.php', 'WPGraphQL\\Type\\InterfaceType\\HierarchicalTermNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/HierarchicalTermNode.php', 'WPGraphQL\\Type\\InterfaceType\\MenuItemLinkable' => __DIR__ . '/../..' . '/src/Type/InterfaceType/MenuItemLinkable.php', 'WPGraphQL\\Type\\InterfaceType\\Node' => __DIR__ . '/../..' . '/src/Type/InterfaceType/Node.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithAuthor' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithAuthor.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithComments' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithComments.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithContentEditor' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithContentEditor.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithExcerpt' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithExcerpt.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithFeaturedImage' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithFeaturedImage.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithPageAttributes' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithPageAttributes.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithRevisions' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithRevisions.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithTemplate' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTemplate.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithTitle' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTitle.php', 'WPGraphQL\\Type\\InterfaceType\\NodeWithTrackbacks' => __DIR__ . '/../..' . '/src/Type/InterfaceType/NodeWithTrackbacks.php', 'WPGraphQL\\Type\\InterfaceType\\TermNode' => __DIR__ . '/../..' . '/src/Type/InterfaceType/TermNode.php', 'WPGraphQL\\Type\\InterfaceType\\UniformResourceIdentifiable' => __DIR__ . '/../..' . '/src/Type/InterfaceType/UniformResourceIdentifiable.php', 'WPGraphQL\\Type\\ObjectType\\Avatar' => __DIR__ . '/../..' . '/src/Type/ObjectType/Avatar.php', 'WPGraphQL\\Type\\ObjectType\\Comment' => __DIR__ . '/../..' . '/src/Type/ObjectType/Comment.php', 'WPGraphQL\\Type\\ObjectType\\CommentAuthor' => __DIR__ . '/../..' . '/src/Type/ObjectType/CommentAuthor.php', 'WPGraphQL\\Type\\ObjectType\\ContentType' => __DIR__ . '/../..' . '/src/Type/ObjectType/ContentType.php', 'WPGraphQL\\Type\\ObjectType\\EnqueuedScript' => __DIR__ . '/../..' . '/src/Type/ObjectType/EnqueuedScript.php', 'WPGraphQL\\Type\\ObjectType\\EnqueuedStylesheet' => __DIR__ . '/../..' . '/src/Type/ObjectType/EnqueuedStylesheet.php', 'WPGraphQL\\Type\\ObjectType\\MediaDetails' => __DIR__ . '/../..' . '/src/Type/ObjectType/MediaDetails.php', 'WPGraphQL\\Type\\ObjectType\\MediaItemMeta' => __DIR__ . '/../..' . '/src/Type/ObjectType/MediaItemMeta.php', 'WPGraphQL\\Type\\ObjectType\\MediaSize' => __DIR__ . '/../..' . '/src/Type/ObjectType/MediaSize.php', 'WPGraphQL\\Type\\ObjectType\\Menu' => __DIR__ . '/../..' . '/src/Type/ObjectType/Menu.php', 'WPGraphQL\\Type\\ObjectType\\MenuItem' => __DIR__ . '/../..' . '/src/Type/ObjectType/MenuItem.php', 'WPGraphQL\\Type\\ObjectType\\PageInfo' => __DIR__ . '/../..' . '/src/Type/ObjectType/PageInfo.php', 'WPGraphQL\\Type\\ObjectType\\Plugin' => __DIR__ . '/../..' . '/src/Type/ObjectType/Plugin.php', 'WPGraphQL\\Type\\ObjectType\\PostObject' => __DIR__ . '/../..' . '/src/Type/ObjectType/PostObject.php', 'WPGraphQL\\Type\\ObjectType\\PostTypeLabelDetails' => __DIR__ . '/../..' . '/src/Type/ObjectType/PostTypeLabelDetails.php', 'WPGraphQL\\Type\\ObjectType\\RootMutation' => __DIR__ . '/../..' . '/src/Type/ObjectType/RootMutation.php', 'WPGraphQL\\Type\\ObjectType\\RootQuery' => __DIR__ . '/../..' . '/src/Type/ObjectType/RootQuery.php', 'WPGraphQL\\Type\\ObjectType\\SettingGroup' => __DIR__ . '/../..' . '/src/Type/ObjectType/SettingGroup.php', 'WPGraphQL\\Type\\ObjectType\\Settings' => __DIR__ . '/../..' . '/src/Type/ObjectType/Settings.php', 'WPGraphQL\\Type\\ObjectType\\Taxonomy' => __DIR__ . '/../..' . '/src/Type/ObjectType/Taxonomy.php', 'WPGraphQL\\Type\\ObjectType\\TermObject' => __DIR__ . '/../..' . '/src/Type/ObjectType/TermObject.php', 'WPGraphQL\\Type\\ObjectType\\Theme' => __DIR__ . '/../..' . '/src/Type/ObjectType/Theme.php', 'WPGraphQL\\Type\\ObjectType\\User' => __DIR__ . '/../..' . '/src/Type/ObjectType/User.php', 'WPGraphQL\\Type\\ObjectType\\UserRole' => __DIR__ . '/../..' . '/src/Type/ObjectType/UserRole.php', 'WPGraphQL\\Type\\Union\\ContentRevisionUnion' => __DIR__ . '/../..' . '/src/Type/Union/ContentRevisionUnion.php', 'WPGraphQL\\Type\\Union\\MenuItemObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/MenuItemObjectUnion.php', 'WPGraphQL\\Type\\Union\\PostObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/PostObjectUnion.php', 'WPGraphQL\\Type\\Union\\TermObjectUnion' => __DIR__ . '/../..' . '/src/Type/Union/TermObjectUnion.php', 'WPGraphQL\\Type\\WPEnumType' => __DIR__ . '/../..' . '/src/Type/WPEnumType.php', 'WPGraphQL\\Type\\WPInputObjectType' => __DIR__ . '/../..' . '/src/Type/WPInputObjectType.php', 'WPGraphQL\\Type\\WPInterfaceTrait' => __DIR__ . '/../..' . '/src/Type/WPInterfaceTrait.php', 'WPGraphQL\\Type\\WPInterfaceType' => __DIR__ . '/../..' . '/src/Type/WPInterfaceType.php', 'WPGraphQL\\Type\\WPObjectType' => __DIR__ . '/../..' . '/src/Type/WPObjectType.php', 'WPGraphQL\\Type\\WPScalar' => __DIR__ . '/../..' . '/src/Type/WPScalar.php', 'WPGraphQL\\Type\\WPUnionType' => __DIR__ . '/../..' . '/src/Type/WPUnionType.php', 'WPGraphQL\\Types' => __DIR__ . '/../..' . '/src/Types.php', 'WPGraphQL\\Utils\\DebugLog' => __DIR__ . '/../..' . '/src/Utils/DebugLog.php', 'WPGraphQL\\Utils\\InstrumentSchema' => __DIR__ . '/../..' . '/src/Utils/InstrumentSchema.php', 'WPGraphQL\\Utils\\Preview' => __DIR__ . '/../..' . '/src/Utils/Preview.php', 'WPGraphQL\\Utils\\QueryLog' => __DIR__ . '/../..' . '/src/Utils/QueryLog.php', 'WPGraphQL\\Utils\\Tracing' => __DIR__ . '/../..' . '/src/Utils/Tracing.php', 'WPGraphQL\\Utils\\Utils' => __DIR__ . '/../..' . '/src/Utils/Utils.php', 'WPGraphQL\\WPSchema' => __DIR__ . '/../..' . '/src/WPSchema.php');
         public static function getInitializer(\Composer\Autoload\ClassLoader $loader)
         {
         }
@@ -12151,7 +12266,7 @@ namespace GraphQL\Error {
          * Prepares final error formatter taking in account $debug flags.
          * If initial formatter is not set, FormattedError::createFromException is used
          */
-        public static function prepareFormatter(?callable $formatter = null, int $debug) : callable
+        public static function prepareFormatter(?callable $formatter, int $debug) : callable
         {
         }
         /**
@@ -12826,12 +12941,12 @@ namespace GraphQL\Executor {
     class ReferenceExecutor implements \GraphQL\Executor\ExecutorImplementation
     {
         /** @var object */
-        private static $UNDEFINED;
+        protected static $UNDEFINED;
         /** @var ExecutionContext */
-        private $exeContext;
+        protected $exeContext;
         /** @var SplObjectStorage */
-        private $subFieldCache;
-        private function __construct(\GraphQL\Executor\ExecutionContext $context)
+        protected $subFieldCache;
+        protected function __construct(\GraphQL\Executor\ExecutionContext $context)
         {
         }
         /**
@@ -12852,7 +12967,7 @@ namespace GraphQL\Executor {
          *
          * @return ExecutionContext|array<Error>
          */
-        private static function buildExecutionContext(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue, $contextValue, $rawVariableValues, ?string $operationName = null, ?callable $fieldResolver = null, ?\GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter = null)
+        protected static function buildExecutionContext(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue, $contextValue, $rawVariableValues, ?string $operationName = null, ?callable $fieldResolver = null, ?\GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter = null)
         {
         }
         public function doExecute() : \GraphQL\Executor\Promise\Promise
@@ -12863,7 +12978,7 @@ namespace GraphQL\Executor {
          *
          * @return ExecutionResult|Promise
          */
-        private function buildResponse($data)
+        protected function buildResponse($data)
         {
         }
         /**
@@ -12873,7 +12988,7 @@ namespace GraphQL\Executor {
          *
          * @return array<mixed>|Promise|stdClass|null
          */
-        private function executeOperation(\GraphQL\Language\AST\OperationDefinitionNode $operation, $rootValue)
+        protected function executeOperation(\GraphQL\Language\AST\OperationDefinitionNode $operation, $rootValue)
         {
         }
         /**
@@ -12881,7 +12996,7 @@ namespace GraphQL\Executor {
          *
          * @throws Error
          */
-        private function getOperationRootType(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\OperationDefinitionNode $operation) : \GraphQL\Type\Definition\ObjectType
+        protected function getOperationRootType(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\OperationDefinitionNode $operation) : \GraphQL\Type\Definition\ObjectType
         {
         }
         /**
@@ -12892,7 +13007,7 @@ namespace GraphQL\Executor {
          * returns an Interface or Union type, the "runtime type" will be the actual
          * Object type returned by that field.
          */
-        private function collectFields(\GraphQL\Type\Definition\ObjectType $runtimeType, \GraphQL\Language\AST\SelectionSetNode $selectionSet, \ArrayObject $fields, \ArrayObject $visitedFragmentNames) : \ArrayObject
+        protected function collectFields(\GraphQL\Type\Definition\ObjectType $runtimeType, \GraphQL\Language\AST\SelectionSetNode $selectionSet, \ArrayObject $fields, \ArrayObject $visitedFragmentNames) : \ArrayObject
         {
         }
         /**
@@ -12901,13 +13016,13 @@ namespace GraphQL\Executor {
          *
          * @param FragmentSpreadNode|FieldNode|InlineFragmentNode $node
          */
-        private function shouldIncludeNode(\GraphQL\Language\AST\SelectionNode $node) : bool
+        protected function shouldIncludeNode(\GraphQL\Language\AST\SelectionNode $node) : bool
         {
         }
         /**
          * Implements the logic to compute the key of a given fields entry
          */
-        private static function getFieldEntryKey(\GraphQL\Language\AST\FieldNode $node) : string
+        protected static function getFieldEntryKey(\GraphQL\Language\AST\FieldNode $node) : string
         {
         }
         /**
@@ -12915,7 +13030,7 @@ namespace GraphQL\Executor {
          *
          * @param FragmentDefinitionNode|InlineFragmentNode $fragment
          */
-        private function doesFragmentConditionMatch(\GraphQL\Language\AST\Node $fragment, \GraphQL\Type\Definition\ObjectType $type) : bool
+        protected function doesFragmentConditionMatch(\GraphQL\Language\AST\Node $fragment, \GraphQL\Type\Definition\ObjectType $type) : bool
         {
         }
         /**
@@ -12927,7 +13042,7 @@ namespace GraphQL\Executor {
          *
          * @return array<mixed>|Promise|stdClass
          */
-        private function executeFieldsSerially(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
+        protected function executeFieldsSerially(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
         {
         }
         /**
@@ -12942,7 +13057,7 @@ namespace GraphQL\Executor {
          *
          * @return array<mixed>|Throwable|mixed|null
          */
-        private function resolveField(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, \ArrayObject $fieldNodes, array $path)
+        protected function resolveField(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, \ArrayObject $fieldNodes, array $path)
         {
         }
         /**
@@ -12955,7 +13070,7 @@ namespace GraphQL\Executor {
          * added to the query type, but that would require mutating type
          * definitions, which would cause issues.
          */
-        private function getFieldDef(\GraphQL\Type\Schema $schema, \GraphQL\Type\Definition\ObjectType $parentType, string $fieldName) : ?\GraphQL\Type\Definition\FieldDefinition
+        protected function getFieldDef(\GraphQL\Type\Schema $schema, \GraphQL\Type\Definition\ObjectType $parentType, string $fieldName) : ?\GraphQL\Type\Definition\FieldDefinition
         {
         }
         /**
@@ -12966,7 +13081,7 @@ namespace GraphQL\Executor {
          *
          * @return Throwable|Promise|mixed
          */
-        private function resolveFieldValueOrError(\GraphQL\Type\Definition\FieldDefinition $fieldDef, \GraphQL\Language\AST\FieldNode $fieldNode, callable $resolveFn, $rootValue, \GraphQL\Type\Definition\ResolveInfo $info)
+        protected function resolveFieldValueOrError(\GraphQL\Type\Definition\FieldDefinition $fieldDef, \GraphQL\Language\AST\FieldNode $fieldNode, callable $resolveFn, $rootValue, \GraphQL\Type\Definition\ResolveInfo $info)
         {
         }
         /**
@@ -12978,7 +13093,7 @@ namespace GraphQL\Executor {
          *
          * @return array<mixed>|Promise|stdClass|null
          */
-        private function completeValueCatchingError(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, $result)
+        protected function completeValueCatchingError(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, $result)
         {
         }
         /**
@@ -12987,7 +13102,7 @@ namespace GraphQL\Executor {
          *
          * @throws Error
          */
-        private function handleFieldError($rawError, \ArrayObject $fieldNodes, array $path, \GraphQL\Type\Definition\Type $returnType) : void
+        protected function handleFieldError($rawError, \ArrayObject $fieldNodes, array $path, \GraphQL\Type\Definition\Type $returnType) : void
         {
         }
         /**
@@ -13019,13 +13134,13 @@ namespace GraphQL\Executor {
          * @throws Error
          * @throws Throwable
          */
-        private function completeValue(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
+        protected function completeValue(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
         {
         }
         /**
          * @param mixed $value
          */
-        private function isPromise($value) : bool
+        protected function isPromise($value) : bool
         {
         }
         /**
@@ -13034,7 +13149,7 @@ namespace GraphQL\Executor {
          *
          * @param mixed $value
          */
-        private function getPromise($value) : ?\GraphQL\Executor\Promise\Promise
+        protected function getPromise($value) : ?\GraphQL\Executor\Promise\Promise
         {
         }
         /**
@@ -13049,7 +13164,7 @@ namespace GraphQL\Executor {
          *
          * @return Promise|mixed|null
          */
-        private function promiseReduce(array $values, callable $callback, $initialValue)
+        protected function promiseReduce(array $values, callable $callback, $initialValue)
         {
         }
         /**
@@ -13062,7 +13177,7 @@ namespace GraphQL\Executor {
          *
          * @throws Exception
          */
-        private function completeListValue(\GraphQL\Type\Definition\ListOfType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$results)
+        protected function completeListValue(\GraphQL\Type\Definition\ListOfType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$results)
         {
         }
         /**
@@ -13074,7 +13189,7 @@ namespace GraphQL\Executor {
          *
          * @throws Exception
          */
-        private function completeLeafValue(\GraphQL\Type\Definition\LeafType $returnType, &$result)
+        protected function completeLeafValue(\GraphQL\Type\Definition\LeafType $returnType, &$result)
         {
         }
         /**
@@ -13088,7 +13203,7 @@ namespace GraphQL\Executor {
          *
          * @throws Error
          */
-        private function completeAbstractValue(\GraphQL\Type\Definition\AbstractType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
+        protected function completeAbstractValue(\GraphQL\Type\Definition\AbstractType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
         {
         }
         /**
@@ -13107,7 +13222,7 @@ namespace GraphQL\Executor {
          *
          * @return Promise|Type|string|null
          */
-        private function defaultTypeResolver($value, $contextValue, \GraphQL\Type\Definition\ResolveInfo $info, \GraphQL\Type\Definition\AbstractType $abstractType)
+        protected function defaultTypeResolver($value, $contextValue, \GraphQL\Type\Definition\ResolveInfo $info, \GraphQL\Type\Definition\AbstractType $abstractType)
         {
         }
         /**
@@ -13120,7 +13235,7 @@ namespace GraphQL\Executor {
          *
          * @throws Error
          */
-        private function completeObjectValue(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
+        protected function completeObjectValue(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
         {
         }
         /**
@@ -13128,7 +13243,7 @@ namespace GraphQL\Executor {
          *
          * @return Error
          */
-        private function invalidReturnTypeError(\GraphQL\Type\Definition\ObjectType $returnType, $result, \ArrayObject $fieldNodes)
+        protected function invalidReturnTypeError(\GraphQL\Type\Definition\ObjectType $returnType, $result, \ArrayObject $fieldNodes)
         {
         }
         /**
@@ -13139,7 +13254,7 @@ namespace GraphQL\Executor {
          *
          * @throws Error
          */
-        private function collectAndExecuteSubfields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, array $path, &$result)
+        protected function collectAndExecuteSubfields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, array $path, &$result)
         {
         }
         /**
@@ -13147,7 +13262,7 @@ namespace GraphQL\Executor {
          * type. Memoizing ensures the subfields are not repeatedly calculated, which
          * saves overhead when resolving lists of values.
          */
-        private function collectSubFields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes) : \ArrayObject
+        protected function collectSubFields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes) : \ArrayObject
         {
         }
         /**
@@ -13159,7 +13274,7 @@ namespace GraphQL\Executor {
          *
          * @return Promise|stdClass|array<mixed>
          */
-        private function executeFields(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
+        protected function executeFields(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
         {
         }
         /**
@@ -13171,7 +13286,7 @@ namespace GraphQL\Executor {
          *
          * @return array<mixed>|stdClass|mixed
          */
-        private static function fixResultsIfEmptyArray($results)
+        protected static function fixResultsIfEmptyArray($results)
         {
         }
         /**
@@ -13180,7 +13295,7 @@ namespace GraphQL\Executor {
          *
          * @param array<string, Promise|mixed> $assoc
          */
-        private function promiseForAssocArray(array $assoc) : \GraphQL\Executor\Promise\Promise
+        protected function promiseForAssocArray(array $assoc) : \GraphQL\Executor\Promise\Promise
         {
         }
         /**
@@ -13188,7 +13303,7 @@ namespace GraphQL\Executor {
          * @param InterfaceType|UnionType $returnType
          * @param mixed                   $result
          */
-        private function ensureValidRuntimeType($runtimeTypeOrName, \GraphQL\Type\Definition\AbstractType $returnType, \GraphQL\Type\Definition\ResolveInfo $info, &$result) : \GraphQL\Type\Definition\ObjectType
+        protected function ensureValidRuntimeType($runtimeTypeOrName, \GraphQL\Type\Definition\AbstractType $returnType, \GraphQL\Type\Definition\ResolveInfo $info, &$result) : \GraphQL\Type\Definition\ObjectType
         {
         }
     }
@@ -13874,7 +13989,7 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<EnumValueDefinitionNode>|null */
+        /** @var NodeList<EnumValueDefinitionNode> */
         public $values;
         /** @var StringValueNode|null */
         public $description;
@@ -13897,9 +14012,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<EnumValueDefinitionNode>|null */
+        /** @var NodeList<EnumValueDefinitionNode> */
         public $values;
     }
     class EnumValueDefinitionNode extends \GraphQL\Language\AST\Node
@@ -13957,9 +14072,9 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var NameNode|null */
         public $alias;
-        /** @var NodeList<ArgumentNode>|null */
+        /** @var NodeList<ArgumentNode> */
         public $arguments;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var SelectionSetNode|null */
         public $selectionSet;
@@ -14015,7 +14130,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INLINE_FRAGMENT;
         /** @var NamedTypeNode */
         public $typeCondition;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var SelectionSetNode */
         public $selectionSet;
@@ -14026,9 +14141,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<InputValueDefinitionNode>|null */
+        /** @var NodeList<InputValueDefinitionNode> */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -14039,9 +14154,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<InputValueDefinitionNode>|null */
+        /** @var NodeList<InputValueDefinitionNode> */
         public $fields;
     }
     class InputValueDefinitionNode extends \GraphQL\Language\AST\Node
@@ -14072,9 +14187,11 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<FieldDefinitionNode>|null */
+        /** @var NodeList<NamedTypeNode> */
+        public $interfaces;
+        /** @var NodeList<FieldDefinitionNode> */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -14085,9 +14202,11 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<FieldDefinitionNode>|null */
+        /** @var NodeList<InterfaceTypeDefinitionNode> */
+        public $interfaces;
+        /** @var NodeList<FieldDefinitionNode> */
         public $fields;
     }
     /**
@@ -14133,13 +14252,13 @@ namespace GraphQL\Language\AST {
         /**
          * The Token at which this Node begins.
          *
-         * @var Token
+         * @var Token|null
          */
         public $startToken;
         /**
          * The Token at which this Node ends.
          *
-         * @var Token
+         * @var Token|null
          */
         public $endToken;
         /**
@@ -14406,7 +14525,7 @@ namespace GraphQL\Language\AST {
         public $interfaces;
         /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<FieldDefinitionNode>|null */
+        /** @var NodeList<FieldDefinitionNode> */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -14476,7 +14595,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
     }
     class SchemaDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\TypeSystemDefinitionNode
@@ -14492,9 +14611,9 @@ namespace GraphQL\Language\AST {
     {
         /** @var string */
         public $kind = \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<OperationTypeDefinitionNode>|null */
+        /** @var NodeList<OperationTypeDefinitionNode> */
         public $operationTypes;
     }
     class SelectionSetNode extends \GraphQL\Language\AST\Node
@@ -14510,7 +14629,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::STRING;
         /** @var string */
         public $value;
-        /** @var bool|null */
+        /** @var bool */
         public $block;
     }
     class UnionTypeDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\TypeDefinitionNode
@@ -14521,7 +14640,7 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<NamedTypeNode>|null */
+        /** @var NodeList<NamedTypeNode> */
         public $types;
         /** @var StringValueNode|null */
         public $description;
@@ -14532,9 +14651,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<NamedTypeNode>|null */
+        /** @var NodeList<NamedTypeNode> */
         public $types;
     }
     class VariableDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\DefinitionNode
@@ -15793,7 +15912,7 @@ namespace GraphQL\Language {
             'typeCondition',
             'directives',
             'selectionSet',
-        ], \GraphQL\Language\AST\NodeKind::INT => [], \GraphQL\Language\AST\NodeKind::FLOAT => [], \GraphQL\Language\AST\NodeKind::STRING => [], \GraphQL\Language\AST\NodeKind::BOOLEAN => [], \GraphQL\Language\AST\NodeKind::NULL => [], \GraphQL\Language\AST\NodeKind::ENUM => [], \GraphQL\Language\AST\NodeKind::LST => ['values'], \GraphQL\Language\AST\NodeKind::OBJECT => ['fields'], \GraphQL\Language\AST\NodeKind::OBJECT_FIELD => ['name', 'value'], \GraphQL\Language\AST\NodeKind::DIRECTIVE => ['name', 'arguments'], \GraphQL\Language\AST\NodeKind::NAMED_TYPE => ['name'], \GraphQL\Language\AST\NodeKind::LIST_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::NON_NULL_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'], \GraphQL\Language\AST\NodeKind::OPERATION_TYPE_DEFINITION => ['type'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'], \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes']];
+        ], \GraphQL\Language\AST\NodeKind::INT => [], \GraphQL\Language\AST\NodeKind::FLOAT => [], \GraphQL\Language\AST\NodeKind::STRING => [], \GraphQL\Language\AST\NodeKind::BOOLEAN => [], \GraphQL\Language\AST\NodeKind::NULL => [], \GraphQL\Language\AST\NodeKind::ENUM => [], \GraphQL\Language\AST\NodeKind::LST => ['values'], \GraphQL\Language\AST\NodeKind::OBJECT => ['fields'], \GraphQL\Language\AST\NodeKind::OBJECT_FIELD => ['name', 'value'], \GraphQL\Language\AST\NodeKind::DIRECTIVE => ['name', 'arguments'], \GraphQL\Language\AST\NodeKind::NAMED_TYPE => ['name'], \GraphQL\Language\AST\NodeKind::LIST_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::NON_NULL_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'], \GraphQL\Language\AST\NodeKind::OPERATION_TYPE_DEFINITION => ['type'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'], \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes']];
         /**
          * Visit the AST (see class description for details)
          *
@@ -16557,6 +16676,9 @@ namespace GraphQL\Type\Definition {
         public function getArg($name)
         {
         }
+        public function getName() : string
+        {
+        }
         public function getType() : \GraphQL\Type\Definition\Type
         {
         }
@@ -16773,21 +16895,18 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         public function getOfType()
         {
         }
-        /**
-         * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|(Type&WrappingType)
-         */
         public function getWrappedType(bool $recurse = false) : \GraphQL\Type\Definition\Type
         {
         }
     }
     class NonNull extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\WrappingType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\InputType
     {
-        /** @var callable|(NullableType&Type) */
+        /** @var callable():(NullableType&Type)|(NullableType&Type) */
         private $ofType;
         /**
          * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
          * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
-         * @param  (NullableType&Type)|callable $type
+         * @param callable():(NullableType&Type)|(NullableType&Type) $type
          */
         public function __construct($type)
         {
@@ -16798,6 +16917,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         public function getOfType()
         {
         }
+        /**
+         * @return (NullableType&Type)
+         */
         public function getWrappedType(bool $recurse = false) : \GraphQL\Type\Definition\Type
         {
         }
@@ -17108,6 +17230,27 @@ represent free-form human-readable text.';
     */
     interface UnmodifiedType
     {
+    }
+    class UnresolvedFieldDefinition
+    {
+        /** @var Type $type */
+        private $type;
+        /** @var string $name */
+        private $name;
+        /** @var callable(): (FieldDefinition|array<string, mixed>|Type) $resolver */
+        private $resolver;
+        /**
+         * @param callable(): (FieldDefinition|array<string, mixed>|Type) $resolver
+         */
+        public function __construct(\GraphQL\Type\Definition\Type $type, string $name, callable $resolver)
+        {
+        }
+        public function getName() : string
+        {
+        }
+        public function resolve() : \GraphQL\Type\Definition\FieldDefinition
+        {
+        }
     }
 }
 namespace GraphQL\Type {
@@ -17491,10 +17634,8 @@ namespace GraphQL\Type {
         }
         /**
          * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|Directive $obj
-         *
-         * @return NodeList
          */
-        private function getAllSubNodes($obj, callable $getter)
+        private function getAllSubNodes($obj, callable $getter) : \GraphQL\Language\AST\NodeList
         {
         }
         /**
@@ -17554,7 +17695,10 @@ namespace GraphQL\Type {
         private function getFieldArgNode($type, $fieldName, $argName)
         {
         }
-        private function validateObjectInterfaces(\GraphQL\Type\Definition\ObjectType $object)
+        /**
+         * @param ObjectType|InterfaceType $type
+         */
+        private function validateInterfaces(\GraphQL\Type\Definition\ImplementingType $type) : void
         {
         }
         /**
@@ -17566,25 +17710,29 @@ namespace GraphQL\Type {
         {
         }
         /**
-         * @param InterfaceType $iface
-         *
-         * @return NamedTypeNode|null
+         * @param ObjectType|InterfaceType $type
          */
-        private function getImplementsInterfaceNode(\GraphQL\Type\Definition\ObjectType $type, $iface)
+        private function getImplementsInterfaceNode(\GraphQL\Type\Definition\ImplementingType $type, \GraphQL\Type\Definition\Type $shouldBeInterface) : ?\GraphQL\Language\AST\NamedTypeNode
         {
         }
         /**
-         * @param InterfaceType $iface
+         * @param ObjectType|InterfaceType $type
          *
-         * @return NamedTypeNode[]
+         * @return array<int, NamedTypeNode>
          */
-        private function getAllImplementsInterfaceNodes(\GraphQL\Type\Definition\ObjectType $type, $iface)
+        private function getAllImplementsInterfaceNodes(\GraphQL\Type\Definition\ImplementingType $type, \GraphQL\Type\Definition\Type $shouldBeInterface) : array
         {
         }
         /**
-         * @param InterfaceType $iface
+         * @param ObjectType|InterfaceType $type
          */
-        private function validateObjectImplementsInterface(\GraphQL\Type\Definition\ObjectType $object, $iface)
+        private function validateTypeImplementsInterface(\GraphQL\Type\Definition\ImplementingType $type, \GraphQL\Type\Definition\InterfaceType $iface)
+        {
+        }
+        /**
+         * @param ObjectType|InterfaceType $type
+         */
+        private function validateTypeImplementsAncestors(\GraphQL\Type\Definition\ImplementingType $type, \GraphQL\Type\Definition\InterfaceType $iface) : void
         {
         }
         private function validateUnionMembers(\GraphQL\Type\Definition\UnionType $union)
@@ -17817,6 +17965,8 @@ namespace GraphQL\Utils {
         {
         }
         /**
+         * @deprecated use getOperationAST instead.
+         *
          * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
          *
          * @param string $operationName
@@ -17828,68 +17978,71 @@ namespace GraphQL\Utils {
         public static function getOperation(\GraphQL\Language\AST\DocumentNode $document, $operationName = null)
         {
         }
+        /**
+         * Returns the operation within a document by name.
+         *
+         * If a name is not provided, an operation is only returned if the document has exactly one.
+         *
+         * @api
+         */
+        public static function getOperationAST(\GraphQL\Language\AST\DocumentNode $document, ?string $operationName = null) : ?\GraphQL\Language\AST\OperationDefinitionNode
+        {
+        }
     }
     class ASTDefinitionBuilder
     {
-        /** @var Node[] */
+        /** @var array<string, Node&TypeDefinitionNode> */
         private $typeDefinitionsMap;
         /** @var callable */
         private $typeConfigDecorator;
-        /** @var bool[] */
+        /** @var array<string, bool> */
         private $options;
         /** @var callable */
         private $resolveType;
-        /** @var Type[] */
+        /** @var array<string, Type> */
         private $cache;
         /**
-         * @param Node[] $typeDefinitionsMap
-         * @param bool[] $options
+         * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
+         * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
+         * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
+         * @param array<string, bool> $options
          */
-        public function __construct(array $typeDefinitionsMap, $options, callable $resolveType, ?callable $typeConfigDecorator = null)
+        public function __construct(array $typeDefinitionsMap, array $options, callable $resolveType, ?callable $typeConfigDecorator = null)
         {
         }
-        public function buildDirective(\GraphQL\Language\AST\DirectiveDefinitionNode $directiveNode)
+        public function buildDirective(\GraphQL\Language\AST\DirectiveDefinitionNode $directiveNode) : \GraphQL\Type\Definition\Directive
         {
         }
         /**
          * Given an ast node, returns its string description.
          */
-        private function getDescription($node)
+        private function getDescription(\GraphQL\Language\AST\Node $node) : ?string
         {
         }
-        private function getLeadingCommentBlock($node)
-        {
-        }
-        private function makeInputValues($values)
+        private function getLeadingCommentBlock(\GraphQL\Language\AST\Node $node) : ?string
         {
         }
         /**
-         * @return Type|InputType
-         *
-         * @throws Error
+         * @return array<string, array<string, mixed>>
          */
-        private function buildWrappedType(\GraphQL\Language\AST\TypeNode $typeNode)
+        private function makeInputValues(\GraphQL\Language\AST\NodeList $values) : array
+        {
+        }
+        private function buildWrappedType(\GraphQL\Language\AST\TypeNode $typeNode) : \GraphQL\Type\Definition\Type
         {
         }
         /**
-         * @param string|NamedTypeNode $ref
-         *
-         * @return Type
-         *
-         * @throws Error
+         * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
          */
-        public function buildType($ref)
+        public function buildType($ref) : \GraphQL\Type\Definition\Type
         {
         }
         /**
-         * @param string             $typeName
-         * @param NamedTypeNode|null $typeNode
-         *
-         * @return Type
+         * @param (Node &NamedTypeNode)|(Node&TypeDefinitionNode)|null $typeNode
          *
          * @throws Error
          */
-        private function internalBuildType($typeName, $typeNode = null)
+        private function internalBuildType(string $typeName, ?\GraphQL\Language\AST\Node $typeNode = null) : \GraphQL\Type\Definition\Type
         {
         }
         /**
@@ -17899,65 +18052,76 @@ namespace GraphQL\Utils {
          *
          * @throws Error
          */
-        private function makeSchemaDef(\GraphQL\Language\AST\Node $def)
+        private function makeSchemaDef(\GraphQL\Language\AST\Node $def) : \GraphQL\Type\Definition\Type
         {
         }
-        private function makeTypeDef(\GraphQL\Language\AST\ObjectTypeDefinitionNode $def)
+        private function makeTypeDef(\GraphQL\Language\AST\ObjectTypeDefinitionNode $def) : \GraphQL\Type\Definition\ObjectType
         {
         }
-        private function makeFieldDefMap($def)
+        /**
+         * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
+         *
+         * @return array<string, array<string, mixed>>
+         */
+        private function makeFieldDefMap(\GraphQL\Language\AST\Node $def) : array
         {
         }
-        public function buildField(\GraphQL\Language\AST\FieldDefinitionNode $field)
+        /**
+         * @return array<string, mixed>
+         */
+        public function buildField(\GraphQL\Language\AST\FieldDefinitionNode $field) : array
         {
         }
         /**
          * Given a collection of directives, returns the string value for the
          * deprecation reason.
          *
-         * @param EnumValueDefinitionNode | FieldDefinitionNode $node
-         *
-         * @return string
+         * @param EnumValueDefinitionNode|FieldDefinitionNode $node
          */
-        private function getDeprecationReason($node)
-        {
-        }
-        private function makeImplementedInterfaces(\GraphQL\Language\AST\ObjectTypeDefinitionNode $def)
-        {
-        }
-        private function makeInterfaceDef(\GraphQL\Language\AST\InterfaceTypeDefinitionNode $def)
-        {
-        }
-        private function makeEnumDef(\GraphQL\Language\AST\EnumTypeDefinitionNode $def)
-        {
-        }
-        private function makeUnionDef(\GraphQL\Language\AST\UnionTypeDefinitionNode $def)
-        {
-        }
-        private function makeScalarDef(\GraphQL\Language\AST\ScalarTypeDefinitionNode $def)
-        {
-        }
-        private function makeInputObjectDef(\GraphQL\Language\AST\InputObjectTypeDefinitionNode $def)
+        private function getDeprecationReason(\GraphQL\Language\AST\Node $node) : ?string
         {
         }
         /**
-         * @param mixed[] $config
+         * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
+         *
+         * @return array<int, Type>
+         */
+        private function makeImplementedInterfaces($def) : array
+        {
+        }
+        private function makeInterfaceDef(\GraphQL\Language\AST\InterfaceTypeDefinitionNode $def) : \GraphQL\Type\Definition\InterfaceType
+        {
+        }
+        private function makeEnumDef(\GraphQL\Language\AST\EnumTypeDefinitionNode $def) : \GraphQL\Type\Definition\EnumType
+        {
+        }
+        private function makeUnionDef(\GraphQL\Language\AST\UnionTypeDefinitionNode $def) : \GraphQL\Type\Definition\UnionType
+        {
+        }
+        private function makeScalarDef(\GraphQL\Language\AST\ScalarTypeDefinitionNode $def) : \GraphQL\Type\Definition\CustomScalarType
+        {
+        }
+        private function makeInputObjectDef(\GraphQL\Language\AST\InputObjectTypeDefinitionNode $def) : \GraphQL\Type\Definition\InputObjectType
+        {
+        }
+        /**
+         * @param array<string, mixed> $config
          *
          * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
          *
          * @throws Error
          */
-        private function makeSchemaDefFromConfig(\GraphQL\Language\AST\Node $def, array $config)
+        private function makeSchemaDefFromConfig(\GraphQL\Language\AST\Node $def, array $config) : \GraphQL\Type\Definition\Type
         {
         }
         /**
-         * @return mixed[]
+         * @return array<string, mixed>
          */
         public function buildInputField(\GraphQL\Language\AST\InputValueDefinitionNode $value) : array
         {
         }
         /**
-         * @return mixed[]
+         * @return array<string, mixed>
          */
         public function buildEnumValue(\GraphQL\Language\AST\EnumValueDefinitionNode $value) : array
         {
@@ -17990,17 +18154,21 @@ namespace GraphQL\Utils {
         public const BREAKING_CHANGE_ARG_CHANGED_KIND = 'ARG_CHANGED_KIND';
         public const BREAKING_CHANGE_REQUIRED_ARG_ADDED = 'REQUIRED_ARG_ADDED';
         public const BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED = 'REQUIRED_INPUT_FIELD_ADDED';
-        public const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'INTERFACE_REMOVED_FROM_OBJECT';
+        public const BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED = 'IMPLEMENTED_INTERFACE_REMOVED';
         public const BREAKING_CHANGE_DIRECTIVE_REMOVED = 'DIRECTIVE_REMOVED';
         public const BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED = 'DIRECTIVE_ARG_REMOVED';
         public const BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED = 'DIRECTIVE_LOCATION_REMOVED';
         public const BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED = 'REQUIRED_DIRECTIVE_ARG_ADDED';
         public const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED = 'ARG_DEFAULT_VALUE_CHANGE';
         public const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM = 'VALUE_ADDED_TO_ENUM';
-        public const DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT = 'INTERFACE_ADDED_TO_OBJECT';
+        public const DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED = 'IMPLEMENTED_INTERFACE_ADDED';
         public const DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION = 'TYPE_ADDED_TO_UNION';
         public const DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED = 'OPTIONAL_INPUT_FIELD_ADDED';
         public const DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED = 'OPTIONAL_ARG_ADDED';
+        /** @deprecated use BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED instead, will be removed in v15.0.0. */
+        public const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'IMPLEMENTED_INTERFACE_REMOVED';
+        /** @deprecated use DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED instead, will be removed in v15.0.0. */
+        public const DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT = 'IMPLEMENTED_INTERFACE_ADDED';
         /**
          * Given two schemas, returns an Array containing descriptions of all the types
          * of breaking changes covered by the other functions down below.
@@ -18261,6 +18429,14 @@ namespace GraphQL\Utils {
         {
         }
         /**
+         * @param array<string, mixed> $implementingIntrospection
+         *
+         * @return array<int, InterfaceType>
+         */
+        private function buildImplementationsList(array $implementingIntrospection) : array
+        {
+        }
+        /**
          * @param array<string, mixed> $object
          */
         private function buildObjectDef(array $object) : \GraphQL\Type\Definition\ObjectType
@@ -18327,14 +18503,14 @@ namespace GraphQL\Utils {
     {
         /** @var DocumentNode */
         private $ast;
-        /** @var TypeDefinitionNode[] */
+        /** @var array<string, TypeDefinitionNode> */
         private $nodeMap;
         /** @var callable|null */
         private $typeConfigDecorator;
-        /** @var bool[] */
+        /** @var array<string, bool> */
         private $options;
         /**
-         * @param bool[] $options
+         * @param array<string, bool> $options
          */
         public function __construct(\GraphQL\Language\AST\DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [])
         {
@@ -18344,7 +18520,7 @@ namespace GraphQL\Utils {
          * document.
          *
          * @param DocumentNode|Source|string $source
-         * @param bool[]                     $options
+         * @param array<string, bool>        $options
          *
          * @return Schema
          *
@@ -18369,7 +18545,7 @@ namespace GraphQL\Utils {
          *        Provide true to use preceding comments as the description.
          *        This option is provided to ease adoption and will be removed in v16.
          *
-         * @param bool[] $options
+         * @param array<string, bool> $options
          *
          * @return Schema
          *
@@ -18391,6 +18567,37 @@ namespace GraphQL\Utils {
          * @throws Error
          */
         private function getOperationTypes($schemaDef)
+        {
+        }
+    }
+    /**
+     * A way to track interface implementations.
+     *
+     * Distinguishes between implementations by ObjectTypes and InterfaceTypes.
+     */
+    class InterfaceImplementations
+    {
+        /** @var array<int, ObjectType> */
+        private $objects;
+        /** @var array<int, InterfaceType> */
+        private $interfaces;
+        /**
+         * @param array<int, ObjectType>    $objects
+         * @param array<int, InterfaceType> $interfaces
+         */
+        public function __construct(array $objects, array $interfaces)
+        {
+        }
+        /**
+         * @return array<int, ObjectType>
+         */
+        public function objects() : array
+        {
+        }
+        /**
+         * @return array<int, InterfaceType>
+         */
+        public function interfaces() : array
         {
         }
     }
@@ -18584,9 +18791,11 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @return InterfaceType[]
+         * @param ObjectType|InterfaceType $type
+         *
+         * @return array<int, InterfaceType>
          */
-        protected static function extendImplementedInterfaces(\GraphQL\Type\Definition\ObjectType $type) : array
+        protected static function extendImplementedInterfaces(\GraphQL\Type\Definition\ImplementingType $type) : array
         {
         }
         protected static function extendType($typeDef)
@@ -18640,9 +18849,9 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @param mixed[]|null $options
+         * @param array<string, bool> $options
          */
-        public static function extend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, ?array $options = null) : \GraphQL\Type\Schema
+        public static function extend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, array $options = []) : \GraphQL\Type\Schema
         {
         }
     }
@@ -20788,7 +20997,7 @@ namespace {
     function delete_graphql_data()
     {
     }
-    function composerRequiredaff871f095cff82fbce195c2e9c1fd6($fileIdentifier, $file)
+    function composerRequire6d979f7db16fd60e774aea70a704ddcf($fileIdentifier, $file)
     {
     }
     /**
