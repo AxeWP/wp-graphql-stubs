@@ -104,7 +104,7 @@ namespace WPGraphQL\Admin\GraphiQL {
         {
         }
         /**
-         * Render the markup to load GraphiQL to
+         * Render the markup to load GraphiQL to.
          *
          * @return void
          */
@@ -265,7 +265,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function admin_enqueue_scripts()
+        public function admin_enqueue_scripts()
         {
         }
         /**
@@ -276,7 +276,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return SettingsRegistry
          */
-        function register_section(string $slug, array $section)
+        public function register_section(string $slug, array $section)
         {
         }
         /**
@@ -287,7 +287,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return SettingsRegistry
          */
-        function register_fields(string $section, array $fields)
+        public function register_fields(string $section, array $fields)
         {
         }
         /**
@@ -298,7 +298,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return SettingsRegistry
          */
-        function register_field(string $section, array $field)
+        public function register_field(string $section, array $field)
         {
         }
         /**
@@ -311,7 +311,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function admin_init()
+        public function admin_init()
         {
         }
         /**
@@ -331,7 +331,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_text(array $args)
+        public function callback_text(array $args)
         {
         }
         /**
@@ -341,7 +341,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_url(array $args)
+        public function callback_url(array $args)
         {
         }
         /**
@@ -351,7 +351,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_number(array $args)
+        public function callback_number(array $args)
         {
         }
         /**
@@ -361,7 +361,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_checkbox(array $args)
+        public function callback_checkbox(array $args)
         {
         }
         /**
@@ -371,7 +371,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_multicheck(array $args)
+        public function callback_multicheck(array $args)
         {
         }
         /**
@@ -381,7 +381,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_radio(array $args)
+        public function callback_radio(array $args)
         {
         }
         /**
@@ -391,7 +391,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_select(array $args)
+        public function callback_select(array $args)
         {
         }
         /**
@@ -401,7 +401,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_textarea(array $args)
+        public function callback_textarea(array $args)
         {
         }
         /**
@@ -411,7 +411,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_html(array $args)
+        public function callback_html(array $args)
         {
         }
         /**
@@ -421,7 +421,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_wysiwyg(array $args)
+        public function callback_wysiwyg(array $args)
         {
         }
         /**
@@ -431,7 +431,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_file(array $args)
+        public function callback_file(array $args)
         {
         }
         /**
@@ -441,7 +441,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_password(array $args)
+        public function callback_password(array $args)
         {
         }
         /**
@@ -451,7 +451,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_color($args)
+        public function callback_color($args)
         {
         }
         /**
@@ -461,7 +461,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_pages(array $args)
+        public function callback_pages(array $args)
         {
         }
         /**
@@ -471,7 +471,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function callback_user_role_select(array $args)
+        public function callback_user_role_select(array $args)
         {
         }
         /**
@@ -481,7 +481,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return mixed
          */
-        function sanitize_options(array $options)
+        public function sanitize_options(array $options)
         {
         }
         /**
@@ -491,7 +491,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return mixed string or bool false
          */
-        function get_sanitize_callback($slug = '')
+        public function get_sanitize_callback($slug = '')
         {
         }
         /**
@@ -503,7 +503,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return string
          */
-        function get_option($option, $section, $default = '')
+        public function get_option($option, $section, $default = '')
         {
         }
         /**
@@ -513,7 +513,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function show_navigation()
+        public function show_navigation()
         {
         }
         /**
@@ -523,7 +523,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function show_forms()
+        public function show_forms()
         {
         }
         /**
@@ -533,7 +533,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function script()
+        public function script()
         {
         }
         /**
@@ -541,7 +541,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @return void
          */
-        function _style_fix()
+        public function _style_fix()
         {
         }
     }
@@ -1638,19 +1638,6 @@ namespace WPGraphQL\Data\Connection {
          */
         protected $query;
         /**
-         * ContentTypeConnectionResolver constructor.
-         *
-         * @param mixed       $source     source passed down from the resolve tree
-         * @param array       $args       array of arguments input in the field as part of the GraphQL query
-         * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-         * @param ResolveInfo $info       Info about fields passed down the resolve tree
-         *
-         * @throws Exception
-         */
-        public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
-        /**
          * {@inheritDoc}
          */
         public function get_ids_from_query()
@@ -2137,19 +2124,6 @@ namespace WPGraphQL\Data\Connection {
          */
         protected $query;
         /**
-         * PluginConnectionResolver constructor.
-         *
-         * @param mixed       $source     source passed down from the resolve tree
-         * @param array       $args       array of arguments input in the field as part of the GraphQL query
-         * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-         * @param ResolveInfo $info       Info about fields passed down the resolve tree
-         *
-         * @throws Exception
-         */
-        public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
-        /**
          * {@inheritDoc}
          */
         public function get_ids_from_query()
@@ -2201,19 +2175,6 @@ namespace WPGraphQL\Data\Connection {
          * @var array
          */
         protected $query;
-        /**
-         * ContentTypeConnectionResolver constructor.
-         *
-         * @param mixed       $source     source passed down from the resolve tree
-         * @param array       $args       array of arguments input in the field as part of the GraphQL query
-         * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-         * @param ResolveInfo $info       Info about fields passed down the resolve tree
-         *
-         * @throws Exception
-         */
-        public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
         /**
          * {@inheritDoc}
          */
@@ -2420,19 +2381,6 @@ namespace WPGraphQL\Data\Connection {
          * @var array
          */
         protected $query;
-        /**
-         * UserRoleConnectionResolver constructor.
-         *
-         * @param mixed       $source     source passed down from the resolve tree
-         * @param array       $args       array of arguments input in the field as part of the GraphQL query
-         * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-         * @param ResolveInfo $info       Info about fields passed down the resolve tree
-         *
-         * @throws Exception
-         */
-        public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
         /**
          * {@inheritDoc}
          */
@@ -11779,7 +11727,7 @@ namespace Appsero {
 }
 namespace {
     // autoload_real.php @generated by Composer
-    class ComposerAutoloaderInitcbddaab4c0f40b1346f340a80e4e9db9
+    class ComposerAutoloaderInit0fa7074462ebea48daf02c2ac414f4d8
     {
         private static $loader;
         public static function loadClassLoader($class)
@@ -11794,7 +11742,7 @@ namespace {
     }
 }
 namespace Composer\Autoload {
-    class ComposerStaticInitcbddaab4c0f40b1346f340a80e4e9db9
+    class ComposerStaticInit0fa7074462ebea48daf02c2ac414f4d8
     {
         public static $files = array('a3ed03db03d57650e139da3e8903943c' => __DIR__ . '/../..' . '/access-functions.php', 'f23fb2f3f8f0b37aeaa2e54bba971cf2' => __DIR__ . '/../..' . '/activation.php', '041a301cb7808aeb8a9086a5113fbadc' => __DIR__ . '/../..' . '/deactivation.php');
         public static $prefixLengthsPsr4 = array('W' => array('WPGraphQL\\' => 10), 'G' => array('GraphQL\\' => 8), 'A' => array('Appsero\\' => 8));
@@ -22066,7 +22014,7 @@ namespace {
      * @param string $file
      * @return void
      */
-    function composerRequirecbddaab4c0f40b1346f340a80e4e9db9($fileIdentifier, $file)
+    function composerRequire0fa7074462ebea48daf02c2ac414f4d8($fileIdentifier, $file)
     {
     }
     /**
