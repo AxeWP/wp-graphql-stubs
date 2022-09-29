@@ -1,0 +1,10 @@
+/.github export-ignore
+/.gitattributes export-ignore
+/.editorconfig export-ignore
+/.gitignore export-ignore
+/.travis.yml export-ignore
+/README.md export-ignore
+/finder.php export-ignore
+/generate.sh export-ignore
+/phpstan.neon export-ignore
+/release-latest-versions.sh export-ignore

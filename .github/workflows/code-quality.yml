@@ -1,0 +1,66 @@
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ '7.3', '7.4', '8.0' ]
+      fail-fast: false
+
+    steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          path: $HOME/.composer/cache
+          key: '${{ runner.os }}-${{ hashFiles(''TODO'') }}'
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2, wp-cli
+          coverage: none
+
+      - name: Run before install
+        run: |
+          composer validate --strict
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--no-progress"
+          dependency-versions: "highest"
+      
+      - name: Install WPGraphQL dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--no-progress"
+          dependency-versions: "highest"
+          working-directory: ./source
+
+      - name: Generate stubfile
+        run: |
+          bash -x ./generate.sh
+      
+      - name: Lint stubfile
+        run: |
+          php -l wp-graphql-stubs.php
+      
+      - name: Check for changes
+        run: |
+          git diff --exit-code
+
+      - name: Run PHPStan
+        run: |
+          vendor/bin/phpstan
+

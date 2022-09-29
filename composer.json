@@ -1,0 +1,41 @@
+{
+	"name": "axepress/wp-graphql-stubs",
+	"description": "WPGraphQL function and class declaration stubs for static analysis.",
+	"license": "MIT",
+	"keywords": [
+		"wp-graphql",
+		"wpgraphql",
+		"graphql",
+		"wordpress",
+		"static analysis",
+		"phpstan"
+	],
+	"homepage": "https://github.com/axewp/wp-graphql-stubs",
+	"require": {
+		"php-stubs/wordpress-stubs": "^5.4 || ^6.0"
+	},
+	"require-dev": {
+		"php": "~7.3 || ~8.0",
+		"php-stubs/generator": "^0.8.0",
+		"phpstan/phpstan": "^1.8"
+	},
+	"suggest": {
+		"szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
+	},
+	"minimum-stability": "stable",
+	"config": {
+		"allow-plugins": {
+			"php-stubs/generator": true
+		}
+	},
+	"scripts": {
+		"post-install-cmd": "@composer --working-dir=source/ update --no-interaction",
+		"post-update-cmd": "@composer --working-dir=source/ update --no-interaction",
+		"cleanup": "git status --short --ignored | sed -n -e 's#^!! ##p' | xargs -r rm -vrf",
+		"generate": "bash ./generate.sh"
+	},
+	"scripts-descriptions": {
+		"cleanup": "Remove all ignored files.",
+		"generate": "Generate stubs."
+	}
+}
