@@ -6797,6 +6797,7 @@ namespace WPGraphQL {
          * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
          *
          * @since  0.0.1
+         * @global WP_User $current_user The currently authenticated user.
          * @return mixed
          * @throws \Exception Throws Exception.
          * @throws \Throwable Throws Exception.
