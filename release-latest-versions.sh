@@ -50,6 +50,8 @@ for MINOR in 1.10 1.11 1.12 1.13 1.14; do
 	
 
 	for PATCH in ${PATCHES}; do
+		echo ${PATCH}
+		echo $( git rev-parse "refs/tags/${PATCH}" )
 		if git rev-parse "refs/tags/${PATCH}" >/dev/null 2>&1; then
 			echo "Tag exists!"
 			echo
