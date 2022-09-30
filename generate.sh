@@ -29,4 +29,3 @@ fi
 #sed -i -e 's#^.*@param string \+\$query \+Query statement.*$#&\n         * @phpstan-param literal-string $query#' "$FILE"
 
 printf '\nnamespace {\n%s\n}\n' "define('WPGRAPHQL_VERSION', '0.0.0');" >>"$FILE"
-
