@@ -1,6 +1,6 @@
 # WPGraphQL Stubs
 
-Provides stub declarations for [WPGraphQL](https://wpgraphql.org/) core functions, classes and interfaces.
+Provides stub declarations for [WPGraphQL](https://www.wpgraphql.com/) core functions, classes and interfaces.
 These stubs can help plugin and theme developers leverage static analysis tools like [PHPStan](https://github.com/phpstan/phpstan).
 
 The stubs are generated with [php-stubs/generator](https://github.com/php-stubs/generator).
