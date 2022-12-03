@@ -46,11 +46,16 @@ for MINOR in 1.10 1.11 1.12 1.13 1.14; do
 		echo
 		continue
 	fi
-	
-	
 
 	for PATCH in ${PATCHES}; do
 		echo ${PATCH}
+
+		# v1.13.3 was never released
+		if [ "${PATCH}" == "v1.13.3" ]; then
+			echo "Bad release. Skipping ${PATCH}"
+			continue
+		fi
+
 		echo $( git rev-parse "refs/tags/${PATCH}" )
 		if git rev-parse "refs/tags/${PATCH}" >/dev/null 2>&1; then
 			echo "Tag exists!"
