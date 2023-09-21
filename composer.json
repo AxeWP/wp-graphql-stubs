@@ -12,7 +12,7 @@
 	],
 	"homepage": "https://github.com/axewp/wp-graphql-stubs",
 	"require": {
-		"php-stubs/wordpress-stubs": ">=5.4"
+		"php-stubs/wordpress-stubs": "^5.4 || ^6.0"
 	},
 	"require-dev": {
 		"php": ">=7.3",
