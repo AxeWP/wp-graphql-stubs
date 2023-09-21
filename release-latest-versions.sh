@@ -35,7 +35,7 @@ do_release() {
 
 GQL_JSON="$(wget -q -O- "https://packagist.org/packages/wp-graphql/wp-graphql.json")"
 
-for MINOR in 1.10 1.11 1.12 1.13 1.14; do
+for MINOR in 1.10 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.20 1.21 1.22 1.23 1.24 1.25; do
 	# Find latest version
 	printf -v JQ_FILTER '.package.versions[].version | select(test("^v%s\\\\.%s\\\\.\\\\d+$"))' "${MINOR%.*}" "${MINOR#*.}"
 	PATCHES="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -t "." -k 3 -g)"
