@@ -10171,6 +10171,10 @@ namespace WPGraphQL\Utils {
          */
         protected $graphql_keys = [];
         /**
+         * @var array Track all Types that were queried as a list
+         */
+        protected $queried_list_types = [];
+        /**
          * @param Request $request The GraphQL request being executed
          */
         public function __construct(\WPGraphQL\Request $request)
