@@ -7962,11 +7962,11 @@ namespace WPGraphQL\Type\ObjectType {
         /**
          * Register the Type for each kind of Taxonomy
          *
-         * @param WP_Taxonomy $taxonomy_object The taxonomy being registered
+         * @param WP_Taxonomy $tax_object The taxonomy being registered
          *
          * @return void
          */
-        public static function register_taxonomy_object_type(\WP_Taxonomy $taxonomy_object)
+        public static function register_taxonomy_object_type(\WP_Taxonomy $tax_object)
         {
         }
     }
@@ -9799,20 +9799,6 @@ namespace {
     final class WPGraphQL
     {
         /**
-         * Stores an array of allowed post types
-         *
-         * @var array allowed_post_types
-         * @since  0.0.5
-         */
-        public static $allowed_post_types;
-        /**
-         * Stores an array of allowed taxonomies
-         *
-         * @var array allowed_taxonomies
-         * @since  0.0.5
-         */
-        public static $allowed_taxonomies;
-        /**
          * The instance of the WPGraphQL object
          *
          * @return object|WPGraphQL - The one true WPGraphQL
@@ -9912,27 +9898,32 @@ namespace {
         {
         }
         /**
-         * Get the post types that are allowed to be used in GraphQL. This gets all post_types that
-         * are set to show_in_graphql, but allows for external code (plugins/theme) to filter the
-         * list of allowed_post_types to add/remove additional post_types
+         * Get the post types that are allowed to be used in GraphQL.
+         * This gets all post_types that are set to show_in_graphql, but allows for external code (plugins/theme) to
+         * filter the list of allowed_post_types to add/remove additional post_types
          *
-         * @param array $args Arguments to filter allowed post types
+         * @param string|array $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
+         * @param array $args Optional. Arguments to filter allowed post types
          *
          * @return array
          * @since  0.0.4
+         * @since  @todo adds $output as first param, and stores post type objects in class property.
          */
-        public static function get_allowed_post_types($args = [])
+        public static function get_allowed_post_types($output = 'names', $args = [])
         {
         }
         /**
-         * Get the taxonomies that are allowed to be used in GraphQL/This gets all taxonomies that
-         * are set to "show_in_graphql" but allows for external code (plugins/themes) to filter
-         * the list of allowed_taxonomies to add/remove additional taxonomies
+         * Get the taxonomies that are allowed to be used in GraphQL.
+         * This gets all taxonomies that are set to "show_in_graphql" but allows for external code (plugins/themes) to
+         * filter the list of allowed_taxonomies to add/remove additional taxonomies
+         *
+         * @param string $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
+         * @param array $args Optional. Arguments to filter allowed taxonomies.
          *
          * @since  0.0.4
          * @return array
          */
-        public static function get_allowed_taxonomies()
+        public static function get_allowed_taxonomies($output = 'names', $args = [])
         {
         }
         /**
