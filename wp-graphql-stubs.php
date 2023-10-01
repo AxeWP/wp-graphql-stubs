@@ -948,7 +948,7 @@ namespace WPGraphQL\Data {
          * and for their cursors to properly go forward/backward to the proper place in the database.
          *
          * @param string    $orderby  The ORDER BY clause of the query.
-         * @param \WP_Query $wp_query The WP_Query instance executing
+         * @param WP_Query $wp_query The WP_Query instance executing
          *
          * @return string
          */
@@ -959,12 +959,12 @@ namespace WPGraphQL\Data {
          * This filters the WPQuery 'where' $args, enforcing the query to return results before or
          * after the referenced cursor
          *
-         * @param string    $where The WHERE clause of the query.
-         * @param \WP_Query $query The WP_Query instance (passed by reference).
+         * @param string   $where The WHERE clause of the query.
+         * @param WP_Query $query The WP_Query instance (passed by reference).
          *
          * @return string
          */
-        public function graphql_wp_query_cursor_pagination_support($where, \WP_Query $query)
+        public function graphql_wp_query_cursor_pagination_support(string $where, \WP_Query $query)
         {
         }
         /**
@@ -1007,7 +1007,7 @@ namespace WPGraphQL\Data {
         }
         /**
          * This returns a modified version of the $pieces of the comment query clauses if the request
-         * is a GraphQL Request and the query has a graphql_cursor_offset defined
+         * is a GraphQL Request and before or after cursors are passed to the query
          *
          * @param array            $pieces A compacted array of comment query clauses.
          * @param WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
@@ -1241,17 +1241,6 @@ namespace WPGraphQL\Data\Connection {
          */
         public abstract function get_query();
         /**
-         * Get_ids
-         *
-         * Return an array of ids from the query
-         *
-         * Each Query class in WP and potential datasource handles this differently, so each connection
-         * resolver should handle getting the items into a uniform array of items.
-         *
-         * @return array
-         */
-        public abstract function get_ids();
-        /**
          * Should_execute
          *
          * Determine whether or not the query should execute.
@@ -1280,6 +1269,25 @@ namespace WPGraphQL\Data\Connection {
          * @return bool
          */
         public abstract function is_valid_offset($offset);
+        /**
+         * Return an array of ids from the query
+         *
+         * Each Query class in WP and potential datasource handles this differently, so each connection
+         * resolver should handle getting the items into a uniform array of items.
+         *
+         * Note: This is not an abstract function to prevent backwards compatibility issues, so it
+         * instead throws an exception. Classes that extend AbstractConnectionResolver should
+         * override this method, instead of AbstractConnectionResolver::get_ids().
+         *
+         * @since 1.9.0
+         *
+         * @throws Exception if child class forgot to implement this.
+         *
+         * @return array the array of IDs.
+         */
+        public function get_ids_from_query()
+        {
+        }
         /**
          * Given an ID, return the model for the entity or null
          *
@@ -1316,15 +1324,57 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return int|null
+         * Gets the offset for the `after` cursor.
+         *
+         * @return int|string|null
          */
-        public function get_after_offset() : ?int
+        public function get_after_offset()
         {
         }
         /**
-         * @return int|null
+         * Gets the offset for the `before` cursor.
+         *
+         * @return int|string|null
          */
-        public function get_before_offset() : ?int
+        public function get_before_offset()
+        {
+        }
+        /**
+         * Gets the array index for the given offset.
+         *
+         * @param int|string|false $offset The cursor pagination offset.
+         * @param array      $ids    The array of ids from the query.
+         *
+         * @return int|false $index The array index of the offset.
+         */
+        public function get_array_index_for_offset($offset, $ids)
+        {
+        }
+        /**
+         * Returns an array slice of IDs, per the Relay Cursor Connection spec.
+         *
+         * The resulting array should be overfetched by 1.
+         *
+         * @see https://relay.dev/graphql/connections.htm#sec-Pagination-algorithm
+         *
+         * @param array $ids The array of IDs from the query to slice, ordered as expected by the GraphQL query.
+         *
+         * @since 1.9.0
+         *
+         * @return array
+         */
+        public function apply_cursors_to_ids(array $ids)
+        {
+        }
+        /**
+         * Returns an array of IDs for the connection.
+         *
+         * These IDs have been fetched from the query with all the query args applied,
+         * then sliced (overfetching by 1) by pagination args.
+         *
+         * @return array
+         */
+        public function get_ids()
         {
         }
         /**
@@ -1333,9 +1383,21 @@ namespace WPGraphQL\Data\Connection {
          * This returns the offset to be used in the $query_args based on the $args passed to the
          * GraphQL query.
          *
+         * @deprecated 1.9.0
+         *
          * @return int|mixed
          */
         public function get_offset()
+        {
+        }
+        /**
+         * Returns the offset for a given cursor.
+         *
+         * Connections that use a string-based offset should override this method.
+         *
+         * @return int|mixed
+         */
+        public function get_offset_for_cursor(string $cursor = null)
         {
         }
         /**
@@ -1387,14 +1449,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get_ids_for_nodes
+         * Gets the IDs for the currently-paginated slice of nodes.
          *
-         * Gets the IDs from the query.
-         *
-         * We slice the array to match the amount of items that was asked for, as we over-fetched
-         * by 1 item to calculate pageInfo.
-         *
-         * For backward pagination, we reverse the order of nodes.
+         * We slice the array to match the amount of items that was asked for, as we over-fetched by 1 item to calculate pageInfo.
          *
          * @used-by AbstractConnectionResolver::get_nodes()
          *
@@ -1422,7 +1479,7 @@ namespace WPGraphQL\Data\Connection {
          * If model isn't a class with a `fields` member, this function with have be overridden in
          * the Connection class.
          *
-         * @param mixed $model The model being validated
+         * @param \WPGraphQL\Model\Model|mixed $model The model being validated
          *
          * @return bool
          */
@@ -1490,8 +1547,13 @@ namespace WPGraphQL\Data\Connection {
     class CommentConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
+         *
+         * @var WP_Comment_Query
+         */
+        protected $query;
+        /**
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
@@ -1501,7 +1563,7 @@ namespace WPGraphQL\Data\Connection {
          *
          * Return the instance of the WP_Comment_Query
          *
-         * @return mixed|\WP_Comment_Query
+         * @return WP_Comment_Query
          * @throws Exception
          */
         public function get_query()
@@ -1516,10 +1578,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
-        public function get_ids()
+        public function get_ids_from_query()
         {
         }
         /**
@@ -1571,6 +1632,12 @@ namespace WPGraphQL\Data\Connection {
     class ContentTypeConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var array
+         */
+        protected $query;
+        /**
          * ContentTypeConnectionResolver constructor.
          *
          * @param mixed       $source     source passed down from the resolve tree
@@ -1584,21 +1651,13 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return bool|int|mixed|null|string
+         * {@inheritDoc}
          */
-        public function get_offset()
+        public function get_ids_from_query()
         {
         }
         /**
-         * Get the IDs from the source
-         *
-         * @return array|mixed|null
-         */
-        public function get_ids()
-        {
-        }
-        /**
-         * @return array
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
@@ -1606,15 +1665,9 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Get the items from the source
          *
-         * @return array|mixed|null
+         * @return array
          */
         public function get_query()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function get_ids_for_nodes()
         {
         }
         /**
@@ -1664,19 +1717,14 @@ namespace WPGraphQL\Data\Connection {
         public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
         {
         }
-        public function get_offset()
-        {
-        }
         /**
-         * Get the IDs from the source
-         *
-         * @return array|mixed|null
+         * {@inheritDoc}
          */
-        public function get_ids()
+        public function get_ids_from_query()
         {
         }
         /**
-         * @return array|void
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
@@ -1684,15 +1732,9 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Get the items from the source
          *
-         * @return array|mixed|null
+         * @return array
          */
         public function get_query()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function get_ids_for_nodes()
         {
         }
         /**
@@ -1740,6 +1782,12 @@ namespace WPGraphQL\Data\Connection {
     class EnqueuedStylesheetConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var array
+         */
+        protected $query;
+        /**
          * EnqueuedStylesheetConnectionResolver constructor.
          *
          * @param mixed       $source     source passed down from the resolve tree
@@ -1752,19 +1800,16 @@ namespace WPGraphQL\Data\Connection {
         public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
         {
         }
-        public function get_offset()
-        {
-        }
         /**
          * Get the IDs from the source
          *
-         * @return array|mixed|null
+         * @return array
          */
-        public function get_ids()
+        public function get_ids_from_query()
         {
         }
         /**
-         * @return array|void
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
@@ -1772,15 +1817,9 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Get the items from the source
          *
-         * @return array|mixed|null
+         * @return array
          */
         public function get_query()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function get_ids_for_nodes()
         {
         }
         /**
@@ -1828,6 +1867,12 @@ namespace WPGraphQL\Data\Connection {
     class TermObjectConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var \WP_Term_Query
+         */
+        protected $query;
+        /**
          * The name of the Taxonomy the resolver is intended to be used for
          *
          * @var string
@@ -1848,8 +1893,7 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
@@ -1857,23 +1901,20 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Return an instance of WP_Term_Query with the args mapped to the query
          *
-         * @return mixed|\WP_Term_Query
+         * @return \WP_Term_Query
          * @throws Exception
          */
         public function get_query()
         {
         }
         /**
-         * This gets the items from the query. Different queries return items in different ways, so this
-         * helps normalize the items into an array for use by the get_nodes() function.
-         *
-         * @return array
+         * {@inheritDoc}
          */
-        public function get_ids()
+        public function get_ids_from_query()
         {
         }
         /**
-         * @return string
+         * {@inheritDoc}
          */
         public function get_loader_name()
         {
@@ -1943,6 +1984,12 @@ namespace WPGraphQL\Data\Connection {
          */
         protected $post_type;
         /**
+         * {@inheritDoc}
+         *
+         * @var \WP_Query|object
+         */
+        protected $query;
+        /**
          * PostObjectConnectionResolver constructor.
          *
          * @param mixed              $source    source passed down from the resolve tree
@@ -1977,11 +2024,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Return an array of items from the query
-         *
-         * @return array
+         * {@inheritDoc}
          */
-        public function get_ids()
+        public function get_ids_from_query()
         {
         }
         /**
@@ -2086,6 +2131,12 @@ namespace WPGraphQL\Data\Connection {
     class PluginConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var array
+         */
+        protected $query;
+        /**
          * PluginConnectionResolver constructor.
          *
          * @param mixed       $source     source passed down from the resolve tree
@@ -2099,25 +2150,21 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return bool|int|mixed|null|string
+         * {@inheritDoc}
          */
-        public function get_offset()
+        public function get_ids_from_query()
         {
         }
         /**
-         * @return array
-         */
-        public function get_ids()
-        {
-        }
-        /**
-         * @return array|void
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
         }
         /**
-         * @return array|mixed
+         * {@inheritDoc}
+         *
+         * @return array
          */
         public function get_query()
         {
@@ -2125,19 +2172,11 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_ids_for_nodes()
-        {
-        }
-        /**
-         * @return string
-         */
         public function get_loader_name()
         {
         }
         /**
-         * @param mixed $offset
-         *
-         * @return bool
+         * {@inheritDoc}
          */
         public function is_valid_offset($offset)
         {
@@ -2157,6 +2196,12 @@ namespace WPGraphQL\Data\Connection {
     class TaxonomyConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var array
+         */
+        protected $query;
+        /**
          * ContentTypeConnectionResolver constructor.
          *
          * @param mixed       $source     source passed down from the resolve tree
@@ -2169,28 +2214,14 @@ namespace WPGraphQL\Data\Connection {
         public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
         {
         }
-        public function has_next_page()
-        {
-        }
-        public function has_previous_page()
-        {
-        }
         /**
-         * @return bool|int|mixed|null|string
+         * {@inheritDoc}
          */
-        public function get_offset()
+        public function get_ids_from_query()
         {
         }
         /**
-         * Get the IDs from the source
-         *
-         * @return array|mixed|null
-         */
-        public function get_ids()
-        {
-        }
-        /**
-         * @return array
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
@@ -2198,15 +2229,9 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Get the items from the source
          *
-         * @return array|mixed|null
+         * @return array
          */
         public function get_query()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function get_ids_for_nodes()
         {
         }
         /**
@@ -2245,21 +2270,19 @@ namespace WPGraphQL\Data\Connection {
     class ThemeConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
-         * @return mixed
-         */
-        public function get_offset()
-        {
-        }
-        /**
-         * Get the IDs from the source
+         * {@inheritDoc}
          *
-         * @return array|mixed|null
+         * @var array
          */
-        public function get_ids()
+        protected $query;
+        /**
+         * {@inheritDoc}
+         */
+        public function get_ids_from_query()
         {
         }
         /**
-         * @return array
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
@@ -2267,15 +2290,9 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Get the items from the source
          *
-         * @return array|mixed|null
+         * @return array
          */
         public function get_query()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function get_ids_for_nodes()
         {
         }
         /**
@@ -2313,6 +2330,14 @@ namespace WPGraphQL\Data\Connection {
     class UserConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
+         * {@inheritDoc}
+         *
+         * A custom class is assumed to have the same core functions as WP_User_Query.
+         *
+         * @var \WP_User_Query|object
+         */
+        protected $query;
+        /**
          * Determines whether the query should execute at all. It's possible that in some
          * situations we may want to prevent the underlying query from executing at all.
          *
@@ -2339,7 +2364,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Return an instance of the WP_User_Query with the args for the connection being executed
          *
-         * @return mixed|\WP_User_Query
+         * @return object|\WP_User_Query
          * @throws \Exception
          */
         public function get_query()
@@ -2349,9 +2374,8 @@ namespace WPGraphQL\Data\Connection {
          * Returns an array of ids from the query being executed.
          *
          * @return array
-         * @throws \Exception
          */
-        public function get_ids()
+        public function get_ids_from_query()
         {
         }
         /**
@@ -2391,6 +2415,12 @@ namespace WPGraphQL\Data\Connection {
     class UserRoleConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var array
+         */
+        protected $query;
+        /**
          * UserRoleConnectionResolver constructor.
          *
          * @param mixed       $source     source passed down from the resolve tree
@@ -2404,37 +2434,27 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return mixed
+         * {@inheritDoc}
          */
-        public function get_offset()
+        public function get_ids_from_query()
         {
         }
         /**
-         * @return array
-         */
-        public function get_ids()
-        {
-        }
-        /**
-         * @return array
+         * {@inheritDoc}
          */
         public function get_query_args()
         {
         }
         /**
-         * @return array|mixed
+         * {@inheritDoc}
+         *
+         * @return array
          */
         public function get_query()
         {
         }
         /**
          * {@inheritDoc}
-         */
-        public function get_ids_for_nodes()
-        {
-        }
-        /**
-         * @return string
          */
         public function get_loader_name()
         {
@@ -2456,6 +2476,161 @@ namespace WPGraphQL\Data\Connection {
     }
 }
 namespace WPGraphQL\Data\Cursor {
+    /**
+     * Abstract Cursor
+     *
+     * @package WPGraphQL\Data\Loader
+     * @since 1.9.0
+     */
+    abstract class AbstractCursor
+    {
+        /**
+         * The global WordPress Database instance
+         *
+         * @var wpdb $wpdb
+         */
+        public $wpdb;
+        /**
+         * @var CursorBuilder
+         */
+        public $builder;
+        /**
+         * @var string
+         */
+        public $compare;
+        /**
+         * Our current cursor offset.
+         * For example, the term, post, user, or comment ID.
+         *
+         * @var int
+         */
+        public $cursor_offset;
+        /**
+         * @var string|null
+         */
+        public $cursor;
+        /**
+         * The WP object instance for the cursor.
+         *
+         * @var mixed
+         */
+        public $cursor_node;
+        /**
+         * Copy of query vars so we can modify them safely
+         *
+         * @var array
+         */
+        public $query_vars = [];
+        /**
+         * The constructor
+         *
+         * @param array $query_vars
+         * @param string|null $cursor
+         */
+        public function __construct($query_vars, $cursor = 'after')
+        {
+        }
+        /**
+         * Get the query variable for the provided name.
+         *
+         * @param string $name .
+         *
+         * @return mixed|null
+         */
+        public function get_query_var(string $name)
+        {
+        }
+        /**
+         * Get the direction pagination is going in.
+         *
+         * @return string
+         */
+        public function get_cursor_compare()
+        {
+        }
+        /**
+         * Ensure the cursor_offset is a positive integer and we have a valid object for our cursor node.
+         *
+         * @return bool
+         */
+        protected function is_valid_offset_and_node()
+        {
+        }
+        /**
+         * Get the WP Object instance for the cursor.
+         *
+         * This is cached internally so it should not generate additionl queries.
+         *
+         * @return mixed|null;
+         */
+        public abstract function get_cursor_node();
+        /**
+         * Return the additional AND operators for the where statement
+         *
+         * @return string
+         */
+        public abstract function get_where();
+        /**
+         * Generate the final SQL string to be appended to WHERE clause
+         *
+         * @return string
+         */
+        public abstract function to_sql();
+    }
+    /**
+     * Comment Cursor
+     *
+     * This class generates the SQL and operators for cursor based pagination for comments
+     *
+     * @package WPGraphQL\Data\Cursor
+     */
+    class CommentObjectCursor extends \WPGraphQL\Data\Cursor\AbstractCursor
+    {
+        /**
+         * @var ?\WP_Comment
+         */
+        public $cursor_node;
+        /**
+         * @param array|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
+         * @param string|null            $cursor Whether to generate the before or after cursor. Default "after"
+         *
+         * @return void
+         */
+        public function __construct($query_vars, $cursor = 'after')
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @return ?WP_Comment
+         */
+        public function get_cursor_node()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         */
+        public function get_where()
+        {
+        }
+        /**
+         * Get AND operator for given order by key
+         *
+         * @param string $by    The order by key
+         * @param string $order The order direction ASC or DESC
+         *
+         * @return void
+         */
+        public function compare_with($by, $order)
+        {
+        }
+        /**
+         *{@inheritDoc}
+         */
+        public function to_sql()
+        {
+        }
+    }
     /**
      * Generic class for building AND&OR operators for cursor based paginators
      */
@@ -2538,32 +2713,14 @@ namespace WPGraphQL\Data\Cursor {
      *
      * This class generates the SQL AND operators for cursor based pagination for posts
      *
-     * @package WPGraphQL\Data
+     * @package WPGraphQL\Data\Cursor
      */
-    class PostObjectCursor
+    class PostObjectCursor extends \WPGraphQL\Data\Cursor\AbstractCursor
     {
         /**
-         * The global WordPress Database instance
-         *
-         * @var wpdb $wpdb
+         * @var ?\WP_Post
          */
-        public $wpdb;
-        /**
-         * The WP_Query instance
-         *
-         * @var WP_Query $query
-         */
-        public $query;
-        /**
-         * The current post id which is our cursor offset
-         *
-         * @var int $cursor_offset
-         */
-        public $cursor_offset;
-        /**
-         * @var CursorBuilder
-         */
-        public $builder;
+        public $cursor_node;
         /**
          * Counter for meta value joins
          *
@@ -2571,85 +2728,49 @@ namespace WPGraphQL\Data\Cursor {
          */
         public $meta_join_alias = 0;
         /**
-         * Copy of query vars so we can modify them safely
-         *
-         * @var array
-         */
-        public $query_vars = [];
-        /**
-         * @var string|null
-         */
-        public $cursor;
-        /**
-         * @var string
-         */
-        public $compare;
-        /**
          * PostCursor constructor.
          *
-         * @param WP_Query    $query  The WP_Query instance
-         * @param string|null $cursor Whether to generate the before or after cursor. Default "after"
+         * @param array|\WP_Query $query_vars The query vars to use when building the SQL statement.
+         * @param string|null     $cursor Whether to generate the before or after cursor. Default "after"
          */
-        public function __construct(\WP_Query $query, $cursor = '')
+        public function __construct($query_vars, $cursor = 'after')
         {
         }
         /**
-         * Get post instance for the cursor.
+         * {@inheritDoc}
          *
-         * This is cached internally so it does not generate extra queries
+         * @return ?\WP_Post
+         */
+        public function get_cursor_node()
+        {
+        }
+        /**
+         * @deprecated 1.9.0
          *
-         * @return mixed WP_Post|null
+         * @return ?\WP_Post
          */
         public function get_cursor_post()
         {
         }
         /**
-         * @return string|null
+         * {@inheritDoc}
          */
         public function to_sql()
         {
         }
         /**
-         * @param string $name The name of the query var to get
-         *
-         * @return mixed|null
-         */
-        public function get_query_var(string $name)
-        {
-        }
-        /**
-         * Return the additional AND operators for the where statement
-         *
-         * @return string|null
+         * {@inheritDoc}
          */
         public function get_where()
         {
         }
     }
-    class TermObjectCursor
+    class TermObjectCursor extends \WPGraphQL\Data\Cursor\AbstractCursor
     {
         /**
-         * The global WordPress Database instance
-         *
-         * @var wpdb $wpdb
+         * @var ?WP_Term;
          */
-        public $wpdb;
-        /**
-         * The WP_Query instance
-         *
-         * @var WP_Term_Query $query
-         */
-        public $query;
-        /**
-         * The current term id which is our cursor offset
-         *
-         * @var int $cursor_offset
-         */
-        public $cursor_offset;
-        /**
-         * @var CursorBuilder
-         */
-        public $builder;
+        public $cursor_node;
         /**
          * Counter for meta value joins
          *
@@ -2657,28 +2778,9 @@ namespace WPGraphQL\Data\Cursor {
          */
         public $meta_join_alias = 0;
         /**
-         * @var array
-         */
-        public $query_args = [];
-        /**
-         * @var string|null
-         */
-        public $cursor;
-        /**
-         * @var string
-         */
-        public $compare;
-        /**
-         * TermObjectCursor constructor.
-         *
-         * @param array  $args The query args used for the WP_Term_Query
-         * @param string $cursor Whether to generate the before or after cursor. Default "after"
-         */
-        public function __construct(array $args, $cursor = '')
-        {
-        }
-        /**
          * @param string $name The name of the query var to get
+         *
+         * @deprecated 1.9.0
          *
          * @return mixed|null
          */
@@ -2686,19 +2788,16 @@ namespace WPGraphQL\Data\Cursor {
         {
         }
         /**
-         * Return the additional AND operators for the where statement
+         * {@inheritDoc}
          *
-         * @return string|null
+         * @return ?WP_Term;
          */
-        public function get_where()
+        public function get_cursor_node()
         {
         }
         /**
-         * Get term instance for the cursor.
-         *
-         * This is cached internally so it does not generate extra queries
-         *
-         * @return mixed \WP_Term|null
+         * @return ?WP_Term;
+         * @deprecated 1.9.0
          */
         public function get_cursor_term()
         {
@@ -2708,9 +2807,15 @@ namespace WPGraphQL\Data\Cursor {
          *
          * @param array|null $fields The fields from the CursorBuilder to convert to SQL
          *
-         * @return string|null
+         * @return string
          */
         public function to_sql($fields = null)
+        {
+        }
+        /**
+         * {@inheritDoc}
+         */
+        public function get_where()
         {
         }
     }
@@ -2719,32 +2824,14 @@ namespace WPGraphQL\Data\Cursor {
      *
      * This class generates the SQL AND operators for cursor based pagination for users
      *
-     * @package WPGraphQL\Data
+     * @package WPGraphQL\Data\Cursor
      */
-    class UserCursor
+    class UserCursor extends \WPGraphQL\Data\Cursor\AbstractCursor
     {
         /**
-         * The global WordPress Database instance
-         *
-         * @var wpdb $wpdb WordPress Database
+         * @var ?WP_User
          */
-        public $wpdb;
-        /**
-         * The WP_User_Query instance
-         *
-         * @var WP_User_Query $query The WP_User_Query Instance
-         */
-        public $query;
-        /**
-         * The current user id which is our cursor offset
-         *
-         * @var int $cursor_offset The current user ID
-         */
-        public $cursor_offset;
-        /**
-         * @var CursorBuilder
-         */
-        public $builder;
+        public $cursor_node;
         /**
          * Counter for meta value joins
          *
@@ -2752,62 +2839,47 @@ namespace WPGraphQL\Data\Cursor {
          */
         public $meta_join_alias = 0;
         /**
-         * Copy of query vars so we can modify them safely
-         *
-         * @var array
-         */
-        public $query_vars = [];
-        /**
-         * @var string|null
-         */
-        public $cursor;
-        /**
-         * @var string
-         */
-        public $compare;
-        /**
          * UserCursor constructor.
          *
-         * @param WP_User_Query $query  The WP_User_Query instance
-         * @param string|null   $cursor Whether to generate the before or after cursor
+         * @param array|WP_User_Query $query_vars The query vars to use when building the SQL statement.
+         * @param string|null         $cursor     Whether to generate the before or after cursor
          *
          * @return void
          */
-        public function __construct(\WP_User_Query $query, $cursor = '')
+        public function __construct($query_vars, $cursor = 'after')
         {
         }
         /**
-         * Get user instance for the cursor.
+         * {@inheritDoc}
          *
-         * This is cached internally so it does not generate extra queries
+         * Unlike most queries, users by default are in ascending order.
+         */
+        public function get_cursor_compare()
+        {
+        }
+        /**
+         * {@inheritDoc}
          *
-         * @return mixed WP_User|null
+         * @return ?WP_User
+         */
+        public function get_cursor_node()
+        {
+        }
+        /**
+         * @return ?WP_User
+         * @deprecated 1.9.0
          */
         public function get_cursor_user()
         {
         }
         /**
-         * Generate the final SQL string to be appended to WHERE clause
-         *
-         * @return string
+         * {@inheritDoc}
          */
         public function to_sql()
         {
         }
         /**
-         * Get current WP_User_Query instance's query variables.
-         *
-         * @param string $name The query var to get
-         *
-         * @return mixed array|null
-         */
-        public function get_query_var(string $name)
-        {
-        }
-        /**
-         * Return the additional AND operators for the where statement
-         *
-         * @return string
+         * {@inheritDoc}
          */
         public function get_where()
         {
@@ -4285,13 +4357,13 @@ namespace WPGraphQL\Model {
         /**
          * Stores the incoming WP_Comment object to be modeled
          *
-         * @var \WP_Comment $data
+         * @var WP_Comment $data
          */
         protected $data;
         /**
          * Comment constructor.
          *
-         * @param \WP_Comment $comment The incoming WP_Comment to be modeled
+         * @param WP_Comment $comment The incoming WP_Comment to be modeled
          *
          * @throws Exception
          */
@@ -9895,7 +9967,7 @@ namespace {
          *
          * @return array
          * @since  0.0.4
-         * @since  @todo adds $output as first param, and stores post type objects in class property.
+         * @since  1.8.1 adds $output as first param, and stores post type objects in class property.
          */
         public static function get_allowed_post_types($output = 'names', $args = [])
         {
