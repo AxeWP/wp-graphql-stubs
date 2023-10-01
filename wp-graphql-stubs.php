@@ -7481,7 +7481,7 @@ namespace GraphQL\Type\Definition {
         public const BOOLEAN = 'Boolean';
         public const FLOAT = 'Float';
         public const ID = 'ID';
-        /** @var array<string, ScalarType>> */
+        /** @var array<string, ScalarType> */
         protected static $standardTypes;
         /** @var string */
         public $name;
@@ -8969,7 +8969,7 @@ namespace GraphQLRelay\Connection {
          * to use; if the cursor contains a valid offset, that will be used,
          * otherwise it will be the default.
          */
-        public static function getOffsetWidthDefault($cursor, $defaultOffset)
+        public static function getOffsetWithDefault($cursor, $defaultOffset)
         {
         }
         /**
@@ -9113,6 +9113,8 @@ namespace GraphQLRelay\Mutation {
          *
          * type MutationConfig = {
          *   name: string,
+         *   description?: string,
+         *   deprecationReason?: string,
          *   inputFields: InputObjectConfigFieldMap,
          *   outputFields: GraphQLFieldConfigMap,
          *   mutateAndGetPayload: mutationFn,
@@ -10045,7 +10047,7 @@ namespace GraphQL\Executor {
         {
         }
         /**
-         * Custom default resolve function.
+         * Set a custom default resolve function.
          */
         public static function setDefaultFieldResolver(callable $fieldResolver)
         {
@@ -10053,6 +10055,9 @@ namespace GraphQL\Executor {
         public static function getPromiseAdapter() : \GraphQL\Executor\Promise\PromiseAdapter
         {
         }
+        /**
+         * Set a custom default promise adapter.
+         */
         public static function setPromiseAdapter(?\GraphQL\Executor\Promise\PromiseAdapter $defaultPromiseAdapter = null)
         {
         }
@@ -10060,9 +10065,7 @@ namespace GraphQL\Executor {
         {
         }
         /**
-         * Custom executor implementation factory.
-         *
-         * Will be called with as
+         * Set a custom executor implementation factory.
          */
         public static function setImplementationFactory(callable $implementationFactory)
         {
@@ -10070,13 +10073,13 @@ namespace GraphQL\Executor {
         /**
          * Executes DocumentNode against given $schema.
          *
-         * Always returns ExecutionResult and never throws. All errors which occur during operation
-         * execution are collected in `$result->errors`.
+         * Always returns ExecutionResult and never throws.
+         * All errors which occur during operation execution are collected in `$result->errors`.
          *
-         * @param mixed|null               $rootValue
-         * @param mixed|null               $contextValue
-         * @param mixed[]|ArrayAccess|null $variableValues
-         * @param string|null              $operationName
+         * @param mixed|null                    $rootValue
+         * @param mixed|null                    $contextValue
+         * @param array<mixed>|ArrayAccess|null $variableValues
+         * @param string|null                   $operationName
          *
          * @return ExecutionResult|Promise
          *
@@ -10091,10 +10094,10 @@ namespace GraphQL\Executor {
          *
          * Useful for async PHP platforms.
          *
-         * @param mixed|null   $rootValue
-         * @param mixed|null   $contextValue
-         * @param mixed[]|null $variableValues
-         * @param string|null  $operationName
+         * @param mixed|null        $rootValue
+         * @param mixed|null        $contextValue
+         * @param array<mixed>|null $variableValues
+         * @param string|null       $operationName
          *
          * @return Promise
          *
@@ -10109,9 +10112,9 @@ namespace GraphQL\Executor {
          * and returns it as the result, or if it's a function, returns the result
          * of calling that function while passing along args and context.
          *
-         * @param mixed      $objectValue
-         * @param mixed[]    $args
-         * @param mixed|null $contextValue
+         * @param mixed                $objectValue
+         * @param array<string, mixed> $args
+         * @param mixed|null           $contextValue
          *
          * @return mixed|null
          */
@@ -10393,7 +10396,12 @@ namespace GraphQL\Executor\Promise {
 namespace GraphQL\Executor {
     class ReferenceExecutor implements \GraphQL\Executor\ExecutorImplementation
     {
-        public static function create(\GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter, \GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue, $contextValue, $variableValues, ?string $operationName, callable $fieldResolver)
+        /**
+         * @param mixed                    $rootValue
+         * @param mixed                    $contextValue
+         * @param array<mixed>|Traversable $variableValues
+         */
+        public static function create(\GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter, \GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue, $contextValue, $variableValues, ?string $operationName, callable $fieldResolver) : \GraphQL\Executor\ExecutorImplementation
         {
         }
         public function doExecute() : \GraphQL\Executor\Promise\Promise
@@ -10922,11 +10930,11 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var StringValueNode|null */
         public $description;
-        /** @var InputValueDefinitionNode[] */
+        /** @var NodeList<InputValueDefinitionNode> */
         public $arguments;
         /** @var bool */
         public $repeatable;
-        /** @var NameNode[] */
+        /** @var NodeList<NameNode> */
         public $locations;
     }
     class DirectiveNode extends \GraphQL\Language\AST\Node
@@ -10935,7 +10943,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::DIRECTIVE;
         /** @var NameNode */
         public $name;
-        /** @var ArgumentNode[] */
+        /** @var NodeList<ArgumentNode> */
         public $arguments;
     }
     class DocumentNode extends \GraphQL\Language\AST\Node
@@ -10962,7 +10970,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::ENUM_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var NodeList<EnumValueDefinitionNode>|null */
         public $values;
@@ -10987,9 +10995,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
-        /** @var EnumValueDefinitionNode[]|null */
+        /** @var NodeList<EnumValueDefinitionNode>|null */
         public $values;
     }
     class EnumValueDefinitionNode extends \GraphQL\Language\AST\Node
@@ -10998,7 +11006,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::ENUM_VALUE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var StringValueNode|null */
         public $description;
@@ -11047,9 +11055,9 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var NameNode|null */
         public $alias;
-        /** @var ArgumentNode[]|null */
+        /** @var NodeList<ArgumentNode>|null */
         public $arguments;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
         /** @var SelectionSetNode|null */
         public $selectionSet;
@@ -11096,7 +11104,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::FRAGMENT_SPREAD;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
     }
     class InlineFragmentNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\SelectionNode
@@ -11105,7 +11113,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INLINE_FRAGMENT;
         /** @var NamedTypeNode */
         public $typeCondition;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
         /** @var SelectionSetNode */
         public $selectionSet;
@@ -11116,9 +11124,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
-        /** @var InputValueDefinitionNode[]|null */
+        /** @var NodeList<InputValueDefinitionNode>|null */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -11129,9 +11137,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
-        /** @var InputValueDefinitionNode[]|null */
+        /** @var NodeList<InputValueDefinitionNode>|null */
         public $fields;
     }
     class InputValueDefinitionNode extends \GraphQL\Language\AST\Node
@@ -11144,7 +11152,7 @@ namespace GraphQL\Language\AST {
         public $type;
         /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null */
         public $defaultValue;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var StringValueNode|null */
         public $description;
@@ -11162,9 +11170,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
-        /** @var FieldDefinitionNode[]|null */
+        /** @var NodeList<FieldDefinitionNode>|null */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -11175,9 +11183,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
-        /** @var FieldDefinitionNode[]|null */
+        /** @var NodeList<FieldDefinitionNode>|null */
         public $fields;
     }
     /**
@@ -11487,11 +11495,11 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var NamedTypeNode[] */
-        public $interfaces = [];
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<NamedTypeNode> */
+        public $interfaces;
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var FieldDefinitionNode[]|null */
+        /** @var NodeList<FieldDefinitionNode>|null */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -11502,11 +11510,11 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NamedTypeNode[] */
-        public $interfaces = [];
-        /** @var DirectiveNode[] */
+        /** @var NodeList<NamedTypeNode> */
+        public $interfaces;
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var FieldDefinitionNode[] */
+        /** @var NodeList<FieldDefinitionNode> */
         public $fields;
     }
     class ObjectValueNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\ValueNode
@@ -11522,11 +11530,11 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::OPERATION_DEFINITION;
         /** @var NameNode|null */
         public $name;
-        /** @var string (oneOf 'query', 'mutation')) */
+        /** @var string (oneOf 'query', 'mutation', 'subscription')) */
         public $operation;
-        /** @var VariableDefinitionNode[] */
+        /** @var NodeList<VariableDefinitionNode> */
         public $variableDefinitions;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var SelectionSetNode */
         public $selectionSet;
@@ -11550,7 +11558,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var StringValueNode|null */
         public $description;
@@ -11561,32 +11569,32 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
     }
     class SchemaDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\TypeSystemDefinitionNode
     {
         /** @var string */
         public $kind = \GraphQL\Language\AST\NodeKind::SCHEMA_DEFINITION;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var OperationTypeDefinitionNode[] */
+        /** @var NodeList<OperationTypeDefinitionNode> */
         public $operationTypes;
     }
     class SchemaTypeExtensionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\TypeExtensionNode
     {
         /** @var string */
         public $kind = \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
-        /** @var OperationTypeDefinitionNode[]|null */
+        /** @var NodeList<OperationTypeDefinitionNode>|null */
         public $operationTypes;
     }
     class SelectionSetNode extends \GraphQL\Language\AST\Node
     {
         /** @var string */
         public $kind = \GraphQL\Language\AST\NodeKind::SELECTION_SET;
-        /** @var SelectionNode[] */
+        /** @var NodeList<SelectionNode&Node> */
         public $selections;
     }
     class StringValueNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\ValueNode
@@ -11604,7 +11612,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::UNION_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var NodeList<NamedTypeNode>|null */
         public $types;
@@ -11617,7 +11625,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var DirectiveNode[]|null */
+        /** @var NodeList<DirectiveNode>|null */
         public $directives;
         /** @var NodeList<NamedTypeNode>|null */
         public $types;
@@ -11632,7 +11640,7 @@ namespace GraphQL\Language\AST {
         public $type;
         /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null */
         public $defaultValue;
-        /** @var DirectiveNode[] */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
     }
     class VariableNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\ValueNode
@@ -11776,14 +11784,14 @@ namespace GraphQL\Language {
      * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
      * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
      * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static NamedTypeNode[] implementsInterfaces(Source|string $source, bool[] $options = [])
+     * @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
      * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
      * @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
      * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
      * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
      * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
      * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static NamedTypeNode[] unionMemberTypes(Source|string $source, bool[] $options = [])
+     * @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
      * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
      * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
      * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
@@ -11798,8 +11806,8 @@ namespace GraphQL\Language {
      * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
      * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
      * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
-     * @method static DirectiveLocation[] directiveLocations(Source|string $source, bool[] $options = [])
-     * @method static DirectiveLocation directiveLocation(Source|string $source, bool[] $options = [])
+     * @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
+     * @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
      */
     class Parser
     {
@@ -12629,12 +12637,12 @@ namespace GraphQL\Server {
          * (e.g. during schema instantiation).
          *
          * @param Throwable $error
-         * @param bool      $debug
+         * @param int       $debug
          * @param bool      $exitWhenDone
          *
          * @api
          */
-        public static function send500Error($error, $debug = false, $exitWhenDone = false)
+        public static function send500Error($error, $debug = \GraphQL\Error\DebugFlag::NONE, $exitWhenDone = false)
         {
         }
         /**
