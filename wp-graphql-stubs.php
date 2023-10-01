@@ -9591,6 +9591,10 @@ namespace WPGraphQL\Utils {
          */
         protected $runtime_nodes = [];
         /**
+         * @var array
+         */
+        protected $runtime_nodes_by_type = [];
+        /**
          * @var string
          */
         protected $query_id;
@@ -9602,6 +9606,14 @@ namespace WPGraphQL\Utils {
          * @var Int The character length limit for headers
          */
         protected $header_length_limit;
+        /**
+         * @var string The keys that were skipped from being returned in the X-GraphQL-Keys header.
+         */
+        protected $skipped_keys = '';
+        /**
+         * @var array The GraphQL keys to return in the X-GraphQL-Keys header.
+         */
+        protected $graphql_keys = [];
         /**
          * @param Request $request The GraphQL request being executed
          */
@@ -9626,7 +9638,9 @@ namespace WPGraphQL\Utils {
          * @param ?string         $query     The GraphQL query
          * @param ?string         $operation The name of the operation
          * @param ?array          $variables Variables to be passed to your GraphQL request
-         * @param OperationParams $params    The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
+         * @param OperationParams $params    The Operation Params. This includes any extra params, such
+         *                                   as extenions or any other modifications to the request
+         *                                   body
          *
          * @return void
          * @throws Exception
@@ -9697,8 +9711,8 @@ namespace WPGraphQL\Utils {
         {
         }
         /**
-         * Given the Schema and a query string, return a list of GraphQL model names that are being asked for
-         * by the query.
+         * Given the Schema and a query string, return a list of GraphQL model names that are being
+         * asked for by the query.
          *
          * @param ?Schema $schema The WPGraphQL Schema
          * @param ?string $query  The query string
@@ -9721,6 +9735,14 @@ namespace WPGraphQL\Utils {
         {
         }
         /**
+         * Returns graphql keys for use in debugging and headers.
+         *
+         * @return array
+         */
+        public function get_graphql_keys()
+        {
+        }
+        /**
          * Return headers
          *
          * @param array $headers The array of headers being returned
@@ -9728,6 +9750,20 @@ namespace WPGraphQL\Utils {
          * @return array
          */
         public function get_headers(array $headers = []) : array
+        {
+        }
+        /**
+         * Outputs Query Analyzer data in the extensions response
+         *
+         * @param mixed       $response
+         * @param WPSchema    $schema         The WPGraphQL Schema
+         * @param string|null $operation_name The operation name being executed
+         * @param string|null $request        The GraphQL Request being made
+         * @param array|null  $variables      The variables sent with the request
+         *
+         * @return array|object|null
+         */
+        public function show_query_analyzer_in_extensions($response, \WPGraphQL\WPSchema $schema, ?string $operation_name, ?string $request, ?array $variables)
         {
         }
     }
@@ -10076,6 +10112,16 @@ namespace WPGraphQL\Utils {
          * @return int|false
          */
         public static function get_database_id_from_id($id)
+        {
+        }
+        /**
+         * Get the node type from the ID
+         *
+         * @param int|string $id The encoded Node ID.
+         *
+         * @return bool|null
+         */
+        public static function get_node_type_from_id($id)
         {
         }
     }
