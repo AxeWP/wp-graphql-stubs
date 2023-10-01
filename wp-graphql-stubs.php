@@ -2298,21 +2298,6 @@ namespace WPGraphQL\Data\Connection {
         public function should_execute()
         {
         }
-        /**
-         * Creates the connection for themes
-         *
-         * @param mixed       $source  The query results of the query calling this relation
-         * @param array       $args    Query arguments
-         * @param AppContext  $context The AppContext object
-         * @param ResolveInfo $info    The ResolveInfo object
-         *
-         * @since  0.5.0
-         * @return array
-         * @throws \Exception
-         */
-        public static function resolve($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
     }
     /**
      * Class UserConnectionResolver
@@ -3948,18 +3933,18 @@ namespace WPGraphQL\Data {
     class TermObjectMutation
     {
         /**
-         * This prepares the object to be mutated – ensures data is safe to be saved,
+         * This prepares the object to be mutated - ensures data is safe to be saved,
          * and mapped from input args to WordPress $args
          *
          * @param array        $input         The input from the GraphQL Request
-         * @param \WP_Taxonomy $taxonomy      The Taxonomy object for the type of term being mutated
+         * @param WP_Taxonomy  $taxonomy      The Taxonomy object for the type of term being mutated
          * @param string       $mutation_name The name of the mutation (create, update, etc)
          *
-         * @throws \Exception
+         * @throws Exception
          *
          * @return mixed
          */
-        public static function prepare_object($input, \WP_Taxonomy $taxonomy, $mutation_name)
+        public static function prepare_object(array $input, \WP_Taxonomy $taxonomy, string $mutation_name)
         {
         }
     }
