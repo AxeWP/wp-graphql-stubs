@@ -5048,6 +5048,7 @@ namespace WPGraphQL\Model {
      * Class User - Models the data for the User object type
      *
      * @property string $id
+     * @property int    $databaseId
      * @property array  $capabilities
      * @property string $capKey
      * @property array  $roles
