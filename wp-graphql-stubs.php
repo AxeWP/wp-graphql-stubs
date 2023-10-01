@@ -1109,11 +1109,12 @@ namespace WPGraphQL\Data {
          * the meta values have same values multiple times. This filter adds a
          * secondary ordering by the post ID which forces stable order in such cases.
          *
-         * @param string $orderby The ORDER BY clause of the query.
+         * @param string    $orderby  The ORDER BY clause of the query.
+         * @param \WP_Query $wp_query The WP_Query instance executing
          *
          * @return string
          */
-        public function graphql_wp_query_cursor_pagination_stability($orderby)
+        public function graphql_wp_query_cursor_pagination_stability(string $orderby, \WP_Query $wp_query)
         {
         }
         /**
@@ -1170,7 +1171,7 @@ namespace WPGraphQL\Data {
          * This returns a modified version of the $pieces of the comment query clauses if the request
          * is a GraphQL Request and the query has a graphql_cursor_offset defined
          *
-         * @param array             $pieces A compacted array of comment query clauses.
+         * @param array            $pieces A compacted array of comment query clauses.
          * @param WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
          *
          * @return array $pieces
@@ -1474,6 +1475,18 @@ namespace WPGraphQL\Data\Connection {
          * @throws Exception
          */
         public function get_amount_requested()
+        {
+        }
+        /**
+         * @return int|null
+         */
+        public function get_after_offset() : ?int
+        {
+        }
+        /**
+         * @return int|null
+         */
+        public function get_before_offset() : ?int
         {
         }
         /**
@@ -2548,8 +2561,8 @@ namespace WPGraphQL\Data\Connection {
          *
          * @param array $args The query "where" args
          *
-         * @since  0.0.5
          * @return array
+         * @since  0.0.5
          */
         protected function sanitize_input_fields(array $args)
         {
@@ -2674,11 +2687,11 @@ namespace WPGraphQL\Data\Cursor {
          * will be the primary field and latter ones will be used if the primary
          * field has duplicate values
          *
-         * @param string           $key           database column
-         * @param mixed|string|int $value         value from the current cursor
-         * @param string           $type          type cast
-         * @param string           $order         custom order
-         * @param PostObjectCursor $object_cursor The PostObjectCursor class
+         * @param string                $key           database column
+         * @param mixed|string|int      $value         value from the current cursor
+         * @param string|null           $type          type cast
+         * @param string|null           $order         custom order
+         * @param PostObjectCursor|null $object_cursor The PostObjectCursor class
          *
          * @return void
          */
@@ -2763,11 +2776,20 @@ namespace WPGraphQL\Data\Cursor {
          */
         public $query_vars = [];
         /**
+         * @var string|null
+         */
+        public $cursor;
+        /**
+         * @var string
+         */
+        public $compare;
+        /**
          * PostCursor constructor.
          *
-         * @param WP_Query $query The WP_Query instance
+         * @param WP_Query    $query  The WP_Query instance
+         * @param string|null $cursor Whether to generate the before or after cursor. Default "after"
          */
-        public function __construct($query)
+        public function __construct(\WP_Query $query, $cursor = '')
         {
         }
         /**
@@ -2847,13 +2869,22 @@ namespace WPGraphQL\Data\Cursor {
          */
         public $query_vars = [];
         /**
+         * @var string|null
+         */
+        public $cursor;
+        /**
+         * @var string
+         */
+        public $compare;
+        /**
          * UserCursor constructor.
          *
-         * @param WP_User_Query $query The WP_User_Query instance
+         * @param WP_User_Query $query  The WP_User_Query instance
+         * @param string|null   $cursor Whether to generate the before or after cursor
          *
          * @return void
          */
-        public function __construct(\WP_User_Query $query)
+        public function __construct(\WP_User_Query $query, $cursor = '')
         {
         }
         /**
@@ -9424,8 +9455,8 @@ namespace {
          * The whole idea of the singleton design pattern is that there is a single object
          * therefore, we don't want the object to be cloned.
          *
-         * @since  0.0.1
          * @return void
+         * @since  0.0.1
          */
         public function __clone()
         {
@@ -9433,8 +9464,8 @@ namespace {
         /**
          * Disable unserializing of the class.
          *
-         * @since  0.0.1
          * @return void
+         * @since  0.0.1
          */
         public function __wakeup()
         {
@@ -9461,11 +9492,18 @@ namespace {
          * If the server is running a lower version than required, throw an exception and prevent
          * further execution.
          *
+         * @return void
          * @throws Exception
+         */
+        public function min_php_version_check()
+        {
+        }
+        /**
+         * Sets up the plugin url
          *
          * @return void
          */
-        public function min_php_version_check()
+        public function setup_plugin_url()
         {
         }
         /**
@@ -9495,8 +9533,8 @@ namespace {
         /**
          * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
          *
-         * @since  0.0.2
          * @return void
+         * @since  0.0.2
          */
         public static function show_in_graphql()
         {
@@ -9519,8 +9557,8 @@ namespace {
          * are set to "show_in_graphql" but allows for external code (plugins/themes) to filter
          * the list of allowed_taxonomies to add/remove additional taxonomies
          *
-         * @since  0.0.4
          * @return array
+         * @since  0.0.4
          */
         public static function get_allowed_taxonomies()
         {
