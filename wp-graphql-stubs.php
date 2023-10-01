@@ -6260,28 +6260,15 @@ namespace WPGraphQL\Registry {
         {
         }
         /**
-         * Utility method that formats the connection name given the name of the from Type and the to
-         * Type
-         *
-         * @param string $from_type        Name of the Type the connection is coming from
-         * @param string $to_type          Name of the Type the connection is going to
-         * @param string $from_field_name  Acts as an alternative "toType" if connection type already defined using $to_type.
-         *
-         * @return string
-         */
-        protected function get_connection_name($from_type, $to_type, $from_field_name)
-        {
-        }
-        /**
          * Method to register a new connection in the Type registry
          *
          * @param array $config The info about the connection being registered
          *
          * @return void
-         * @throws \InvalidArgumentException
+         * @throws InvalidArgumentException
          * @throws Exception
          */
-        public function register_connection($config)
+        public function register_connection(array $config)
         {
         }
         /**
@@ -8159,6 +8146,225 @@ namespace WPGraphQL\Type\Union {
          * @return array
          */
         public static function get_possible_types()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type {
+    /**
+     * Class WPConnectionType
+     *
+     * @package WPGraphQL\Type
+     */
+    class WPConnectionType
+    {
+        /**
+         * Configuration for how auth should be handled on the connection field
+         *
+         * @var array
+         */
+        protected $auth;
+        /**
+         * The config for the connection
+         *
+         * @var array
+         */
+        protected $config;
+        /**
+         * The args configured for the connection
+         *
+         * @var array
+         */
+        protected $connection_args;
+        /**
+         * The fields to show on the connection
+         *
+         * @var array
+         */
+        protected $connection_fields;
+        /**
+         * @var array|null
+         */
+        protected $connection_interfaces;
+        /**
+         * The name of the connection
+         *
+         * @var mixed|string
+         */
+        protected $connection_name;
+        /**
+         * The fields to expose on the edge of the connection
+         *
+         * @var array
+         */
+        protected $edge_fields;
+        /**
+         * The name of the field the connection will be exposed as
+         *
+         * @var string
+         */
+        protected $from_field_name;
+        /**
+         * The name of the GraphQL Type the connection stems from
+         *
+         * @var string
+         */
+        protected $from_type;
+        /**
+         * Whether the connection is a one-to-one connection (default is false)
+         *
+         * @var bool
+         */
+        protected $one_to_one;
+        /**
+         * The Query Class that is used to resolve the connection.
+         *
+         * @var string
+         */
+        protected $query_class;
+        /**
+         * The resolver function to resolve the connection
+         *
+         * @var callable|Closure
+         */
+        protected $resolve_connection;
+        /**
+         * @var mixed|null
+         */
+        protected $resolve_cursor;
+        /**
+         * The name of the GraphQL Type the connection connects to
+         *
+         * @var string
+         */
+        protected $to_type;
+        /**
+         * The WPGraphQL TypeRegistry
+         *
+         * @var TypeRegistry
+         */
+        protected $type_registry;
+        /**
+         * The where args for the connection
+         *
+         * @var array
+         */
+        protected $where_args;
+        /**
+         * WPConnectionType constructor.
+         *
+         * @param array        $config The config array for the connection
+         * @param TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
+         */
+        public function __construct(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+        /**
+         * Validates that essential key/value pairs are passed to the connection config.
+         *
+         * @param array $config
+         *
+         * @return void
+         */
+        protected function validate_config(array $config)
+        {
+        }
+        /**
+         * Get edge interfaces
+         *
+         * @param array $interfaces
+         *
+         * @return array
+         */
+        protected function get_edge_interfaces(array $interfaces)
+        {
+        }
+        /**
+         * Utility method that formats the connection name given the name of the from Type and the to
+         * Type
+         *
+         * @param string $from_type        Name of the Type the connection is coming from
+         * @param string $to_type          Name of the Type the connection is going to
+         * @param string $from_field_name  Acts as an alternative "toType" if connection type already defined using $to_type.
+         *
+         * @return string
+         */
+        public function get_connection_name(string $from_type, string $to_type, string $from_field_name)
+        {
+        }
+        /**
+         * If the connection includes connection args in the config, this registers the input args
+         * for the connection
+         *
+         * @return void
+         *
+         * @throws Exception
+         */
+        protected function register_connection_input()
+        {
+        }
+        /**
+         * Registers the One to One Connection Edge type to the Schema
+         *
+         * @return void
+         *
+         * @throws Exception
+         */
+        protected function register_one_to_one_connection_edge_type()
+        {
+        }
+        /**
+         * Registers the Connection Edge type to the Schema
+         *
+         * @return void
+         *
+         * @throws Exception
+         */
+        protected function register_connection_edge_type()
+        {
+        }
+        /**
+         * Registers the Connection Type to the Schema
+         *
+         * @return void
+         *
+         * @throws Exception
+         */
+        protected function register_connection_type()
+        {
+        }
+        /**
+         * Returns fields to be used on the connection
+         *
+         * @return array
+         */
+        protected function get_connection_fields()
+        {
+        }
+        /**
+         * Get the args used for pagination on connections
+         *
+         * @return array|array[]
+         */
+        protected function get_pagination_args()
+        {
+        }
+        /**
+         * Registers the connection in the Graph
+         *
+         * @return void
+         */
+        public function register_connection_field()
+        {
+        }
+        /**
+         * Registers the connection Types and field to the Schema
+         *
+         * @return void
+         *
+         * @throws Exception
+         */
+        public function register_connection()
         {
         }
     }
