@@ -37,6 +37,10 @@ and see the `example` directory over there.
 
 This package is versioned to match the WPGraphQL version from which the stubs are generated.
 
+When changes are made to the actual stub generation that require a new release, the old release is _deleted_ and a new tag is created with the format `x.x.x+repack.y` where `x.x.x` is the WPGraphQL version and `y` is the the repack iteration. This is necessary because Composer's SemVer implementation ignores build meta when determining the latest version.
+
+If you already have an old build of the version installed, you will need to run `composer update --no-cache` to get the latest repack.
+
 ## Generating stubs for a different WPGraphQL version
 
 1. Clone this repository and `cd` into it.
