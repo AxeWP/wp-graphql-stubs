@@ -3351,6 +3351,27 @@ namespace WPGraphQL\Data\Loader {
         {
         }
         /**
+         * Returns a cached data object by key.
+         *
+         * @param mixed $key  Key.
+         *
+         * @return mixed
+         */
+        protected function get_cached($key)
+        {
+        }
+        /**
+         * Caches a data object by key.
+         *
+         * @param mixed $key    Key.
+         * @param mixed $value  Data object.
+         *
+         * @return mixed
+         */
+        protected function set_cached($key, $value)
+        {
+        }
+        /**
          * If the loader needs to do any tweaks between getting raw data from the DB and caching,
          * this can be overridden by the specific loader and used for transformations, etc.
          *
