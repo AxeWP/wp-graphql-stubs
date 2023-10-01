@@ -112,30 +112,6 @@ namespace WPGraphQL\Admin\GraphiQL {
         {
         }
         /**
-         * Gets the contents of the Create React App manifest file
-         *
-         * @return array
-         */
-        public function get_app_manifest()
-        {
-        }
-        /**
-         * Gets the path to the stylesheet compiled by Create React App
-         *
-         * @return string
-         */
-        public function get_app_stylesheet()
-        {
-        }
-        /**
-         * Gets the path to the built javascript file compiled by Create React App
-         *
-         * @return string
-         */
-        public function get_app_script()
-        {
-        }
-        /**
          * Get the helpers JS
          *
          * @return string
@@ -149,6 +125,14 @@ namespace WPGraphQL\Admin\GraphiQL {
          * @return void
          */
         public function enqueue_graphiql()
+        {
+        }
+        /**
+         * Loads the React App from the manifest.json
+         *
+         * @return void
+         */
+        public function load_app()
         {
         }
     }
