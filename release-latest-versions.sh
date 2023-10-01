@@ -27,15 +27,18 @@ do_release() {
 
 	# Tag version
 	if [ -z "${REPACK_VERSION}" ]; then
+		echo "Tagging ${VERSION}"
+		git commit --all -m "Generate stubs for WPGraphQL ${VERSION}"
+		git tag "${VERSION}"
+	else
+		echo "Tagging ${VERSION}+repack.${REPACK_VERSION}"
 		git commit --all -m "Generating stubs for WPGraphQL ${VERSION}+repack.${REPACK_VERSION}"
-		git tag "v${VERSION}+repack.${REPACK_VERSION}"
+		git tag "${VERSION}+repack.${REPACK_VERSION}"
 
 		# Delete the old git tag.
-		git tag -d "v${VERSION}"
-		git push --delete origin "v${VERSION}"
-	else
-		git commit --all -m "Generate stubs for WPGraphQL ${VERSION}"
-		git tag "v${VERSION}"
+	  echo "Deleting old tag ${VERSION}"
+		git tag -d "${VERSION}"
+		git push --delete origin "${VERSION}"
 	fi
 
 	git push
@@ -50,11 +53,16 @@ GQL_JSON="$(wget -q -O- "https://packagist.org/packages/wp-graphql/wp-graphql.js
 # Get every possible version from GQL_JSON. Valid versions are prefixed with `v`, followed by anything.
 printf -v JQ_FILTER '.package.versions[].version | select(. | startswith("v"))'
 POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -t ".")"
-echo ${POSSIBLE_VERSIONS}
 
 # Loop through all possible versions and see if they exist as tags
 for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
-	echo ${POSSIBLE_VERSION}
+	# Skip versions before 1.0.0
+	if [ "${POSSIBLE_VERSION}" \< "v0.9.9" ]; then
+		echo "Skipping ${POSSIBLE_VERSION}"
+		continue
+	fi
+
+	echo "Checking ${POSSIBLE_VERSION}"
 
 	# If the tag exists, skip it or rerelease it.
 	if git rev-parse "refs/tags/${POSSIBLE_VERSION}" >/dev/null 2>&1; then
