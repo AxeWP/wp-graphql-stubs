@@ -5871,7 +5871,7 @@ namespace WPGraphQL\Registry {
         /**
          * SchemaRegistry constructor.
          *
-         * @throws \Exception
+         * @throws Exception
          */
         public function __construct()
         {
@@ -5880,7 +5880,7 @@ namespace WPGraphQL\Registry {
          * Returns the Schema to use for execution of the GraphQL Request
          *
          * @return WPSchema
-         * @throws \Exception
+         * @throws Exception
          */
         public function get_schema()
         {
@@ -10168,10 +10168,11 @@ namespace WPGraphQL {
          * WPSchema constructor.
          *
          * @param SchemaConfig $config The config for the Schema.
+         * @param TypeRegistry $type_registry
          *
          * @since 0.0.9
          */
-        public function __construct(\GraphQL\Type\SchemaConfig $config)
+        public function __construct(\GraphQL\Type\SchemaConfig $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
