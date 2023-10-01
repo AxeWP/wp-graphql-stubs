@@ -3277,6 +3277,16 @@ namespace WPGraphQL\Data {
         {
         }
         /**
+         * Format the setting group name to our standard.
+         *
+         * @param string $group
+         *
+         * @return string $group
+         */
+        public static function format_group_name(string $group)
+        {
+        }
+        /**
          * Get all of the allowed settings by group and return the
          * settings group that matches the group param
          *
@@ -4921,6 +4931,7 @@ namespace WPGraphQL\Model {
      *
      * @property string $id
      * @property int    $term_id
+     * @property int    $databaseId
      * @property int    $count
      * @property string $description
      * @property string $name
@@ -8602,6 +8613,28 @@ namespace WPGraphQL\Type {
         {
         }
     }
+    /**
+     * Trait WPInterfaceTrait
+     *
+     * This Trait includes methods to help Interfaces and ObjectTypes ensure they implement
+     * the proper inherited interfaces
+     *
+     * @package WPGraphQL\Type
+     */
+    trait WPInterfaceTrait
+    {
+        /**
+         * Given an array of interfaces, this gets the Interfaces the Type should implement including
+         * inherited interfaces.
+         *
+         * @param array $interfaces Array of interfaces the type implements
+         *
+         * @return array
+         */
+        protected function get_implemented_interfaces(array $interfaces)
+        {
+        }
+    }
 }
 namespace GraphQL\Type\Definition {
     /**
@@ -8630,11 +8663,65 @@ namespace GraphQL\Type\Definition {
     interface CompositeType
     {
     }
-    class InterfaceType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\AbstractType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
+    /**
+    export type GraphQLImplementingType =
+    GraphQLObjectType |
+    GraphQLInterfaceType;
+    */
+    interface ImplementingType
+    {
+        public function implementsInterface(\GraphQL\Type\Definition\InterfaceType $interfaceType) : bool;
+        /**
+         * @return array<int, InterfaceType>
+         */
+        public function getInterfaces() : array;
+    }
+    interface HasFieldsType
+    {
+        /**
+         * @throws InvariantViolation
+         */
+        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition;
+        public function hasField(string $name) : bool;
+        public function findField(string $name) : ?\GraphQL\Type\Definition\FieldDefinition;
+        /**
+         * @return array<string, FieldDefinition>
+         *
+         * @throws InvariantViolation
+         */
+        public function getFields() : array;
+        /**
+         * @return array<int, string>
+         *
+         * @throws InvariantViolation
+         */
+        public function getFieldNames() : array;
+    }
+    abstract class TypeWithFields extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\HasFieldsType
+    {
+        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition
+        {
+        }
+        public function findField(string $name) : ?\GraphQL\Type\Definition\FieldDefinition
+        {
+        }
+        public function hasField(string $name) : bool
+        {
+        }
+        /** @inheritDoc */
+        public function getFields() : array
+        {
+        }
+        /** @inheritDoc */
+        public function getFieldNames() : array
+        {
+        }
+    }
+    class InterfaceType extends \GraphQL\Type\Definition\TypeWithFields implements \GraphQL\Type\Definition\AbstractType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType, \GraphQL\Type\Definition\ImplementingType
     {
         /** @var InterfaceTypeDefinitionNode|null */
         public $astNode;
-        /** @var InterfaceTypeExtensionNode[] */
+        /** @var array<int, InterfaceTypeExtensionNode> */
         public $extensionASTNodes;
         /**
          * @param mixed[] $config
@@ -8652,19 +8739,13 @@ namespace GraphQL\Type\Definition {
         public static function assertInterfaceType($type) : self
         {
         }
-        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition
-        {
-        }
-        public function hasField(string $name) : bool
+        public function implementsInterface(\GraphQL\Type\Definition\InterfaceType $interfaceType) : bool
         {
         }
         /**
-         * @return FieldDefinition[]
+         * @return array<int, InterfaceType>
          */
-        public function getFields() : array
-        {
-        }
-        protected function initializeFields() : void
+        public function getInterfaces() : array
         {
         }
         /**
@@ -8689,6 +8770,7 @@ namespace GraphQL\Type\Definition {
 namespace WPGraphQL\Type {
     class WPInterfaceType extends \GraphQL\Type\Definition\InterfaceType
     {
+        use \WPGraphQL\Type\WPInterfaceTrait;
         /**
          * Instance of the TypeRegistry as an Interface needs knowledge of available Types
          *
@@ -8700,8 +8782,18 @@ namespace WPGraphQL\Type {
          *
          * @param array        $config
          * @param TypeRegistry $type_registry
+         *
+         * @throws Exception
          */
         public function __construct(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+        /**
+         * Get interfaces implemented by this Interface
+         *
+         * @return array
+         */
+        public function getInterfaces() : array
         {
         }
         /**
@@ -8759,7 +8851,7 @@ namespace GraphQL\Type\Definition {
      *        }
      *     ]);
      */
-    class ObjectType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
+    class ObjectType extends \GraphQL\Type\Definition\TypeWithFields implements \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType, \GraphQL\Type\Definition\ImplementingType
     {
         /** @var ObjectTypeDefinitionNode|null */
         public $astNode;
@@ -8783,31 +8875,11 @@ namespace GraphQL\Type\Definition {
         public static function assertObjectType($type) : self
         {
         }
-        /**
-         * @throws InvariantViolation
-         */
-        public function getField(string $name) : \GraphQL\Type\Definition\FieldDefinition
-        {
-        }
-        public function hasField(string $name) : bool
-        {
-        }
-        /**
-         * @return FieldDefinition[]
-         *
-         * @throws InvariantViolation
-         */
-        public function getFields() : array
-        {
-        }
-        protected function initializeFields() : void
-        {
-        }
         public function implementsInterface(\GraphQL\Type\Definition\InterfaceType $interfaceType) : bool
         {
         }
         /**
-         * @return InterfaceType[]
+         * @return array<int, InterfaceType>
          */
         public function getInterfaces() : array
         {
@@ -8844,6 +8916,7 @@ namespace WPGraphQL\Type {
      */
     class WPObjectType extends \GraphQL\Type\Definition\ObjectType
     {
+        use \WPGraphQL\Type\WPInterfaceTrait;
         /**
          * Instance of the Type Registry
          *
@@ -8856,9 +8929,18 @@ namespace WPGraphQL\Type {
          * @param array        $config
          * @param TypeRegistry $type_registry
          *
+         * @throws \Exception
          * @since 0.0.5
          */
         public function __construct($config, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+        /**
+         * Get the interfaces implemented by the ObjectType
+         *
+         * @return array
+         */
+        public function getInterfaces() : array
         {
         }
         /**
@@ -9134,7 +9216,7 @@ namespace WPGraphQL\Utils {
          *
          * @return WPSchema
          */
-        public static function instrument_schema(\WPGraphQL\WPSchema $schema)
+        public static function instrument_schema(\WPGraphQL\WPSchema $schema) : \WPGraphQL\WPSchema
         {
         }
         /**
@@ -9148,7 +9230,7 @@ namespace WPGraphQL\Utils {
          *
          * @return mixed
          */
-        protected static function wrap_fields($fields, $type_name)
+        protected static function wrap_fields(array $fields, string $type_name)
         {
         }
         /**
@@ -9765,11 +9847,11 @@ namespace GraphQL\Type {
          *
          * This operation requires full schema scan. Do not use in production environment.
          *
-         * @return Type[]
+         * @return array<string, Type>
          *
          * @api
          */
-        public function getTypeMap()
+        public function getTypeMap() : array
         {
         }
         /**
@@ -9864,12 +9946,36 @@ namespace GraphQL\Type {
         {
         }
         /**
+         * Returns all types that implement a given interface type.
+         *
+         * This operations requires full schema scan. Do not use in production environment.
+         *
+         * @api
+         */
+        public function getImplementations(\GraphQL\Type\Definition\InterfaceType $abstractType) : \GraphQL\Utils\InterfaceImplementations
+        {
+        }
+        /**
+         * @deprecated as of 14.4.0 use isSubType instead, will be removed in 15.0.0.
+         *
          * Returns true if object type is concrete type of given abstract type
          * (implementation for interfaces and members of union type for unions)
          *
          * @api
+         * @codeCoverageIgnore
          */
         public function isPossibleType(\GraphQL\Type\Definition\AbstractType $abstractType, \GraphQL\Type\Definition\ObjectType $possibleType) : bool
+        {
+        }
+        /**
+         * Returns true if the given type is a sub type of the given abstract type.
+         *
+         * @param UnionType|InterfaceType  $abstractType
+         * @param ObjectType|InterfaceType $maybeSubType
+         *
+         * @api
+         */
+        public function isSubType(\GraphQL\Type\Definition\AbstractType $abstractType, \GraphQL\Type\Definition\ImplementingType $maybeSubType) : bool
         {
         }
         /**
@@ -11390,7 +11496,7 @@ namespace GraphQL\Error {
          * Prepares final error formatter taking in account $debug flags.
          * If initial formatter is not set, FormattedError::createFromException is used
          */
-        public static function prepareFormatter(?callable $formatter = null, int $debug) : callable
+        public static function prepareFormatter(?callable $formatter, int $debug) : callable
         {
         }
         /**
@@ -12043,6 +12149,15 @@ namespace GraphQL\Executor\Promise {
 namespace GraphQL\Executor {
     class ReferenceExecutor implements \GraphQL\Executor\ExecutorImplementation
     {
+        /** @var object */
+        protected static $UNDEFINED;
+        /** @var ExecutionContext */
+        protected $exeContext;
+        /** @var SplObjectStorage */
+        protected $subFieldCache;
+        protected function __construct(\GraphQL\Executor\ExecutionContext $context)
+        {
+        }
         /**
          * @param mixed                    $rootValue
          * @param mixed                    $contextValue
@@ -12051,7 +12166,353 @@ namespace GraphQL\Executor {
         public static function create(\GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter, \GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue, $contextValue, $variableValues, ?string $operationName, callable $fieldResolver) : \GraphQL\Executor\ExecutorImplementation
         {
         }
+        /**
+         * Constructs an ExecutionContext object from the arguments passed to
+         * execute, which we will pass throughout the other execution methods.
+         *
+         * @param mixed                    $rootValue
+         * @param mixed                    $contextValue
+         * @param array<mixed>|Traversable $rawVariableValues
+         *
+         * @return ExecutionContext|array<Error>
+         */
+        protected static function buildExecutionContext(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue, $contextValue, $rawVariableValues, ?string $operationName = null, ?callable $fieldResolver = null, ?\GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter = null)
+        {
+        }
         public function doExecute() : \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /**
+         * @param mixed|Promise|null $data
+         *
+         * @return ExecutionResult|Promise
+         */
+        protected function buildResponse($data)
+        {
+        }
+        /**
+         * Implements the "Evaluating operations" section of the spec.
+         *
+         * @param mixed $rootValue
+         *
+         * @return array<mixed>|Promise|stdClass|null
+         */
+        protected function executeOperation(\GraphQL\Language\AST\OperationDefinitionNode $operation, $rootValue)
+        {
+        }
+        /**
+         * Extracts the root type of the operation from the schema.
+         *
+         * @throws Error
+         */
+        protected function getOperationRootType(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\OperationDefinitionNode $operation) : \GraphQL\Type\Definition\ObjectType
+        {
+        }
+        /**
+         * Given a selectionSet, adds all of the fields in that selection to
+         * the passed in map of fields, and returns it at the end.
+         *
+         * CollectFields requires the "runtime type" of an object. For a field which
+         * returns an Interface or Union type, the "runtime type" will be the actual
+         * Object type returned by that field.
+         */
+        protected function collectFields(\GraphQL\Type\Definition\ObjectType $runtimeType, \GraphQL\Language\AST\SelectionSetNode $selectionSet, \ArrayObject $fields, \ArrayObject $visitedFragmentNames) : \ArrayObject
+        {
+        }
+        /**
+         * Determines if a field should be included based on the @include and @skip
+         * directives, where @skip has higher precedence than @include.
+         *
+         * @param FragmentSpreadNode|FieldNode|InlineFragmentNode $node
+         */
+        protected function shouldIncludeNode(\GraphQL\Language\AST\SelectionNode $node) : bool
+        {
+        }
+        /**
+         * Implements the logic to compute the key of a given fields entry
+         */
+        protected static function getFieldEntryKey(\GraphQL\Language\AST\FieldNode $node) : string
+        {
+        }
+        /**
+         * Determines if a fragment is applicable to the given type.
+         *
+         * @param FragmentDefinitionNode|InlineFragmentNode $fragment
+         */
+        protected function doesFragmentConditionMatch(\GraphQL\Language\AST\Node $fragment, \GraphQL\Type\Definition\ObjectType $type) : bool
+        {
+        }
+        /**
+         * Implements the "Evaluating selection sets" section of the spec
+         * for "write" mode.
+         *
+         * @param mixed             $rootValue
+         * @param array<string|int> $path
+         *
+         * @return array<mixed>|Promise|stdClass
+         */
+        protected function executeFieldsSerially(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
+        {
+        }
+        /**
+         * Resolves the field on the given root value.
+         *
+         * In particular, this figures out the value that the field returns
+         * by calling its resolve function, then calls completeValue to complete promises,
+         * serialize scalars, or execute the sub-selection-set for objects.
+         *
+         * @param mixed             $rootValue
+         * @param array<string|int> $path
+         *
+         * @return array<mixed>|Throwable|mixed|null
+         */
+        protected function resolveField(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, \ArrayObject $fieldNodes, array $path)
+        {
+        }
+        /**
+         * This method looks up the field on the given type definition.
+         *
+         * It has special casing for the two introspection fields, __schema
+         * and __typename. __typename is special because it can always be
+         * queried as a field, even in situations where no other fields
+         * are allowed, like on a Union. __schema could get automatically
+         * added to the query type, but that would require mutating type
+         * definitions, which would cause issues.
+         */
+        protected function getFieldDef(\GraphQL\Type\Schema $schema, \GraphQL\Type\Definition\ObjectType $parentType, string $fieldName) : ?\GraphQL\Type\Definition\FieldDefinition
+        {
+        }
+        /**
+         * Isolates the "ReturnOrAbrupt" behavior to not de-opt the `resolveField` function.
+         * Returns the result of resolveFn or the abrupt-return Error object.
+         *
+         * @param mixed $rootValue
+         *
+         * @return Throwable|Promise|mixed
+         */
+        protected function resolveFieldValueOrError(\GraphQL\Type\Definition\FieldDefinition $fieldDef, \GraphQL\Language\AST\FieldNode $fieldNode, callable $resolveFn, $rootValue, \GraphQL\Type\Definition\ResolveInfo $info)
+        {
+        }
+        /**
+         * This is a small wrapper around completeValue which detects and logs errors
+         * in the execution context.
+         *
+         * @param array<string|int> $path
+         * @param mixed             $result
+         *
+         * @return array<mixed>|Promise|stdClass|null
+         */
+        protected function completeValueCatchingError(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, $result)
+        {
+        }
+        /**
+         * @param mixed             $rawError
+         * @param array<string|int> $path
+         *
+         * @throws Error
+         */
+        protected function handleFieldError($rawError, \ArrayObject $fieldNodes, array $path, \GraphQL\Type\Definition\Type $returnType) : void
+        {
+        }
+        /**
+         * Implements the instructions for completeValue as defined in the
+         * "Field entries" section of the spec.
+         *
+         * If the field type is Non-Null, then this recursively completes the value
+         * for the inner type. It throws a field error if that completion returns null,
+         * as per the "Nullability" section of the spec.
+         *
+         * If the field type is a List, then this recursively completes the value
+         * for the inner type on each item in the list.
+         *
+         * If the field type is a Scalar or Enum, ensures the completed value is a legal
+         * value of the type by calling the `serialize` method of GraphQL type
+         * definition.
+         *
+         * If the field is an abstract type, determine the runtime type of the value
+         * and then complete based on that type
+         *
+         * Otherwise, the field type expects a sub-selection set, and will complete the
+         * value by evaluating all sub-selections.
+         *
+         * @param array<string|int> $path
+         * @param mixed             $result
+         *
+         * @return array<mixed>|mixed|Promise|null
+         *
+         * @throws Error
+         * @throws Throwable
+         */
+        protected function completeValue(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
+        {
+        }
+        /**
+         * @param mixed $value
+         */
+        protected function isPromise($value) : bool
+        {
+        }
+        /**
+         * Only returns the value if it acts like a Promise, i.e. has a "then" function,
+         * otherwise returns null.
+         *
+         * @param mixed $value
+         */
+        protected function getPromise($value) : ?\GraphQL\Executor\Promise\Promise
+        {
+        }
+        /**
+         * Similar to array_reduce(), however the reducing callback may return
+         * a Promise, in which case reduction will continue after each promise resolves.
+         *
+         * If the callback does not return a Promise, then this function will also not
+         * return a Promise.
+         *
+         * @param array<mixed>       $values
+         * @param Promise|mixed|null $initialValue
+         *
+         * @return Promise|mixed|null
+         */
+        protected function promiseReduce(array $values, callable $callback, $initialValue)
+        {
+        }
+        /**
+         * Complete a list value by completing each item in the list with the inner type.
+         *
+         * @param array<string|int>        $path
+         * @param array<mixed>|Traversable $results
+         *
+         * @return array<mixed>|Promise|stdClass
+         *
+         * @throws Exception
+         */
+        protected function completeListValue(\GraphQL\Type\Definition\ListOfType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$results)
+        {
+        }
+        /**
+         * Complete a Scalar or Enum by serializing to a valid value, throwing if serialization is not possible.
+         *
+         * @param mixed $result
+         *
+         * @return mixed
+         *
+         * @throws Exception
+         */
+        protected function completeLeafValue(\GraphQL\Type\Definition\LeafType $returnType, &$result)
+        {
+        }
+        /**
+         * Complete a value of an abstract type by determining the runtime object type
+         * of that value, then complete the value for that type.
+         *
+         * @param array<string|int> $path
+         * @param array<mixed>      $result
+         *
+         * @return array<mixed>|Promise|stdClass
+         *
+         * @throws Error
+         */
+        protected function completeAbstractValue(\GraphQL\Type\Definition\AbstractType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
+        {
+        }
+        /**
+         * If a resolveType function is not given, then a default resolve behavior is
+         * used which attempts two strategies:
+         *
+         * First, See if the provided value has a `__typename` field defined, if so, use
+         * that value as name of the resolved type.
+         *
+         * Otherwise, test each possible type for the abstract type by calling
+         * isTypeOf for the object being coerced, returning the first type that matches.
+         *
+         * @param mixed|null              $value
+         * @param mixed|null              $contextValue
+         * @param InterfaceType|UnionType $abstractType
+         *
+         * @return Promise|Type|string|null
+         */
+        protected function defaultTypeResolver($value, $contextValue, \GraphQL\Type\Definition\ResolveInfo $info, \GraphQL\Type\Definition\AbstractType $abstractType)
+        {
+        }
+        /**
+         * Complete an Object value by executing all sub-selections.
+         *
+         * @param array<string|int> $path
+         * @param mixed             $result
+         *
+         * @return array<mixed>|Promise|stdClass
+         *
+         * @throws Error
+         */
+        protected function completeObjectValue(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, &$result)
+        {
+        }
+        /**
+         * @param array<mixed> $result
+         *
+         * @return Error
+         */
+        protected function invalidReturnTypeError(\GraphQL\Type\Definition\ObjectType $returnType, $result, \ArrayObject $fieldNodes)
+        {
+        }
+        /**
+         * @param array<string|int> $path
+         * @param mixed             $result
+         *
+         * @return array<mixed>|Promise|stdClass
+         *
+         * @throws Error
+         */
+        protected function collectAndExecuteSubfields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, array $path, &$result)
+        {
+        }
+        /**
+         * A memoized collection of relevant subfields with regard to the return
+         * type. Memoizing ensures the subfields are not repeatedly calculated, which
+         * saves overhead when resolving lists of values.
+         */
+        protected function collectSubFields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes) : \ArrayObject
+        {
+        }
+        /**
+         * Implements the "Evaluating selection sets" section of the spec
+         * for "read" mode.
+         *
+         * @param mixed             $rootValue
+         * @param array<string|int> $path
+         *
+         * @return Promise|stdClass|array<mixed>
+         */
+        protected function executeFields(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, \ArrayObject $fields)
+        {
+        }
+        /**
+         * Differentiate empty objects from empty lists.
+         *
+         * @see https://github.com/webonyx/graphql-php/issues/59
+         *
+         * @param array<mixed>|mixed $results
+         *
+         * @return array<mixed>|stdClass|mixed
+         */
+        protected static function fixResultsIfEmptyArray($results)
+        {
+        }
+        /**
+         * Transform an associative array with Promises to a Promise which resolves to an
+         * associative array where all Promises were resolved.
+         *
+         * @param array<string, Promise|mixed> $assoc
+         */
+        protected function promiseForAssocArray(array $assoc) : \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /**
+         * @param string|ObjectType|null  $runtimeTypeOrName
+         * @param InterfaceType|UnionType $returnType
+         * @param mixed                   $result
+         */
+        protected function ensureValidRuntimeType($runtimeTypeOrName, \GraphQL\Type\Definition\AbstractType $returnType, \GraphQL\Type\Definition\ResolveInfo $info, &$result) : \GraphQL\Type\Definition\ObjectType
         {
         }
     }
@@ -12619,7 +13080,7 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<EnumValueDefinitionNode>|null */
+        /** @var NodeList<EnumValueDefinitionNode> */
         public $values;
         /** @var StringValueNode|null */
         public $description;
@@ -12642,9 +13103,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<EnumValueDefinitionNode>|null */
+        /** @var NodeList<EnumValueDefinitionNode> */
         public $values;
     }
     class EnumValueDefinitionNode extends \GraphQL\Language\AST\Node
@@ -12702,9 +13163,9 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var NameNode|null */
         public $alias;
-        /** @var NodeList<ArgumentNode>|null */
+        /** @var NodeList<ArgumentNode> */
         public $arguments;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var SelectionSetNode|null */
         public $selectionSet;
@@ -12760,7 +13221,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INLINE_FRAGMENT;
         /** @var NamedTypeNode */
         public $typeCondition;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
         /** @var SelectionSetNode */
         public $selectionSet;
@@ -12771,9 +13232,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<InputValueDefinitionNode>|null */
+        /** @var NodeList<InputValueDefinitionNode> */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -12784,9 +13245,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<InputValueDefinitionNode>|null */
+        /** @var NodeList<InputValueDefinitionNode> */
         public $fields;
     }
     class InputValueDefinitionNode extends \GraphQL\Language\AST\Node
@@ -12817,9 +13278,11 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<FieldDefinitionNode>|null */
+        /** @var NodeList<NamedTypeNode> */
+        public $interfaces;
+        /** @var NodeList<FieldDefinitionNode> */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -12830,9 +13293,11 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<FieldDefinitionNode>|null */
+        /** @var NodeList<InterfaceTypeDefinitionNode> */
+        public $interfaces;
+        /** @var NodeList<FieldDefinitionNode> */
         public $fields;
     }
     /**
@@ -12878,13 +13343,13 @@ namespace GraphQL\Language\AST {
         /**
          * The Token at which this Node begins.
          *
-         * @var Token
+         * @var Token|null
          */
         public $startToken;
         /**
          * The Token at which this Node ends.
          *
-         * @var Token
+         * @var Token|null
          */
         public $endToken;
         /**
@@ -13146,7 +13611,7 @@ namespace GraphQL\Language\AST {
         public $interfaces;
         /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<FieldDefinitionNode>|null */
+        /** @var NodeList<FieldDefinitionNode> */
         public $fields;
         /** @var StringValueNode|null */
         public $description;
@@ -13216,7 +13681,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
     }
     class SchemaDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\TypeSystemDefinitionNode
@@ -13232,9 +13697,9 @@ namespace GraphQL\Language\AST {
     {
         /** @var string */
         public $kind = \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<OperationTypeDefinitionNode>|null */
+        /** @var NodeList<OperationTypeDefinitionNode> */
         public $operationTypes;
     }
     class SelectionSetNode extends \GraphQL\Language\AST\Node
@@ -13250,7 +13715,7 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::STRING;
         /** @var string */
         public $value;
-        /** @var bool|null */
+        /** @var bool */
         public $block;
     }
     class UnionTypeDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\TypeDefinitionNode
@@ -13261,7 +13726,7 @@ namespace GraphQL\Language\AST {
         public $name;
         /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<NamedTypeNode>|null */
+        /** @var NodeList<NamedTypeNode> */
         public $types;
         /** @var StringValueNode|null */
         public $description;
@@ -13272,9 +13737,9 @@ namespace GraphQL\Language\AST {
         public $kind = \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION;
         /** @var NameNode */
         public $name;
-        /** @var NodeList<DirectiveNode>|null */
+        /** @var NodeList<DirectiveNode> */
         public $directives;
-        /** @var NodeList<NamedTypeNode>|null */
+        /** @var NodeList<NamedTypeNode> */
         public $types;
     }
     class VariableDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\DefinitionNode
@@ -13887,7 +14352,7 @@ namespace GraphQL\Language {
             'typeCondition',
             'directives',
             'selectionSet',
-        ], \GraphQL\Language\AST\NodeKind::INT => [], \GraphQL\Language\AST\NodeKind::FLOAT => [], \GraphQL\Language\AST\NodeKind::STRING => [], \GraphQL\Language\AST\NodeKind::BOOLEAN => [], \GraphQL\Language\AST\NodeKind::NULL => [], \GraphQL\Language\AST\NodeKind::ENUM => [], \GraphQL\Language\AST\NodeKind::LST => ['values'], \GraphQL\Language\AST\NodeKind::OBJECT => ['fields'], \GraphQL\Language\AST\NodeKind::OBJECT_FIELD => ['name', 'value'], \GraphQL\Language\AST\NodeKind::DIRECTIVE => ['name', 'arguments'], \GraphQL\Language\AST\NodeKind::NAMED_TYPE => ['name'], \GraphQL\Language\AST\NodeKind::LIST_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::NON_NULL_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'], \GraphQL\Language\AST\NodeKind::OPERATION_TYPE_DEFINITION => ['type'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'], \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes']];
+        ], \GraphQL\Language\AST\NodeKind::INT => [], \GraphQL\Language\AST\NodeKind::FLOAT => [], \GraphQL\Language\AST\NodeKind::STRING => [], \GraphQL\Language\AST\NodeKind::BOOLEAN => [], \GraphQL\Language\AST\NodeKind::NULL => [], \GraphQL\Language\AST\NodeKind::ENUM => [], \GraphQL\Language\AST\NodeKind::LST => ['values'], \GraphQL\Language\AST\NodeKind::OBJECT => ['fields'], \GraphQL\Language\AST\NodeKind::OBJECT_FIELD => ['name', 'value'], \GraphQL\Language\AST\NodeKind::DIRECTIVE => ['name', 'arguments'], \GraphQL\Language\AST\NodeKind::NAMED_TYPE => ['name'], \GraphQL\Language\AST\NodeKind::LIST_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::NON_NULL_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'], \GraphQL\Language\AST\NodeKind::OPERATION_TYPE_DEFINITION => ['type'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'], \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes']];
         /**
          * Visit the AST (see class description for details)
          *
@@ -14615,6 +15080,9 @@ namespace GraphQL\Type\Definition {
         public function getArg($name)
         {
         }
+        public function getName() : string
+        {
+        }
         public function getType() : \GraphQL\Type\Definition\Type
         {
         }
@@ -14822,9 +15290,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         public function getOfType()
         {
         }
-        /**
-         * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|(Type&WrappingType)
-         */
         public function getWrappedType(bool $recurse = false) : \GraphQL\Type\Definition\Type
         {
         }
@@ -14834,7 +15299,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         /**
          * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
          * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
-         * @param  (NullableType&Type)|callable $type
+         * @param callable():(NullableType&Type)|(NullableType&Type) $type
          */
         public function __construct($type)
         {
@@ -14845,6 +15310,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         public function getOfType()
         {
         }
+        /**
+         * @return (NullableType&Type)
+         */
         public function getWrappedType(bool $recurse = false) : \GraphQL\Type\Definition\Type
         {
         }
@@ -15082,6 +15550,21 @@ represent free-form human-readable text.';
     */
     interface UnmodifiedType
     {
+    }
+    class UnresolvedFieldDefinition
+    {
+        /**
+         * @param callable(): (FieldDefinition|array<string, mixed>|Type) $resolver
+         */
+        public function __construct(\GraphQL\Type\Definition\Type $type, string $name, callable $resolver)
+        {
+        }
+        public function getName() : string
+        {
+        }
+        public function resolve() : \GraphQL\Type\Definition\FieldDefinition
+        {
+        }
     }
 }
 namespace GraphQL\Type {
@@ -15572,6 +16055,8 @@ namespace GraphQL\Utils {
         {
         }
         /**
+         * @deprecated use getOperationAST instead.
+         *
          * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
          *
          * @param string $operationName
@@ -15583,40 +16068,51 @@ namespace GraphQL\Utils {
         public static function getOperation(\GraphQL\Language\AST\DocumentNode $document, $operationName = null)
         {
         }
+        /**
+         * Returns the operation within a document by name.
+         *
+         * If a name is not provided, an operation is only returned if the document has exactly one.
+         *
+         * @api
+         */
+        public static function getOperationAST(\GraphQL\Language\AST\DocumentNode $document, ?string $operationName = null) : ?\GraphQL\Language\AST\OperationDefinitionNode
+        {
+        }
     }
     class ASTDefinitionBuilder
     {
         /**
-         * @param Node[] $typeDefinitionsMap
-         * @param bool[] $options
+         * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
+         * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
+         * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
+         * @param array<string, bool> $options
          */
-        public function __construct(array $typeDefinitionsMap, $options, callable $resolveType, ?callable $typeConfigDecorator = null)
+        public function __construct(array $typeDefinitionsMap, array $options, callable $resolveType, ?callable $typeConfigDecorator = null)
         {
         }
-        public function buildDirective(\GraphQL\Language\AST\DirectiveDefinitionNode $directiveNode)
+        public function buildDirective(\GraphQL\Language\AST\DirectiveDefinitionNode $directiveNode) : \GraphQL\Type\Definition\Directive
         {
         }
         /**
-         * @param string|NamedTypeNode $ref
-         *
-         * @return Type
-         *
-         * @throws Error
+         * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
          */
-        public function buildType($ref)
-        {
-        }
-        public function buildField(\GraphQL\Language\AST\FieldDefinitionNode $field)
+        public function buildType($ref) : \GraphQL\Type\Definition\Type
         {
         }
         /**
-         * @return mixed[]
+         * @return array<string, mixed>
+         */
+        public function buildField(\GraphQL\Language\AST\FieldDefinitionNode $field) : array
+        {
+        }
+        /**
+         * @return array<string, mixed>
          */
         public function buildInputField(\GraphQL\Language\AST\InputValueDefinitionNode $value) : array
         {
         }
         /**
-         * @return mixed[]
+         * @return array<string, mixed>
          */
         public function buildEnumValue(\GraphQL\Language\AST\EnumValueDefinitionNode $value) : array
         {
@@ -15646,17 +16142,21 @@ namespace GraphQL\Utils {
         public const BREAKING_CHANGE_ARG_CHANGED_KIND = 'ARG_CHANGED_KIND';
         public const BREAKING_CHANGE_REQUIRED_ARG_ADDED = 'REQUIRED_ARG_ADDED';
         public const BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED = 'REQUIRED_INPUT_FIELD_ADDED';
-        public const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'INTERFACE_REMOVED_FROM_OBJECT';
+        public const BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED = 'IMPLEMENTED_INTERFACE_REMOVED';
         public const BREAKING_CHANGE_DIRECTIVE_REMOVED = 'DIRECTIVE_REMOVED';
         public const BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED = 'DIRECTIVE_ARG_REMOVED';
         public const BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED = 'DIRECTIVE_LOCATION_REMOVED';
         public const BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED = 'REQUIRED_DIRECTIVE_ARG_ADDED';
         public const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED = 'ARG_DEFAULT_VALUE_CHANGE';
         public const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM = 'VALUE_ADDED_TO_ENUM';
-        public const DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT = 'INTERFACE_ADDED_TO_OBJECT';
+        public const DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED = 'IMPLEMENTED_INTERFACE_ADDED';
         public const DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION = 'TYPE_ADDED_TO_UNION';
         public const DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED = 'OPTIONAL_INPUT_FIELD_ADDED';
         public const DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED = 'OPTIONAL_ARG_ADDED';
+        /** @deprecated use BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED instead, will be removed in v15.0.0. */
+        public const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'IMPLEMENTED_INTERFACE_REMOVED';
+        /** @deprecated use DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED instead, will be removed in v15.0.0. */
+        public const DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT = 'IMPLEMENTED_INTERFACE_ADDED';
         /**
          * Given two schemas, returns an Array containing descriptions of all the types
          * of breaking changes covered by the other functions down below.
@@ -15864,7 +16364,7 @@ namespace GraphQL\Utils {
     class BuildSchema
     {
         /**
-         * @param bool[] $options
+         * @param array<string, bool> $options
          */
         public function __construct(\GraphQL\Language\AST\DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [])
         {
@@ -15874,7 +16374,7 @@ namespace GraphQL\Utils {
          * document.
          *
          * @param DocumentNode|Source|string $source
-         * @param bool[]                     $options
+         * @param array<string, bool>        $options
          *
          * @return Schema
          *
@@ -15899,7 +16399,7 @@ namespace GraphQL\Utils {
          *        Provide true to use preceding comments as the description.
          *        This option is provided to ease adoption and will be removed in v16.
          *
-         * @param bool[] $options
+         * @param array<string, bool> $options
          *
          * @return Schema
          *
@@ -15911,6 +16411,33 @@ namespace GraphQL\Utils {
         {
         }
         public function buildSchema()
+        {
+        }
+    }
+    /**
+     * A way to track interface implementations.
+     *
+     * Distinguishes between implementations by ObjectTypes and InterfaceTypes.
+     */
+    class InterfaceImplementations
+    {
+        /**
+         * @param array<int, ObjectType>    $objects
+         * @param array<int, InterfaceType> $interfaces
+         */
+        public function __construct(array $objects, array $interfaces)
+        {
+        }
+        /**
+         * @return array<int, ObjectType>
+         */
+        public function objects() : array
+        {
+        }
+        /**
+         * @return array<int, InterfaceType>
+         */
+        public function interfaces() : array
         {
         }
     }
@@ -16068,9 +16595,11 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @return InterfaceType[]
+         * @param ObjectType|InterfaceType $type
+         *
+         * @return array<int, InterfaceType>
          */
-        protected static function extendImplementedInterfaces(\GraphQL\Type\Definition\ObjectType $type) : array
+        protected static function extendImplementedInterfaces(\GraphQL\Type\Definition\ImplementingType $type) : array
         {
         }
         protected static function extendType($typeDef)
@@ -16124,9 +16653,9 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @param mixed[]|null $options
+         * @param array<string, bool> $options
          */
-        public static function extend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, ?array $options = null) : \GraphQL\Type\Schema
+        public static function extend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, array $options = []) : \GraphQL\Type\Schema
         {
         }
     }
