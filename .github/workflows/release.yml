@@ -10,6 +10,16 @@ on:
         required: false
         default: false
         type: boolean
+      dry_run:
+        description: 'Dry run: Run the script without pushing changes'
+        required: false
+        default: false
+        type: boolean
+      from_version:
+        description: 'The version to start from'
+        required: false
+        default: '1.0.0'
+        type: string
   schedule:
     - cron: '0 */12 * * *'
 
@@ -26,9 +36,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           if [ "${{ inputs.should_rerelease }}" = "true" ]; then
-            bash -x ./release-latest-versions.sh --should-rerelease
-          else
-            bash -x ./release-latest-versions.sh
+            SHOULD_RERELEASE="--should-rerelease"
           fi
+
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            DRY_RUN="--dry-run"
+          fi
+
+          bash -x ./release-lastest-versions.sh $SHOULD_RERELEASE $DRY_RUN --from-version=${{ inputs.from_version }}
 

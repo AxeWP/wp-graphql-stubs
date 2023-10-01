@@ -2,10 +2,34 @@
 
 set -e
 
-# Get --should-rerelease flag
-if [ "$1" == "--should-rerelease" ]; then
- SHOULD_RERELEASE=true
-fi
+# Possible flags:
+# --should-rerelease: Rebuild and release old versions.
+# --dry-run: Don't push anything to git.
+# --from-version=1.0.0: Only release versions after this version.
+
+# Parse flags
+while [[ $# -gt 0 ]]; do
+	key="$1"
+
+	case $key in
+		--should-rerelease)
+			SHOULD_RERELEASE=true
+			shift
+			;;
+		--dry-run)
+			DRY_RUN=true
+			shift
+			;;
+		--from-version=*)
+			FROM_VERSION="${key#*=}"
+			shift
+			;;
+		*)
+			# unknown option
+			shift
+			;;
+	esac
+done
 
 do_release() {
 	local VERSION="$1"
@@ -14,6 +38,14 @@ do_release() {
 	
 	VERSION="${VERSION#v}"
 
+	echo "Checking if version ${VERSION} exists..."
+
+	# If the version doesn't exist, return
+	if ! composer show --working-dir=source --available wpackagist-plugin/wp-graphql "${VERSION}" >/dev/null 2>&1; then
+		echo "Version ${VERSION} does not exist"
+		return
+	fi
+
 	echo "Releasing v${VERSION}..."
 
 	# replace the version of wpackagist-plugin/wp-graphql in composer.json with $VERSION
@@ -21,6 +53,7 @@ do_release() {
 	echo -E "${contents}" > source/composer.json
 
 	echo "$(cat source/composer.json)"
+
 	composer update --working-dir=source
 
 	# Generate stubs
@@ -40,14 +73,25 @@ do_release() {
 		# Delete the old git tag.
 	  echo "Deleting old tag v${VERSION}"
 		git tag -d "v${VERSION}"
-		git push --delete origin "v${VERSION}"
-	fi
 
-	git push
-	git push --tags
-	git pull
-	git pull --tags
-	echo "Tags synced"
+		# Delete the old tag on GitHub.
+		if [ -z "${DRY_RUN}" ]; then
+			git push --delete origin "v${VERSION}"
+			echo "Tag deleted from server."
+		fi
+	fi
+	
+	# Push to GitHub
+	if [ -z "${DRY_RUN}" ]; then
+		git push
+		git push --tags
+		git pull
+		git pull --tags
+		echo "Tags synced"
+	else
+		echo "Dry run, not pushing to GitHub"
+		git push --dry-run --tags
+	fi
 }
 
 GQL_JSON="$(wget -q -O- "https://packagist.org/packages/wp-graphql/wp-graphql.json")"
@@ -59,8 +103,8 @@ POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -V)"
 
 # Loop through all possible versions and see if they exist as tags
 for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
-	# Skip versions before 1.0.0
-	if [ "${POSSIBLE_VERSION#v}" \< "1.0.0" ]; then
+	# Skip old versions. Defaults to 1.0.0
+	if [ "${POSSIBLE_VERSION#v}" \< "${FROM_VERSION:-1.0.0}" ]; then
 		echo "Skipping ${POSSIBLE_VERSION}"
 		continue
 	fi
