@@ -6289,7 +6289,7 @@ namespace WPGraphQL\Registry {
          * @return void
          * @throws \Exception
          */
-        public function init_type_registry(\WPGraphQL\Registry\TypeRegistry $type_registry)
+        public function init_type_registry(self $type_registry)
         {
         }
         /**
@@ -10783,15 +10783,16 @@ namespace WPGraphQL\Utils {
         {
         }
         /**
-         * Maps new input query args and sa nitizes the input
+         * Maps new input query args and sanitizes the input
          *
          * @param mixed|array|string $args The raw query args from the GraphQL query
          * @param mixed|array|string $map  The mapping of where each of the args should go
+         * @param string[]           $skip Fields to skipped and not be added to the output array.
          *
          * @return array
          * @since  0.5.0
          */
-        public static function map_input($args, $map)
+        public static function map_input($args, $map, $skip = [])
         {
         }
         /**
@@ -15018,6 +15019,7 @@ namespace GraphQL\Language\AST {
         /** @var NodeList<ArgumentNode> */
         public $arguments;
     }
+    #[\AllowDynamicProperties]
     class DocumentNode extends \GraphQL\Language\AST\Node
     {
         /** @var string */
@@ -15601,6 +15603,7 @@ namespace GraphQL\Language\AST {
         /** @var NodeList<ObjectFieldNode> */
         public $fields;
     }
+    #[\AllowDynamicProperties]
     class OperationDefinitionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\ExecutableDefinitionNode, \GraphQL\Language\AST\HasSelectionSet
     {
         /** @var string */
@@ -16975,6 +16978,7 @@ namespace GraphQL\Type\Definition {
     /**
      * @todo Move complexity-related code to it's own place
      */
+    #[\AllowDynamicProperties]
     class FieldDefinition
     {
         public const DEFAULT_COMPLEXITY_FN = 'GraphQL\\Type\\Definition\\FieldDefinition::defaultComplexity';
@@ -17154,6 +17158,7 @@ When expected as an input type, any string (such as `"4"`) or integer
         {
         }
     }
+    #[\AllowDynamicProperties]
     class InputObjectField
     {
         /** @var string */
@@ -17271,7 +17276,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     {
         /**
          * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
-         * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
          * @param callable():(NullableType&Type)|(NullableType&Type) $type
          */
         public function __construct($type)
@@ -18056,7 +18060,6 @@ namespace GraphQL\Utils {
     {
         /**
          * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
-         * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
          * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
          * @param array<string, bool> $options
          */
