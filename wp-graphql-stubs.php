@@ -4364,6 +4364,7 @@ namespace WPGraphQL\Model {
      * Class CommentAuthor - Models the CommentAuthor object
      *
      * @property string $id
+     * @property int    $databaseId
      * @property string $name
      * @property string $email
      * @property string $url
