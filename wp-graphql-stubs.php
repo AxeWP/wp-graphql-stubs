@@ -913,6 +913,16 @@ namespace WPGraphQL\Data {
         public static function update_additional_comment_data(int $comment_id, array $input, string $mutation_name, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
         {
         }
+        /**
+         * Gets the user object for the comment author.
+         *
+         * @param ?string $author_email The authorEmail provided to the mutation input.
+         *
+         * @return \WP_User|false
+         */
+        protected static function get_comment_author(string $author_email = null)
+        {
+        }
     }
     /**
      * Class Config
@@ -1377,14 +1387,28 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get_nodes
+         * Get_ids_for_nodes
          *
-         * Get the nodes from the query.
+         * Gets the IDs from the query.
          *
          * We slice the array to match the amount of items that was asked for, as we over-fetched
          * by 1 item to calculate pageInfo.
          *
          * For backward pagination, we reverse the order of nodes.
+         *
+         * @used-by AbstractConnectionResolver::get_nodes()
+         *
+         * @return array
+         */
+        public function get_ids_for_nodes()
+        {
+        }
+        /**
+         * Get_nodes
+         *
+         * Get the nodes from the query.
+         *
+         * @uses AbstractConnectionResolver::get_ids_for_nodes()
          *
          * @return array
          * @throws Exception
@@ -1588,17 +1612,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the nodes from the query.
-         *
-         * We slice the array to match the amount of items that was asked for, as we over-fetched
-         * by 1 item to calculate pageInfo.
-         *
-         * For backward pagination, we reverse the order of nodes.
-         *
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
-        public function get_nodes()
+        public function get_ids_for_nodes()
         {
         }
         /**
@@ -1674,17 +1690,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the nodes from the query.
-         *
-         * We slice the array to match the amount of items that was asked for, as we over-fetched
-         * by 1 item to calculate pageInfo.
-         *
-         * For backward pagination, we reverse the order of nodes.
-         *
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
-        public function get_nodes()
+        public function get_ids_for_nodes()
         {
         }
         /**
@@ -1770,17 +1778,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the nodes from the query.
-         *
-         * We slice the array to match the amount of items that was asked for, as we over-fetched
-         * by 1 item to calculate pageInfo.
-         *
-         * For backward pagination, we reverse the order of nodes.
-         *
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
-        public function get_nodes()
+        public function get_ids_for_nodes()
         {
         }
         /**
@@ -2123,10 +2123,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
-        public function get_nodes()
+        public function get_ids_for_nodes()
         {
         }
         /**
@@ -2199,17 +2198,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the nodes from the query.
-         *
-         * We slice the array to match the amount of items that was asked for, as we over-fetched
-         * by 1 item to calculate pageInfo.
-         *
-         * For backward pagination, we reverse the order of nodes.
-         *
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
-        public function get_nodes()
+        public function get_ids_for_nodes()
         {
         }
         /**
@@ -2276,17 +2267,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the nodes from the query.
-         *
-         * We slice the array to match the amount of items that was asked for, as we over-fetched
-         * by 1 item to calculate pageInfo.
-         *
-         * For backward pagination, we reverse the order of nodes.
-         *
-         * @return array
-         * @throws \Exception
+         * {@inheritDoc}
          */
-        public function get_nodes()
+        public function get_ids_for_nodes()
         {
         }
         /**
@@ -2454,10 +2437,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * @return array
-         * @throws Exception
+         * {@inheritDoc}
          */
-        public function get_nodes()
+        public function get_ids_for_nodes()
         {
         }
         /**
@@ -7104,6 +7086,25 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    class PluginStatusEnum
+    {
+        /**
+         * Register the PluginStatusEnum Type to the Schema
+         *
+         * @return void
+         */
+        public static function register_type()
+        {
+        }
+        /**
+         * Returns the array configuration for the GraphQL enum values.
+         *
+         * @return array
+         */
+        protected static function get_enum_values()
+        {
+        }
+    }
     class PostObjectFieldFormatEnum
     {
         /**
@@ -7362,6 +7363,14 @@ namespace WPGraphQL\Type\InterfaceType {
          * @return void
          */
         public static function register_type()
+        {
+        }
+        /**
+         * Register individual GraphQL objects for supported theme templates.
+         *
+         * @return void
+         */
+        public static function register_content_template_types()
         {
         }
     }
@@ -9763,6 +9772,18 @@ namespace WPGraphQL\Utils {
          * @return array
          */
         public static function get_allowed_wp_kses_html()
+        {
+        }
+        /**
+         * Helper function to get the WordPress database ID from a GraphQL ID type input.
+         *
+         * Returns false if not a valid ID.
+         *
+         * @param int|string $id The ID from the input args. Can be either the database ID (as either a string or int) or the global Relay ID.
+         *
+         * @return int|false
+         */
+        public static function get_database_id_from_id($id)
         {
         }
     }
