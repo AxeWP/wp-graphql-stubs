@@ -8627,11 +8627,9 @@ namespace WPGraphQL\Type {
          * Given an array of interfaces, this gets the Interfaces the Type should implement including
          * inherited interfaces.
          *
-         * @param array $interfaces Array of interfaces the type implements
-         *
          * @return array
          */
-        protected function get_implemented_interfaces(array $interfaces)
+        protected function get_implemented_interfaces()
         {
         }
     }
