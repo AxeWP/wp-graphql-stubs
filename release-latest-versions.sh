@@ -101,10 +101,18 @@ printf -v JQ_FILTER '.package.versions[].version | select(. | startswith("v"))'
 # Sort the versions.
 POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -V)"
 
+# List all possible versions
+echo "Possible versions:"
+echo "${POSSIBLE_VERSIONS}"
+
+# Read latest version from composer.json if no FROM_VERSION is set.
+if [ -z "${FROM_VERSION}" ]; then
+	FROM_VERSION="$(jq -r '.require."wpackagist-plugin/wp-graphql"' < source/composer.json | sed -e 's/[^0-9.]*//g')"
+fi
+
 # Loop through all possible versions and see if they exist as tags
 for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
-	# Skip old versions. Defaults to 1.0.0
-	if [ "${POSSIBLE_VERSION#v}" \< "${FROM_VERSION:-1.0.0}" ]; then
+	if dpkg --compare-versions "${POSSIBLE_VERSION#v}" lt "${FROM_VERSION:-1.0.0}"; then
 		echo "Skipping ${POSSIBLE_VERSION}"
 		continue
 	fi
@@ -124,8 +132,8 @@ for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
 		# If SHOULD_RERELEASE is true, append -r1, -r2, etc.
 		for i in {1..100}; do
 			# If the tag doesn't exist, release it
-			echo "Rereleasing as ${POSSIBLE_VERSION}+repack.${i}"
 			if ! git rev-parse "refs/tags/${POSSIBLE_VERSION}+repack.${i}" >/dev/null 2>&1; then
+				echo "Rereleasing as ${POSSIBLE_VERSION}+repack.${i}"
 				do_release "${POSSIBLE_VERSION}" "${i}"
 				break
 			fi
