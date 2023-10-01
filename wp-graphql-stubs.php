@@ -9455,8 +9455,8 @@ namespace {
          * The whole idea of the singleton design pattern is that there is a single object
          * therefore, we don't want the object to be cloned.
          *
-         * @return void
          * @since  0.0.1
+         * @return void
          */
         public function __clone()
         {
@@ -9464,8 +9464,8 @@ namespace {
         /**
          * Disable unserializing of the class.
          *
-         * @return void
          * @since  0.0.1
+         * @return void
          */
         public function __wakeup()
         {
@@ -9492,8 +9492,9 @@ namespace {
          * If the server is running a lower version than required, throw an exception and prevent
          * further execution.
          *
-         * @return void
          * @throws Exception
+         *
+         * @return void
          */
         public function min_php_version_check()
         {
@@ -9533,8 +9534,8 @@ namespace {
         /**
          * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
          *
-         * @return void
          * @since  0.0.2
+         * @return void
          */
         public static function show_in_graphql()
         {
@@ -9557,8 +9558,8 @@ namespace {
          * are set to "show_in_graphql" but allows for external code (plugins/themes) to filter
          * the list of allowed_taxonomies to add/remove additional taxonomies
          *
-         * @return array
          * @since  0.0.4
+         * @return array
          */
         public static function get_allowed_taxonomies()
         {
