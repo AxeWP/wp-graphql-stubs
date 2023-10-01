@@ -687,7 +687,9 @@ namespace WPGraphQL\Connection {
     class Comments
     {
         /**
-         * Register connections to Comments
+         * Register connections to Comments.
+         *
+         * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
          *
          * @return void
          * @throws Exception
@@ -6288,6 +6290,109 @@ namespace WPGraphQL\Registry {
         }
     }
 }
+namespace WPGraphQL\Registry\Utils {
+    /**
+     * Class PostObject
+     *
+     * @package WPGraphQL\Data
+     * @since   1.12.0
+     */
+    class PostObject
+    {
+        /**
+         * Registers a post_type type to the schema as either a GraphQL object, interface, or union.
+         *
+         * @param WP_Post_Type $post_type_object Post type.
+         *
+         * @return void
+         * @throws Exception
+         */
+        public static function register_types(\WP_Post_Type $post_type_object)
+        {
+        }
+        /**
+         * Gets all the connections for the given post type.
+         *
+         * @param WP_Post_Type $post_type_object
+         *
+         * @return array
+         */
+        protected static function get_connections(\WP_Post_Type $post_type_object)
+        {
+        }
+        /**
+         * Gets all the interfaces for the given post type.
+         *
+         * @param WP_Post_Type $post_type_object Post type.
+         *
+         * @return array
+         */
+        protected static function get_interfaces(\WP_Post_Type $post_type_object)
+        {
+        }
+        /**
+         * Registers common post type fields on schema type corresponding to provided post type object.
+         *
+         * @param WP_Post_Type $post_type_object Post type.
+         *
+         * @return array
+         * @todo make protected after \Type\ObjectType\PostObject::get_fields() is removed.
+         */
+        public static function get_fields(\WP_Post_Type $post_type_object)
+        {
+        }
+    }
+    /**
+     * Class TermObjectType
+     *
+     * @package WPGraphQL\Data
+     * @since   1.12.0
+     */
+    class TermObject
+    {
+        /**
+         * Registers a taxonomy type to the schema as either a GraphQL object, interface, or union.
+         *
+         * @param WP_Taxonomy $tax_object Taxonomy.
+         *
+         * @return void
+         * @throws Exception
+         */
+        public static function register_types(\WP_Taxonomy $tax_object)
+        {
+        }
+        /**
+         * Gets all the connections for the given post type.
+         *
+         * @param WP_Taxonomy $tax_object
+         *
+         * @return array
+         */
+        protected static function get_connections(\WP_Taxonomy $tax_object)
+        {
+        }
+        /**
+         * Gets all the interfaces for the given Taxonomy.
+         *
+         * @param WP_Taxonomy $tax_object Taxonomy.
+         *
+         * @return array
+         */
+        protected static function get_interfaces(\WP_Taxonomy $tax_object)
+        {
+        }
+        /**
+         * Registers common Taxonomy fields on schema type corresponding to provided Taxonomy object.
+         *
+         * @param WP_Taxonomy $tax_object Taxonomy.
+         *
+         * @return array
+         */
+        protected static function get_fields(\WP_Taxonomy $tax_object)
+        {
+        }
+    }
+}
 namespace WPGraphQL {
     /**
      * Class Request
@@ -7900,6 +8005,7 @@ namespace WPGraphQL\Type\ObjectType {
      * WPObject - PostObject
      *
      * @package WPGraphQL\Type
+     * @deprecated 1.12.0
      */
     class PostObject
     {
@@ -7910,6 +8016,8 @@ namespace WPGraphQL\Type\ObjectType {
          * @param TypeRegistry $type_registry    The Type Registry
          *
          * @return void
+         * @throws Exception
+         * @deprecated 1.12.0
          */
         public static function register_post_object_types(\WP_Post_Type $post_type_object, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
@@ -7920,9 +8028,11 @@ namespace WPGraphQL\Type\ObjectType {
          * @param WP_Post_Type $post_type_object Post type.
          * @param TypeRegistry $type_registry    The Type Registry
          *
+         * @deprecated 1.12.0
+         *
          * @return array
          */
-        public static function get_post_object_fields($post_type_object, $type_registry)
+        public static function get_fields($post_type_object, $type_registry)
         {
         }
     }
@@ -8057,6 +8167,7 @@ namespace WPGraphQL\Type\ObjectType {
      * Class TermObject
      *
      * @package WPGraphQL\Type\Object
+     * @deprecated 1.12.0
      */
     class TermObject
     {
@@ -8066,6 +8177,8 @@ namespace WPGraphQL\Type\ObjectType {
          * @param WP_Taxonomy $tax_object The taxonomy being registered
          *
          * @return void
+         * @throws Exception
+         * @deprecated 1.12.0
          */
         public static function register_taxonomy_object_type(\WP_Taxonomy $tax_object)
         {
@@ -10150,8 +10263,8 @@ namespace {
          * The whole idea of the singleton design pattern is that there is a single object
          * therefore, we don't want the object to be cloned.
          *
-         * @since  0.0.1
          * @return void
+         * @since  0.0.1
          */
         public function __clone()
         {
@@ -10159,8 +10272,8 @@ namespace {
         /**
          * Disable unserializing of the class.
          *
-         * @since  0.0.1
          * @return void
+         * @since  0.0.1
          */
         public function __wakeup()
         {
@@ -10187,9 +10300,8 @@ namespace {
          * If the server is running a lower version than required, throw an exception and prevent
          * further execution.
          *
-         * @throws Exception
-         *
          * @return void
+         * @throws Exception
          */
         public function min_php_version_check()
         {
@@ -10229,19 +10341,77 @@ namespace {
         /**
          * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
          *
-         * @since  0.0.2
          * @return void
+         * @since  0.0.2
          */
         public static function show_in_graphql()
         {
         }
         /**
-         * Get the post types that are allowed to be used in GraphQL.
-         * This gets all post_types that are set to show_in_graphql, but allows for external code (plugins/theme) to
-         * filter the list of allowed_post_types to add/remove additional post_types
+         * Sets up the default post types to show_in_graphql.
          *
-         * @param string|array $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
-         * @param array $args Optional. Arguments to filter allowed post types
+         * @param array  $args      Array of arguments for registering a post type.
+         * @param string $post_type Post type key.
+         *
+         * @return array
+         */
+        public static function setup_default_post_types($args, $post_type)
+        {
+        }
+        /**
+         * Sets up the default taxonomies to show_in_graphql.
+         *
+         * @param array  $args     Array of arguments for registering a taxonomy.
+         * @param string $taxonomy Taxonomy key.
+         *
+         * @return array
+         * @since 1.12.0
+         */
+        public static function setup_default_taxonomies($args, $taxonomy)
+        {
+        }
+        /**
+         * Set the GraphQL Post Type Args and pass them through a filter.
+         *
+         * @param array  $args           The graphql specific args for the post type
+         * @param string $post_type_name The name of the post type being registered
+         *
+         * @return array
+         * @throws Exception
+         * @since 1.12.0
+         */
+        public static function register_graphql_post_type_args(array $args, string $post_type_name)
+        {
+        }
+        /**
+         * Set the GraphQL Taxonomy Args and pass them through a filter.
+         *
+         * @param array  $args          The graphql specific args for the taxonomy
+         * @param string $taxonomy_name The name of the taxonomy being registered
+         *
+         * @return array
+         * @throws Exception
+         * @since 1.12.0
+         */
+        public static function register_graphql_taxonomy_args(array $args, string $taxonomy_name)
+        {
+        }
+        /**
+         * This sets the post type /taxonomy GraphQL properties.
+         *
+         * @since 1.12.0
+         */
+        public static function get_default_graphql_type_args() : array
+        {
+        }
+        /**
+         * Get the post types that are allowed to be used in GraphQL.
+         * This gets all post_types that are set to show_in_graphql, but allows for external code
+         * (plugins/theme) to filter the list of allowed_post_types to add/remove additional post_types
+         *
+         * @param string|array $output Optional. The type of output to return. Accepts post type
+         *                             'names' or 'objects'. Default 'names'.
+         * @param array        $args   Optional. Arguments to filter allowed post types
          *
          * @return array
          * @since  0.0.4
@@ -10252,14 +10422,15 @@ namespace {
         }
         /**
          * Get the taxonomies that are allowed to be used in GraphQL.
-         * This gets all taxonomies that are set to "show_in_graphql" but allows for external code (plugins/themes) to
-         * filter the list of allowed_taxonomies to add/remove additional taxonomies
+         * This gets all taxonomies that are set to "show_in_graphql" but allows for external code
+         * (plugins/themes) to filter the list of allowed_taxonomies to add/remove additional
+         * taxonomies
          *
          * @param string $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
-         * @param array $args Optional. Arguments to filter allowed taxonomies.
+         * @param array  $args   Optional. Arguments to filter allowed taxonomies.
          *
-         * @since  0.0.4
          * @return array
+         * @since  0.0.4
          */
         public static function get_allowed_taxonomies($output = 'names', $args = [])
         {
@@ -10751,7 +10922,9 @@ namespace Appsero {
         /**
          * Initialize the class
          *
-         * @param AppSero\Client
+         * @param      $client
+         * @param null $name
+         * @param null $file
          */
         public function __construct($client, $name = null, $file = null)
         {
@@ -10762,6 +10935,14 @@ namespace Appsero {
          * @return \self
          */
         public function hide_notice()
+        {
+        }
+        /**
+         * Add plugin data if needed
+         *
+         * @return \self
+         */
+        public function add_plugin_data()
         {
         }
         /**
@@ -10781,7 +10962,7 @@ namespace Appsero {
          *
          * @return \self
          */
-        public function notice($text)
+        public function notice($text = '')
         {
         }
         /**
@@ -11031,9 +11212,33 @@ namespace Appsero {
         {
         }
         /**
+         * Set the license option key.
+         *
+         * If someone wants to override the default generated key.
+         *
+         * @param string $key
+         *
+         * @since 1.3.0
+         *
+         * @return License
+         */
+        public function set_option_key($key)
+        {
+        }
+        /**
+         * Get the license key
+         *
+         * @since 1.3.0
+         *
+         * @return string|null
+         */
+        public function get_license()
+        {
+        }
+        /**
          * Check license
          *
-         * @return boolean
+         * @return bool
          */
         public function check($license_key)
         {
@@ -11041,7 +11246,7 @@ namespace Appsero {
         /**
          * Active a license
          *
-         * @return boolean
+         * @return bool
          */
         public function activate($license_key)
         {
@@ -11049,7 +11254,7 @@ namespace Appsero {
         /**
          * Deactivate a license
          *
-         * @return boolean
+         * @return bool
          */
         public function deactivate($license_key)
         {
@@ -11063,6 +11268,12 @@ namespace Appsero {
          * @return array
          */
         protected function send_request($license_key, $route)
+        {
+        }
+        /**
+         * License Refresh Endpoint
+         */
+        public function refresh_license_api()
         {
         }
         /**
@@ -19466,6 +19677,24 @@ namespace {
      * @return mixed|string|int|boolean
      */
     function get_graphql_setting(string $option_name, $default = '', $section_name = 'graphql_general_settings')
+    {
+    }
+    /**
+     * Get the endpoint route for the WPGraphQL API
+     *
+     * @return string
+     * @since 1.12.0
+     */
+    function graphql_get_endpoint()
+    {
+    }
+    /**
+     * Return the full url for the GraphQL Endpoint.
+     *
+     * @return string
+     * @since 1.12.0
+     */
+    function graphql_get_endpoint_url()
     {
     }
     /**
