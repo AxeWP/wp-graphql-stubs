@@ -6078,7 +6078,8 @@ namespace WPGraphQL\Registry {
          *
          * @param string $type_name The name of the Type to get from the registry
          *
-         * @return mixed|null
+         * @return mixed
+         * |null
          */
         public function get_type(string $type_name)
         {
