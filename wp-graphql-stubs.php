@@ -648,9 +648,8 @@ namespace WPGraphQL {
         /**
          * Returns the $args for the connection the field is a part of
          *
-         * @return array|mixed
-         *
          * @deprecated use get_connection_args() instead
+         * @return array|mixed
          */
         public function getConnectionArgs()
         {
@@ -7004,196 +7003,6 @@ namespace WPGraphQL\Server {
         }
     }
 }
-namespace WPGraphQL\Telemetry {
-    /**
-     * Class Tracker
-     *
-     * @package WPGraphQL\Telemetry
-     */
-    class Tracker
-    {
-        /**
-         * The name of the plugin being tracked
-         *
-         * @var string
-         */
-        protected $plugin_name;
-        /**
-         * The slugified name of the plugin being tracked
-         *
-         * @var string
-         */
-        protected $plugin_slug;
-        /**
-         * Whether tracking is enabled for the plugin
-         *
-         * @var mixed|void
-         */
-        protected $tracking_enabled;
-        /**
-         * The endpoint to send tracking data to
-         *
-         * @var string
-         */
-        protected $endpoint_url;
-        /**
-         * Events that have been tracked during this request
-         *
-         * @var array
-         */
-        protected $events;
-        /**
-         * The name of the option that tracks the last tracked timestamp
-         *
-         * @var string
-         */
-        protected $identity_timestamp_option_name;
-        /**
-         * Tracker constructor.
-         *
-         * @param string $plugin_name The name of the plugin
-         */
-        public function __construct(string $plugin_name)
-        {
-        }
-        /**
-         * Initialize the tracker.
-         *
-         * @return void
-         */
-        public function init()
-        {
-        }
-        /**
-         * @return void
-         */
-        public function delete_timestamp()
-        {
-        }
-        /**
-         * Return the option name that stores the timestamp
-         *
-         * @return string
-         */
-        public function get_identity_timestamp_option_name()
-        {
-        }
-        /**
-         * Returns the plugin name being tracked
-         *
-         * @return string
-         */
-        public function get_plugin_name()
-        {
-        }
-        /**
-         * Returns the slug of the plugin being tracked
-         *
-         * @return string
-         */
-        public function get_plugin_slug()
-        {
-        }
-        /**
-         * Returns whether tracking is enabled or not
-         *
-         * @return bool
-         */
-        public function is_tracking_enabled()
-        {
-        }
-        /**
-         * Tracks the identity of the plugin. This is done once daily.
-         *
-         * @return void
-         */
-        public function track_identity()
-        {
-        }
-        /**
-         * Given a string, this hashes it and returns the hashed value
-         *
-         * @param string $value The string to hash
-         *
-         * @return string
-         */
-        public function hash(string $value)
-        {
-        }
-        /**
-         * Given a key from the $_SERVER super global, returns sanitized data
-         *
-         * @param string $key
-         *
-         * @return string
-         */
-        public function clean_server_data(string $key)
-        {
-        }
-        /**
-         * Clean variables using sanitize_text_field. Arrays are cleaned recursively.
-         * Non-scalar values are ignored.
-         *
-         * @param string $input String to sanitize.
-         *
-         * @return string
-         */
-        public function sanitize(string $input)
-        {
-        }
-        /**
-         * Get the info to track
-         *
-         * @param string $event_type The type of event being tracked
-         * @param array  $extra_info Additional info to track for the event
-         *
-         * @return array
-         */
-        public function get_info($event_type = 'IDENTITY', array $extra_info = [])
-        {
-        }
-        /**
-         * Given an Event Type and optional array of extra info, this will track an event
-         * by adding it to an in-memory array of tracked events.
-         *
-         * The events will be sent to the remote endpoint on shutdown.
-         *
-         * @param string $event_type The name of the event to track
-         * @param array  $extra_info Extra info to track with the event
-         *
-         * @return void
-         */
-        public function track_event(string $event_type, $extra_info = [])
-        {
-        }
-        /**
-         * Determines whether the event should be tracked
-         *
-         * @return bool
-         */
-        public function should_track_identity()
-        {
-        }
-        /**
-         * Send any tracked events
-         *
-         * @return void
-         */
-        public function send_events()
-        {
-        }
-        /**
-         * Given an array of event info, this sends a request for the event to be logged
-         *
-         * @param array $event_info The event info to log
-         *
-         * @return void
-         */
-        protected function send_request(array $event_info)
-        {
-        }
-    }
-}
 namespace WPGraphQL\Type\Enum {
     class AvatarRatingEnum
     {
@@ -7611,11 +7420,9 @@ namespace WPGraphQL\Type\InterfaceType {
         /**
          * Register the ContentTemplate Interface
          *
-         * @param TypeRegistry $type_registry
-         *
          * @return void
          */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
+        public static function register_type()
         {
         }
     }
@@ -7627,13 +7434,11 @@ namespace WPGraphQL\Type\InterfaceType {
     class DatabaseIdentifier
     {
         /**
-         * Register the DatabaseIdentifier Interface
-         *
-         * @param TypeRegistry $type_registry
+         * Register the DatabaseIdentifier Interface.
          *
          * @return void
          */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
+        public static function register_type()
         {
         }
     }
@@ -7864,7 +7669,6 @@ namespace WPGraphQL\Type\InterfaceType {
          * Registers the UniformResourceIdentifiable Interface to the Schema.
          *
          * @param TypeRegistry $type_registry
-         *
          * @return void
          */
         public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
@@ -8301,7 +8105,6 @@ namespace WPGraphQL\Type\Union {
          * Registers the Type
          *
          * @param TypeRegistry $type_registry
-         *
          * @return void
          */
         public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
@@ -9370,21 +9173,22 @@ namespace WPGraphQL\Utils {
     class Preview
     {
         /**
-         * This filters the post meta for previews. Since WordPress core does not save meta for revisions
-         * this resolves calls to get_post_meta() using the meta of the revisions parent (the published version of the post).
+         * This filters the post meta for previews. Since WordPress core does not save meta for
+         * revisions this resolves calls to get_post_meta() using the meta of the revisions parent (the
+         * published version of the post).
          *
-         * For plugins (such as ACF) that do store meta on revisions, the filter "graphql_resolve_revision_meta_from_parent"
-         * can be used to opt-out of this default behavior and instead return meta from the revision
-         * object instead of the parent.
+         * For plugins (such as ACF) that do store meta on revisions, the filter
+         * "graphql_resolve_revision_meta_from_parent" can be used to opt-out of this default behavior
+         * and instead return meta from the revision object instead of the parent.
          *
-         * @param mixed $default_value The default value of the meta
-         * @param int $object_id The ID of the object the meta is for
-         * @param string $meta_key The meta key
-         * @param bool $single Whether the meta is a single value
+         * @param mixed       $default_value The default value of the meta
+         * @param int         $object_id     The ID of the object the meta is for
+         * @param string|null $meta_key      The meta key
+         * @param bool        $single        Whether the meta is a single value
          *
          * @return mixed
          */
-        public static function filter_post_meta_for_previews($default_value, int $object_id, string $meta_key, bool $single)
+        public static function filter_post_meta_for_previews($default_value, int $object_id, ?string $meta_key, bool $single)
         {
         }
     }
