@@ -9676,13 +9676,10 @@ namespace WPGraphQL\Utils {
          * Filter the results of the GraphQL Response to include the Query Log
          *
          * @param mixed|array|object $response       The response of the GraphQL Request
-         * @param mixed              $schema         The WPGraphQL Schema
-         * @param mixed|string|null             $operation_name The operation name being executed
-         * @param string             $request        The GraphQL Request being made
          *
          * @return mixed $response
          */
-        public function add_tracing_to_response_extensions($response, $schema, $operation_name, string $request)
+        public function add_tracing_to_response_extensions($response)
         {
         }
         /**
