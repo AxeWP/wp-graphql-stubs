@@ -3967,6 +3967,16 @@ namespace WPGraphQL\Data {
         {
         }
         /**
+         * Given a Post object, validates it before returning it.
+         *
+         * @param WP_Post $post
+         *
+         * @return WP_Post|null
+         */
+        public function validate_post(\WP_Post $post)
+        {
+        }
+        /**
          * Given the URI of a resource, this method attempts to resolve it and return the
          * appropriate related object
          *
@@ -8609,7 +8619,7 @@ namespace WPGraphQL\Type {
          * @return mixed
          * @since 0.0.5
          */
-        public static function prepare_fields(array $fields, string $type_name, $config = [], \WPGraphQL\Registry\TypeRegistry $type_registry)
+        public static function prepare_fields(array $fields, string $type_name, array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
@@ -9120,7 +9130,7 @@ namespace WPGraphQL\Type {
          *
          * @since 0.0.30
          */
-        public function __construct($config = [], \WPGraphQL\Registry\TypeRegistry $type_registry)
+        public function __construct(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
