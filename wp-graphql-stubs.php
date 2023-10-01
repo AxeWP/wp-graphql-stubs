@@ -676,6 +676,368 @@ namespace WPGraphQL {
         }
     }
 }
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class Comments
+     *
+     * This class organizes the registration of connections to Comments
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class Comments
+    {
+        /**
+         * Register connections to Comments.
+         *
+         * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
+         *
+         * @return void
+         * @throws Exception
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given an array of $args, this returns the connection config, merging the provided args
+         * with the defaults
+         *
+         * @param array $args
+         *
+         * @return array
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+        /**
+         * This returns the connection args for the Comment connection
+         *
+         * @return array
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * Deprecated class for backwards compatibility.
+     */
+    class Comments extends \WPGraphQL\Type\Connection\Comments
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class MenuItems
+     *
+     * This class organizes registration of connections to MenuItems
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class MenuItems
+    {
+        /**
+         * Register connections to MenuItems
+         *
+         * @return void
+         * @throws Exception
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given an array of $args, returns the args for the connection with the provided args merged
+         *
+         * @param array $args
+         *
+         * @return array
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * Deprecated class for backwards compatibility.
+     */
+    class MenuItems extends \WPGraphQL\Type\Connection\MenuItems
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class PostObjects
+     *
+     * This class organizes the registration of connections to PostObjects
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class PostObjects
+    {
+        /**
+         * Registers the various connections from other Types to PostObjects
+         *
+         * @return void
+         * @throws Exception
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given the Post Type Object and an array of args, this returns an array of args for use in
+         * registering a connection.
+         *
+         * @param mixed|WP_Post_Type|WP_Taxonomy $graphql_object The post type object for the post_type having a
+         *                                        connection registered to it
+         * @param array                          $args           The custom args to modify the connection registration
+         *
+         * @return array
+         */
+        public static function get_connection_config($graphql_object, $args = [])
+        {
+        }
+        /**
+         * Given an optional array of args, this returns the args to be used in the connection
+         *
+         * @param array         $args             The args to modify the defaults
+         * @param mixed|WP_Post_Type|WP_Taxonomy $post_type_object The post type the connection is going to
+         *
+         * @return array
+         */
+        public static function get_connection_args($args = [], $post_type_object = null)
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * Deprecated class for backwards compatibility.
+     */
+    class PostObjects extends \WPGraphQL\Type\Connection\PostObjects
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($graphql_object, $args = [])
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args($args = [], $post_type_object = null)
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    class Taxonomies
+    {
+        /**
+         * Registers connections to the Taxonomy type
+         *
+         * @return void
+         */
+        public static function register_connections()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * Deprecated class for backwards compatibility.
+     */
+    class Taxonomies extends \WPGraphQL\Type\Connection\Taxonomies
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class TermObjects
+     *
+     * This class organizes the registration of connections to TermObjects
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class TermObjects
+    {
+        /**
+         * Register connections to TermObjects
+         *
+         * @return void
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given the Taxonomy Object and an array of args, this returns an array of args for use in
+         * registering a connection.
+         *
+         * @param \WP_Taxonomy $tax_object        The taxonomy object for the taxonomy having a
+         *                                        connection registered to it
+         * @param array        $args              The custom args to modify the connection registration
+         *
+         * @return array
+         */
+        public static function get_connection_config($tax_object, $args = [])
+        {
+        }
+        /**
+         * Given an optional array of args, this returns the args to be used in the connection
+         *
+         * @param array $args The args to modify the defaults
+         *
+         * @return array
+         */
+        public static function get_connection_args($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * Deprecated class for backwards compatibility.
+     */
+    class TermObjects extends \WPGraphQL\Type\Connection\TermObjects
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($tax_object, $args = [])
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class Users
+     *
+     * This class organizes the registration of connections to Users
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class Users
+    {
+        /**
+         * Register connections to Users
+         *
+         * @return void
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Returns the connection args for use in the connection
+         *
+         * @return array
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * Deprecated class for backwards compatibility.
+     */
+    class Users extends \WPGraphQL\Type\Connection\Users
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
 namespace WPGraphQL\Data {
     /**
      * Class CommentMutation
@@ -6985,198 +7347,6 @@ namespace WPGraphQL\Server {
         }
     }
 }
-namespace WPGraphQL\Type\Connection {
-    /**
-     * Class Comments
-     *
-     * This class organizes the registration of connections to Comments
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class Comments
-    {
-        /**
-         * Register connections to Comments.
-         *
-         * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given an array of $args, this returns the connection config, merging the provided args
-         * with the defaults
-         *
-         * @param array $args
-         *
-         * @return array
-         */
-        public static function get_connection_config($args = [])
-        {
-        }
-        /**
-         * This returns the connection args for the Comment connection
-         *
-         * @return array
-         */
-        public static function get_connection_args()
-        {
-        }
-    }
-    /**
-     * Class MenuItems
-     *
-     * This class organizes registration of connections to MenuItems
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class MenuItems
-    {
-        /**
-         * Register connections to MenuItems
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given an array of $args, returns the args for the connection with the provided args merged
-         *
-         * @param array $args
-         *
-         * @return array
-         */
-        public static function get_connection_config($args = [])
-        {
-        }
-    }
-    /**
-     * Class PostObjects
-     *
-     * This class organizes the registration of connections to PostObjects
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class PostObjects
-    {
-        /**
-         * Registers the various connections from other Types to PostObjects
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given the Post Type Object and an array of args, this returns an array of args for use in
-         * registering a connection.
-         *
-         * @param mixed|WP_Post_Type|WP_Taxonomy $graphql_object The post type object for the post_type having a
-         *                                        connection registered to it
-         * @param array                          $args           The custom args to modify the connection registration
-         *
-         * @return array
-         */
-        public static function get_connection_config($graphql_object, $args = [])
-        {
-        }
-        /**
-         * Given an optional array of args, this returns the args to be used in the connection
-         *
-         * @param array         $args             The args to modify the defaults
-         * @param mixed|WP_Post_Type|WP_Taxonomy $post_type_object The post type the connection is going to
-         *
-         * @return array
-         */
-        public static function get_connection_args($args = [], $post_type_object = null)
-        {
-        }
-    }
-    class Taxonomies
-    {
-        /**
-         * Registers connections to the Taxonomy type
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    /**
-     * Class TermObjects
-     *
-     * This class organizes the registration of connections to TermObjects
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class TermObjects
-    {
-        /**
-         * Register connections to TermObjects
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given the Taxonomy Object and an array of args, this returns an array of args for use in
-         * registering a connection.
-         *
-         * @param \WP_Taxonomy $tax_object        The taxonomy object for the taxonomy having a
-         *                                        connection registered to it
-         * @param array        $args              The custom args to modify the connection registration
-         *
-         * @return array
-         */
-        public static function get_connection_config($tax_object, $args = [])
-        {
-        }
-        /**
-         * Given an optional array of args, this returns the args to be used in the connection
-         *
-         * @param array $args The args to modify the defaults
-         *
-         * @return array
-         */
-        public static function get_connection_args($args = [])
-        {
-        }
-    }
-    /**
-     * Class Users
-     *
-     * This class organizes the registration of connections to Users
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class Users
-    {
-        /**
-         * Register connections to Users
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Returns the connection args for use in the connection
-         *
-         * @return array
-         */
-        public static function get_connection_args()
-        {
-        }
-    }
-}
 namespace WPGraphQL\Type\Enum {
     class AvatarRatingEnum
     {
@@ -7592,20 +7762,6 @@ namespace WPGraphQL\Type\Input {
     }
 }
 namespace WPGraphQL\Type\InterfaceType {
-    class CommentConnection
-    {
-        /**
-         * Register the CommentConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
-        {
-        }
-    }
     /**
      * Class CommenterInterface
      *
@@ -7652,20 +7808,6 @@ namespace WPGraphQL\Type\InterfaceType {
         {
         }
     }
-    class ContentNodeConnection
-    {
-        /**
-         * Register the ContentNodeConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
-        {
-        }
-    }
     class ContentTemplate
     {
         /**
@@ -7682,20 +7824,6 @@ namespace WPGraphQL\Type\InterfaceType {
          * @return void
          */
         public static function register_content_template_types()
-        {
-        }
-    }
-    class ContentTypeConnection
-    {
-        /**
-         * Register the ContentTypeConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
         {
         }
     }
@@ -7804,54 +7932,12 @@ namespace WPGraphQL\Type\InterfaceType {
         {
         }
     }
-    class MenuConnection
-    {
-        /**
-         * Register the MenuConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
-        {
-        }
-    }
-    class MenuItemConnection
-    {
-        /**
-         * Register the MenuItemConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
-        {
-        }
-    }
     class MenuItemLinkable
     {
         /**
          * Registers the MenuItemLinkable Interface Type
          *
          * @param TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
-        {
-        }
-    }
-    class MenuItemLinkableConnection
-    {
-        /**
-         * Register the MenuItemLinkableConnection Interface
-         *
-         * @param TypeRegistry $type_registry
          *
          * @return void
          * @throws Exception
@@ -8030,20 +8116,6 @@ namespace WPGraphQL\Type\InterfaceType {
         {
         }
     }
-    class TaxonomyConnection
-    {
-        /**
-         * Register the TaxonomyConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
-        {
-        }
-    }
     class TermNode
     {
         /**
@@ -8058,20 +8130,6 @@ namespace WPGraphQL\Type\InterfaceType {
         {
         }
     }
-    class TermNodeConnection
-    {
-        /**
-         * Register the TermNodeConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
-        {
-        }
-    }
     class UniformResourceIdentifiable
     {
         /**
@@ -8081,20 +8139,6 @@ namespace WPGraphQL\Type\InterfaceType {
          * @return void
          */
         public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
-        {
-        }
-    }
-    class UserConnection
-    {
-        /**
-         * Register the UserConnection Interface
-         *
-         * @param TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry) : void
         {
         }
     }
@@ -8786,6 +8830,13 @@ namespace WPGraphQL\Type {
          * @return void
          */
         public function register_connection_field()
+        {
+        }
+        /**
+         * @return void
+         * @throws Exception
+         */
+        public function register_connection_interfaces() : void
         {
         }
         /**
