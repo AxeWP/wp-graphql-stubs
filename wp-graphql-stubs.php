@@ -7415,6 +7415,14 @@ namespace GraphQL\Server {
         {
         }
         /**
+         * @return array<string, mixed>
+         *
+         * @throws RequestError
+         */
+        protected function decodeContent(string $rawBody, string $contentType) : array
+        {
+        }
+        /**
          * Converts query execution result to PSR-7 response
          *
          * @param Promise|ExecutionResult|ExecutionResult[] $result
@@ -8962,6 +8970,7 @@ namespace WPGraphQL\Type {
          * Registers the connection in the Graph
          *
          * @return void
+         * @throws \Exception
          */
         public function register_connection_field() : void
         {
@@ -9265,6 +9274,7 @@ namespace GraphQL\Type\Definition {
         /**
          * @return string
          */
+        #[\ReturnTypeWillChange]
         public function jsonSerialize()
         {
         }
@@ -13364,6 +13374,7 @@ namespace GraphQL\Error {
          * @return mixed data which can be serialized by <b>json_encode</b>,
          * which is a value of any type other than a resource.
          */
+        #[\ReturnTypeWillChange]
         public function jsonSerialize()
         {
         }
@@ -13713,7 +13724,7 @@ namespace GraphQL\Executor {
         /**
          * @return mixed[]
          */
-        public function jsonSerialize()
+        public function jsonSerialize() : array
         {
         }
         /**
@@ -15480,6 +15491,7 @@ namespace GraphQL\Language\AST {
          *
          * @phpstan-return T
          */
+        #[\ReturnTypeWillChange]
         public function offsetGet($offset)
         {
         }
@@ -16105,6 +16117,7 @@ namespace GraphQL\Language {
         /**
          * @return int[]
          */
+        #[\ReturnTypeWillChange]
         public function jsonSerialize()
         {
         }
@@ -17178,6 +17191,13 @@ When expected as an input type, any string (such as `"4"`) or integer
     }
     class IntType extends \GraphQL\Type\Definition\ScalarType
     {
+        // As per the GraphQL Spec, Integers are only treated as valid when a valid
+        // 32-bit signed integer, providing the broadest support across platforms.
+        //
+        // n.b. JavaScript's integers are safe between -(2^53 - 1) and 2^53 - 1 because
+        // they are internally represented as IEEE 754 doubles.
+        public const MAX_INT = 2147483647;
+        public const MIN_INT = -2147483648;
         /** @var string */
         public $name = \GraphQL\Type\Definition\Type::INT;
         /** @var string */
@@ -18408,7 +18428,7 @@ namespace GraphQL\Utils {
          * <p>
          * The return value will be casted to boolean if non-boolean was returned.
          */
-        public function offsetExists($offset)
+        public function offsetExists($offset) : bool
         {
         }
         /**
@@ -18422,6 +18442,7 @@ namespace GraphQL\Utils {
          *
          * @return mixed Can return all value types.
          */
+        #[\ReturnTypeWillChange]
         public function offsetGet($offset)
         {
         }
@@ -18436,10 +18457,8 @@ namespace GraphQL\Utils {
          * @param mixed $value  <p>
          *  The value to set.
          *  </p>
-         *
-         * @return void
          */
-        public function offsetSet($offset, $value)
+        public function offsetSet($offset, $value) : void
         {
         }
         /**
@@ -18450,10 +18469,8 @@ namespace GraphQL\Utils {
          * @param mixed $offset <p>
          * The offset to unset.
          * </p>
-         *
-         * @return void
          */
-        public function offsetUnset($offset)
+        public function offsetUnset($offset) : void
         {
         }
     }
