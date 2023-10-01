@@ -24,11 +24,11 @@ Alternatively you may download `wp-graphql-stubs.php` directly.
 ## Usage with PHPStan
 
 ```bash
-composer require --dev szepeviktor/phpstan-wordpress
+composer require --dev szepeviktor/phpstan-wordpress axepress/wp-graphql-stubs
 ```
 
 The package [`szepeviktor/phpstan-wordpress`](https://github.com/szepeviktor/phpstan-wordpress)
-depends on [`phpstan/phpstan`](http://github.com/phpstan/phpstan) and this one.
+depends on [`phpstan/phpstan`](http://github.com/phpstan/phpstan).
 Please do read
 [that package's README](https://github.com/szepeviktor/phpstan-wordpress/blob/master/README.md)
 and see the `example` directory over there.
