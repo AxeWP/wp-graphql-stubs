@@ -6823,7 +6823,7 @@ namespace WPGraphQL\Telemetry {
          *
          * @return array
          */
-        public function get_info($event_type = 'IDENTITY', array $extra_info)
+        public function get_info($event_type = 'IDENTITY', array $extra_info = [])
         {
         }
         /**
@@ -9380,6 +9380,201 @@ namespace WPGraphQL\Utils {
          * @return array
          */
         public static function get_allowed_wp_kses_html()
+        {
+        }
+    }
+}
+namespace {
+    /**
+     * Class WPGraphQL
+     *
+     * This is the one true WPGraphQL class
+     *
+     * @package WPGraphQL
+     */
+    final class WPGraphQL
+    {
+        /**
+         * Stores an array of allowed post types
+         *
+         * @var array allowed_post_types
+         * @since  0.0.5
+         */
+        public static $allowed_post_types;
+        /**
+         * Stores an array of allowed taxonomies
+         *
+         * @var array allowed_taxonomies
+         * @since  0.0.5
+         */
+        public static $allowed_taxonomies;
+        /**
+         * The instance of the WPGraphQL object
+         *
+         * @return object|WPGraphQL - The one true WPGraphQL
+         * @since  0.0.1
+         */
+        public static function instance()
+        {
+        }
+        /**
+         * Throw error on object clone.
+         * The whole idea of the singleton design pattern is that there is a single object
+         * therefore, we don't want the object to be cloned.
+         *
+         * @since  0.0.1
+         * @return void
+         */
+        public function __clone()
+        {
+        }
+        /**
+         * Disable unserializing of the class.
+         *
+         * @since  0.0.1
+         * @return void
+         */
+        public function __wakeup()
+        {
+        }
+        /**
+         * Set whether the request is a GraphQL request or not
+         *
+         * @param bool $is_graphql_request
+         *
+         * @return void
+         */
+        public static function set_is_graphql_request($is_graphql_request = \false)
+        {
+        }
+        /**
+         * @return bool
+         */
+        public static function is_graphql_request()
+        {
+        }
+        /**
+         * Check if the minimum PHP version requirement is met before execution begins.
+         *
+         * If the server is running a lower version than required, throw an exception and prevent
+         * further execution.
+         *
+         * @throws Exception
+         *
+         * @return void
+         */
+        public function min_php_version_check()
+        {
+        }
+        /**
+         * Determine the post_types and taxonomies, etc that should show in GraphQL
+         *
+         * @return void
+         */
+        public function setup_types()
+        {
+        }
+        /**
+         * Flush permalinks if the GraphQL Endpoint route isn't yet registered
+         *
+         * @return void
+         */
+        public function maybe_flush_permalinks()
+        {
+        }
+        /**
+         * Initialize admin functionality
+         *
+         * @return void
+         */
+        public function init_admin()
+        {
+        }
+        /**
+         * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
+         *
+         * @since  0.0.2
+         * @return void
+         */
+        public static function show_in_graphql()
+        {
+        }
+        /**
+         * Get the post types that are allowed to be used in GraphQL. This gets all post_types that
+         * are set to show_in_graphql, but allows for external code (plugins/theme) to filter the
+         * list of allowed_post_types to add/remove additional post_types
+         *
+         * @param array $args Arguments to filter allowed post types
+         *
+         * @return array
+         * @since  0.0.4
+         */
+        public static function get_allowed_post_types($args = [])
+        {
+        }
+        /**
+         * Get the taxonomies that are allowed to be used in GraphQL/This gets all taxonomies that
+         * are set to "show_in_graphql" but allows for external code (plugins/themes) to filter
+         * the list of allowed_taxonomies to add/remove additional taxonomies
+         *
+         * @since  0.0.4
+         * @return array
+         */
+        public static function get_allowed_taxonomies()
+        {
+        }
+        /**
+         * Allow Schema to be cleared
+         *
+         * @return void
+         */
+        public static function clear_schema()
+        {
+        }
+        /**
+         * Returns the Schema as defined by static registrations throughout
+         * the WP Load.
+         *
+         * @return WPSchema
+         *
+         * @throws Exception
+         */
+        public static function get_schema()
+        {
+        }
+        /**
+         * Whether WPGraphQL is operating in Debug mode
+         *
+         * @return bool
+         */
+        public static function debug() : bool
+        {
+        }
+        /**
+         * Returns the Schema as defined by static registrations throughout
+         * the WP Load.
+         *
+         * @return TypeRegistry
+         *
+         * @throws Exception
+         */
+        public static function get_type_registry()
+        {
+        }
+        /**
+         * Return the static schema if there is one
+         *
+         * @return null|string
+         */
+        public static function get_static_schema()
+        {
+        }
+        /**
+         * Get the AppContext for use in passing down the Resolve Tree
+         *
+         * @return AppContext
+         */
+        public static function get_app_context()
         {
         }
     }
@@ -16570,196 +16765,6 @@ namespace GraphQL\Validator {
 }
 namespace {
     /**
-     * This is the one true WPGraphQL class
-     */
-    final class WPGraphQL
-    {
-        /**
-         * Stores an array of allowed post types
-         *
-         * @var array allowed_post_types
-         * @since  0.0.5
-         */
-        public static $allowed_post_types;
-        /**
-         * Stores an array of allowed taxonomies
-         *
-         * @var array allowed_taxonomies
-         * @since  0.0.5
-         */
-        public static $allowed_taxonomies;
-        /**
-         * The instance of the WPGraphQL object
-         *
-         * @return object|WPGraphQL - The one true WPGraphQL
-         * @since  0.0.1
-         */
-        public static function instance()
-        {
-        }
-        /**
-         * Throw error on object clone.
-         * The whole idea of the singleton design pattern is that there is a single object
-         * therefore, we don't want the object to be cloned.
-         *
-         * @since  0.0.1
-         * @return void
-         */
-        public function __clone()
-        {
-        }
-        /**
-         * Disable unserializing of the class.
-         *
-         * @since  0.0.1
-         * @return void
-         */
-        public function __wakeup()
-        {
-        }
-        /**
-         * Set whether the request is a GraphQL request or not
-         *
-         * @param bool $is_graphql_request
-         *
-         * @return void
-         */
-        public static function set_is_graphql_request($is_graphql_request = \false)
-        {
-        }
-        /**
-         * @return bool
-         */
-        public static function is_graphql_request()
-        {
-        }
-        /**
-         * Check if the minimum PHP version requirement is met before execution begins.
-         *
-         * If the server is running a lower version than required, throw an exception and prevent
-         * further execution.
-         *
-         * @throws Exception
-         *
-         * @return void
-         */
-        public function min_php_version_check()
-        {
-        }
-        /**
-         * Determine the post_types and taxonomies, etc that should show in GraphQL
-         *
-         * @return void
-         */
-        public function setup_types()
-        {
-        }
-        /**
-         * Flush permalinks if the GraphQL Endpoint route isn't yet registered
-         *
-         * @return void
-         */
-        public function maybe_flush_permalinks()
-        {
-        }
-        /**
-         * Initialize admin functionality
-         *
-         * @return void
-         */
-        public function init_admin()
-        {
-        }
-        /**
-         * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
-         *
-         * @since  0.0.2
-         * @return void
-         */
-        public static function show_in_graphql()
-        {
-        }
-        /**
-         * Get the post types that are allowed to be used in GraphQL. This gets all post_types that
-         * are set to show_in_graphql, but allows for external code (plugins/theme) to filter the
-         * list of allowed_post_types to add/remove additional post_types
-         *
-         * @param array $args Arguments to filter allowed post types
-         *
-         * @return array
-         * @since  0.0.4
-         */
-        public static function get_allowed_post_types($args = [])
-        {
-        }
-        /**
-         * Get the taxonomies that are allowed to be used in GraphQL/This gets all taxonomies that
-         * are set to "show_in_graphql" but allows for external code (plugins/themes) to filter
-         * the list of allowed_taxonomies to add/remove additional taxonomies
-         *
-         * @since  0.0.4
-         * @return array
-         */
-        public static function get_allowed_taxonomies()
-        {
-        }
-        /**
-         * Allow Schema to be cleared
-         *
-         * @return void
-         */
-        public static function clear_schema()
-        {
-        }
-        /**
-         * Returns the Schema as defined by static registrations throughout
-         * the WP Load.
-         *
-         * @return WPSchema
-         *
-         * @throws Exception
-         */
-        public static function get_schema()
-        {
-        }
-        /**
-         * Whether WPGraphQL is operating in Debug mode
-         * @return bool
-         */
-        public static function debug() : bool
-        {
-        }
-        /**
-         * Returns the Schema as defined by static registrations throughout
-         * the WP Load.
-         *
-         * @return TypeRegistry
-         *
-         * @throws Exception
-         */
-        public static function get_type_registry()
-        {
-        }
-        /**
-         * Return the static schema if there is one
-         *
-         * @return null|string
-         */
-        public static function get_static_schema()
-        {
-        }
-        /**
-         * Get the AppContext for use in passing down the Resolve Tree
-         *
-         * @return AppContext
-         */
-        public static function get_app_context()
-        {
-        }
-    }
-}
-namespace {
-    /**
      * Formats the name of a field so that it plays nice with GraphiQL
      *
      * @param string $field_name Name of the field
@@ -17108,8 +17113,6 @@ namespace {
     }
     /**
      * Function that instantiates the plugins main class
-     *
-     * @since 0.0.1
      *
      * @return object
      */
