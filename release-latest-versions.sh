@@ -55,7 +55,7 @@ GQL_JSON="$(wget -q -O- "https://packagist.org/packages/wp-graphql/wp-graphql.js
 # Get every possible version from GQL_JSON. Valid versions are prefixed with `v`, followed by anything.
 printf -v JQ_FILTER '.package.versions[].version | select(. | startswith("v"))'
 # Sort the versions.
-POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n)"
+POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -V)"
 
 # Loop through all possible versions and see if they exist as tags
 for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
