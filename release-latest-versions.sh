@@ -34,7 +34,6 @@ done
 do_release() {
 	local VERSION="$1"
 	local REPACK_VERSION="$2"
-	local SED_EXP
 	
 	VERSION="${VERSION#v}"
 
@@ -48,11 +47,11 @@ do_release() {
 
 	echo "Releasing v${VERSION}..."
 
-	# replace the version of wpackagist-plugin/wp-graphql in composer.json with $VERSION
-	contents="$(jq --arg version $VERSION '.require."wpackagist-plugin/wp-graphql" = $version' < source/composer.json)" && \
-	echo -E "${contents}" > source/composer.json
+	# Replace the version of wpackagist-plugin/wp-graphql in composer.json with $VERSION
+	contents="$(jq --arg version "${VERSION}" '.require."wpackagist-plugin/wp-graphql" = $version' < source/composer.json)" \
+		&& echo "${contents}" > source/composer.json
 
-	echo "$(cat source/composer.json)"
+	cat source/composer.json
 
 	composer update --working-dir=source
 
@@ -71,13 +70,13 @@ do_release() {
 		git tag "v${VERSION}+repack.${REPACK_VERSION}"
 
 		# Delete the old git tag.
-	  echo "Deleting old tag v${VERSION}"
+		echo "Deleting old tag v${VERSION}"
 		git tag -d "v${VERSION}"
 
 		# Delete the old tag on GitHub.
 		if [ -z "${DRY_RUN}" ]; then
 			git push --delete origin "v${VERSION}"
-			echo "Tag deleted from server."
+			echo "Tag deleted from GitHub."
 		fi
 	fi
 	
@@ -87,7 +86,7 @@ do_release() {
 		git push --tags
 		git pull
 		git pull --tags
-		echo "Tags synced"
+		echo "Tags synced."
 	else
 		echo "Dry run, not pushing to GitHub"
 		git push --dry-run --tags
@@ -123,18 +122,17 @@ for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
 	if git rev-parse "refs/tags/${POSSIBLE_VERSION}" >/dev/null 2>&1; then
 		echo "Tag exists!"
 
-		# 
 		if [ -z "${SHOULD_RERELEASE}" ]; then
 			echo "Skipping"
 			continue
 		fi
 
 		# If SHOULD_RERELEASE is true, append -r1, -r2, etc.
-		for i in {1..100}; do
+		for REPACK in {1..100}; do
 			# If the tag doesn't exist, release it
-			if ! git rev-parse "refs/tags/${POSSIBLE_VERSION}+repack.${i}" >/dev/null 2>&1; then
-				echo "Rereleasing as ${POSSIBLE_VERSION}+repack.${i}"
-				do_release "${POSSIBLE_VERSION}" "${i}"
+			if ! git rev-parse "refs/tags/${POSSIBLE_VERSION}+repack.${REPACK}" >/dev/null 2>&1; then
+				echo "Rereleasing as ${POSSIBLE_VERSION}+repack.${REPACK}"
+				do_release "${POSSIBLE_VERSION}" "${REPACK}"
 				break
 			fi
 		done
