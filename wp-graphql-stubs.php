@@ -207,6 +207,14 @@ namespace WPGraphQL\Admin\Settings {
         {
         }
         /**
+         * Initialize the styles and scripts used on the settings admin page
+         *
+         * @param string $hook_suffix The current admin page.
+         */
+        public function initialize_settings_page_scripts(string $hook_suffix) : void
+        {
+        }
+        /**
          * Render the settings page in the admin
          *
          * @return void
@@ -241,14 +249,6 @@ namespace WPGraphQL\Admin\Settings {
          */
         protected $settings_fields = [];
         /**
-         * SettingsRegistry constructor.
-         *
-         * @return void
-         */
-        public function __construct()
-        {
-        }
-        /**
          * @return array
          */
         public function get_settings_sections()
@@ -263,9 +263,11 @@ namespace WPGraphQL\Admin\Settings {
         /**
          * Enqueue scripts and styles
          *
+         * @param string $hook_suffix The current admin page.
+         *
          * @return void
          */
-        public function admin_enqueue_scripts()
+        public function admin_enqueue_scripts(string $hook_suffix)
         {
         }
         /**
@@ -3962,11 +3964,11 @@ namespace WPGraphQL\Data {
          * This prepares the object to be mutated - ensures data is safe to be saved,
          * and mapped from input args to WordPress $args
          *
+         * @throws UserError User error for invalid term.
+         * 
          * @param array        $input         The input from the GraphQL Request
          * @param WP_Taxonomy  $taxonomy      The Taxonomy object for the type of term being mutated
          * @param string       $mutation_name The name of the mutation (create, update, etc)
-         *
-         * @throws Exception
          *
          * @return mixed
          */
@@ -5678,7 +5680,6 @@ namespace WPGraphQL\Mutation {
          * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
          *
          * @return void
-         * @throws Exception
          */
         public static function register_mutation(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
@@ -6553,9 +6554,11 @@ namespace WPGraphQL {
         /**
          * Retrieves the raw request entity (body).
          *
-         * @return string Raw request data.
-         * @global string php://input Raw post data.
          * @since  0.0.5
+         *
+         * @global string php://input Raw post data.
+         *
+         * @return string|false Raw request data.
          */
         public static function get_raw_data()
         {
@@ -6951,6 +6954,22 @@ namespace WPGraphQL\Type\Enum {
     {
         /**
          * Register the AvatarRatingEnum Type to the Schema
+         *
+         * @return void
+         */
+        public static function register_type()
+        {
+        }
+    }
+    /**
+     * Class CommentNodeIdTypeEnum
+     *
+     * @package WPGraphQL\Type\Enum
+     */
+    class CommentNodeIdTypeEnum
+    {
+        /**
+         * Register the CommentNodeIdTypeEnum
          *
          * @return void
          */
