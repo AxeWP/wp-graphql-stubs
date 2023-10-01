@@ -681,22 +681,6 @@ namespace WPGraphQL {
 }
 namespace WPGraphQL\Connection {
     /**
-     * Class Commenter
-     *
-     * @package WPGraphQL\Connection
-     */
-    class Commenter
-    {
-        /**
-         * Register connections to Commenter type
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    /**
      * Class Comments
      *
      * This class organizes the registration of connections to Comments
@@ -734,76 +718,6 @@ namespace WPGraphQL\Connection {
         {
         }
     }
-    class ContentTypes
-    {
-        /**
-         * Registers connections to the ContentType Type
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    /**
-     * Class EnqueuedScripts
-     *
-     * @package WPGraphQL\Connection
-     */
-    class EnqueuedScripts
-    {
-        /**
-         * Register connections to Enqueued Assets
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    /**
-     * Class EnqueuedStylesheets
-     *
-     * @package WPGraphQL\Connection
-     */
-    class EnqueuedStylesheets
-    {
-        /**
-         * Register connections to Enqueued Assets
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    /**
-     * Class MediaItems
-     *
-     * @package WPGraphQL\Connection
-     */
-    class MediaItems
-    {
-        /**
-         * Register connections to MediaItems
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    class MenuItemLinkableConnection
-    {
-        /**
-         * Registers connections to the MenuItemLinkable type
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
     /**
      * Class MenuItems
      *
@@ -830,42 +744,6 @@ namespace WPGraphQL\Connection {
          * @return array
          */
         public static function get_connection_config($args = [])
-        {
-        }
-    }
-    /**
-     * Class Menus
-     *
-     * This class organizes the registration of connections to Menus
-     *
-     * @package WPGraphQL\Connection
-     */
-    class Menus
-    {
-        /**
-         * Registers connections to Menus
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    /**
-     * Class Plugins
-     *
-     * This class organizes the registration of connections to Plugins
-     *
-     * @package WPGraphQL\Connection
-     */
-    class Plugins
-    {
-        /**
-         * Register connections to Plugins
-         *
-         * @return void
-         */
-        public static function register_connections()
         {
         }
     }
@@ -974,52 +852,6 @@ namespace WPGraphQL\Connection {
          * @return array
          */
         public static function get_connection_args($args = [])
-        {
-        }
-    }
-    /**
-     * Class Themes
-     *
-     * This class organizes registering connections to Themes
-     *
-     * @package WPGraphQL\Connection
-     */
-    class Themes
-    {
-        /**
-         * Register the connections
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-    /**
-     * Class UserRoles
-     *
-     * This registers the connections to UserRoles
-     *
-     * @package WPGraphQL\Connection
-     */
-    class UserRoles
-    {
-        /**
-         * Register the connections
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given an array of config, returns a config with the custom config merged with the defaults
-         *
-         * @param array $config
-         *
-         * @return array
-         */
-        public static function get_connection_config(array $config)
         {
         }
     }
@@ -7589,6 +7421,7 @@ namespace WPGraphQL\Type\InterfaceType {
          * @param TypeRegistry $type_registry
          *
          * @return void
+         * @throws Exception
          */
         public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
@@ -7667,6 +7500,7 @@ namespace WPGraphQL\Type\InterfaceType {
          * @param TypeRegistry $type_registry
          *
          * @return void
+         * @throws Exception
          */
         public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
@@ -8848,6 +8682,16 @@ namespace WPGraphQL\Type {
         protected function get_implemented_interfaces()
         {
         }
+        /**
+         * Registers connections that were passed through the Type registration config
+         *
+         * @return void
+         *
+         * @throws Exception
+         */
+        protected function register_connections_from_config()
+        {
+        }
     }
 }
 namespace GraphQL\Type\Definition {
@@ -8991,6 +8835,10 @@ namespace WPGraphQL\Type {
          * @var TypeRegistry
          */
         public $type_registry;
+        /**
+         * @var array
+         */
+        public $config;
         /**
          * WPInterfaceType constructor.
          *
@@ -9137,6 +8985,10 @@ namespace WPGraphQL\Type {
          * @var TypeRegistry
          */
         public $type_registry;
+        /**
+         * @var array
+         */
+        public $config;
         /**
          * WPObjectType constructor.
          *
