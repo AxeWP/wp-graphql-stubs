@@ -818,6 +818,7 @@ namespace WPGraphQL\Connection {
          * Register connections to MenuItems
          *
          * @return void
+         * @throws Exception
          */
         public static function register_connections()
         {
