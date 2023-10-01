@@ -920,9 +920,11 @@ namespace WPGraphQL\Data {
         {
         }
         /**
-         * When posts are ordered by a meta query the order might be random when
-         * the meta values have same values multiple times. This filter adds a
-         * secondary ordering by the post ID which forces stable order in such cases.
+         * When posts are ordered by fields that have duplicate values, we need to consider
+         * another field to "stabilize" the query order. We use IDs as they're always unique.
+         *
+         * This allows for posts with the same title or same date or same meta value to exist
+         * and for their cursors to properly go forward/backward to the proper place in the database.
          *
          * @param string    $orderby  The ORDER BY clause of the query.
          * @param \WP_Query $wp_query The WP_Query instance executing
