@@ -4,6 +4,12 @@ name: Release Latest Versions
 
 on:
   workflow_dispatch:
+    inputs:
+      should_rerelease:
+        description: 'Repack the latest version of the package'
+        required: false
+        default: false
+        type: boolean
   schedule:
     - cron: '0 */12 * * *'
 
@@ -20,5 +26,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          bash -x ./release-latest-versions.sh
+          if [ "${{ inputs.should_rerelease }}" = "true" ]; then
+            bash -x ./release-latest-versions.sh --should-rerelease
+          else
+            bash -x ./release-latest-versions.sh
+          fi
 
