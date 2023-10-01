@@ -9792,6 +9792,14 @@ namespace WPGraphQL\Utils {
         {
         }
         /**
+         * Returns the operation name of the query, if there is one
+         *
+         * @return string|null
+         */
+        public function get_operation_name() : ?string
+        {
+        }
+        /**
          * @return string|null
          */
         public function get_query_id() : ?string
