@@ -9269,7 +9269,7 @@ namespace WPGraphQL\Utils {
          *
          * @return mixed
          */
-        public static function filter_post_meta_for_previews($default_value, int $object_id, ?string $meta_key, bool $single)
+        public static function filter_post_meta_for_previews($default_value, int $object_id, ?string $meta_key, bool $single = false)
         {
         }
     }
@@ -10506,7 +10506,7 @@ namespace GraphQLRelay {
     }
 }
 namespace GraphQLRelay\Tests\Connection {
-    class ArrayConnectionTest extends \PHPUnit_Framework_TestCase
+    class ArrayConnectionTest extends \PHPUnit\Framework\TestCase
     {
         protected $letters = ['A', 'B', 'C', 'D', 'E'];
         public function testReturnsAllElementsWithoutFilters()
@@ -10594,7 +10594,7 @@ namespace GraphQLRelay\Tests\Connection {
         {
         }
     }
-    class ConnectionTest extends \PHPUnit_Framework_TestCase
+    class ConnectionTest extends \PHPUnit\Framework\TestCase
     {
         /**
          * @var array
@@ -10620,7 +10620,7 @@ namespace GraphQLRelay\Tests\Connection {
          * @var Schema
          */
         protected $schema;
-        public function setup()
+        public function setup() : void
         {
         }
         public function testIncludesConnectionAndEdgeFields()
@@ -10632,21 +10632,12 @@ namespace GraphQLRelay\Tests\Connection {
         public function testWorksWithBackwardConnectionArgs()
         {
         }
-        /**
-         * @expectedException \InvalidArgumentException
-         */
         public function testEdgeTypeThrowsWithoutNodeType()
         {
         }
-        /**
-         * @expectedException \InvalidArgumentException
-         */
         public function testConnectionTypeThrowsWithoutNodeType()
         {
         }
-        /**
-         * @expectedException \InvalidArgumentException
-         */
         public function testConnectionDefinitionThrowsWithoutNodeType()
         {
         }
@@ -10657,7 +10648,7 @@ namespace GraphQLRelay\Tests\Connection {
         {
         }
     }
-    class SeparateConnectionTest extends \PHPUnit_Framework_TestCase
+    class SeparateConnectionTest extends \PHPUnit\Framework\TestCase
     {
         /**
          * @var array
@@ -10691,7 +10682,7 @@ namespace GraphQLRelay\Tests\Connection {
          * @var Schema
          */
         protected $schema;
-        public function setup()
+        public function setup() : void
         {
         }
         public function testIncludesConnectionAndEdgeFields()
@@ -10712,7 +10703,7 @@ namespace GraphQLRelay\Tests\Connection {
     }
 }
 namespace GraphQLRelay\Tests\Mutation {
-    class MutationTest extends \PHPUnit_Framework_TestCase
+    class MutationTest extends \PHPUnit\Framework\TestCase
     {
         /**
          * @var ObjectType
@@ -10742,7 +10733,7 @@ namespace GraphQLRelay\Tests\Mutation {
          * @var Schema
          */
         protected $schema;
-        public function setup()
+        public function setup() : void
         {
         }
         public function testRequiresAnArgument()
@@ -10781,7 +10772,7 @@ namespace GraphQLRelay\Tests\Mutation {
     }
 }
 namespace GraphQLRelay\Tests\Node {
-    class NodeTest extends \PHPUnit_Framework_TestCase
+    class NodeTest extends \PHPUnit\Framework\TestCase
     {
         /**
          * Node definition, so that it is only created once
@@ -10870,7 +10861,7 @@ namespace GraphQLRelay\Tests\Node {
     }
 }
 namespace GraphQLRelay\tests\Node {
-    class PluralTest extends \PHPUnit_Framework_TestCase
+    class PluralTest extends \PHPUnit\Framework\TestCase
     {
         protected static function getSchema()
         {
@@ -10884,7 +10875,7 @@ namespace GraphQLRelay\tests\Node {
     }
 }
 namespace GraphQLRelay\tests {
-    class RelayTest extends \PHPUnit_Framework_TestCase
+    class RelayTest extends \PHPUnit\Framework\TestCase
     {
         public function testForwardConnectionArgs()
         {
@@ -10905,7 +10896,7 @@ namespace GraphQLRelay\tests {
         {
         }
     }
-    class StarWarsConnectionTest extends \PHPUnit_Framework_TestCase
+    class StarWarsConnectionTest extends \PHPUnit\Framework\TestCase
     {
         public function testFetchesTheFirstShipOfTheRebels()
         {
@@ -10966,13 +10957,13 @@ namespace GraphQLRelay\tests {
         {
         }
     }
-    class StarWarsMutationTest extends \PHPUnit_Framework_TestCase
+    class StarWarsMutationTest extends \PHPUnit\Framework\TestCase
     {
         public function testMutatesTheDataSet()
         {
         }
     }
-    class StarWarsObjectIdentificationTest extends \PHPUnit_Framework_TestCase
+    class StarWarsObjectIdentificationTest extends \PHPUnit\Framework\TestCase
     {
         public function testFetchesTheIDAndNameOfTheRebels()
         {
@@ -16653,7 +16644,7 @@ namespace GraphQL\Utils {
         /**
          * @param array<string, bool> $options
          */
-        public static function extend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, array $options = []) : \GraphQL\Type\Schema
+        public static function extend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, array $options = [], ?callable $typeConfigDecorator = null) : \GraphQL\Type\Schema
         {
         }
     }
