@@ -11,8 +11,13 @@ do_release() {
 	local VERSION="$1"
 	local REPACK_VERSION="$2"
 	local SED_EXP
+	
+	# If VERSION starts with v, remove it.
+	if [ "${VERSION}" == "v${VERSION#v}" ]; then
+		VERSION="${VERSION#v}"
+	fi
 
-	echo "Releasing ${VERSION}..."
+	echo "Releasing v${VERSION}..."
 
 	# replace the version of wpackagist-plugin/wp-graphql in composer.json with $VERSION
 	contents="$(jq --arg version $VERSION '.require."wpackagist-plugin/wp-graphql" = $version' < source/composer.json)" && \
@@ -27,18 +32,18 @@ do_release() {
 
 	# Tag version
 	if [ -z "${REPACK_VERSION}" ]; then
-		echo "Tagging ${VERSION}"
-		git commit --all -m "Generate stubs for WPGraphQL ${VERSION}"
-		git tag "${VERSION}"
+		echo "Tagging v${VERSION}"
+		git commit --all -m "Generate stubs for WPGraphQL v${VERSION}"
+		git tag "v${VERSION}"
 	else
-		echo "Tagging ${VERSION}+repack.${REPACK_VERSION}"
-		git commit --all -m "Generating stubs for WPGraphQL ${VERSION}+repack.${REPACK_VERSION}"
-		git tag "${VERSION}+repack.${REPACK_VERSION}"
+		echo "Tagging v${VERSION}+repack.${REPACK_VERSION}"
+		git commit --all -m "Generating stubs for WPGraphQL v${VERSION}+repack.${REPACK_VERSION}"
+		git tag "v${VERSION}+repack.${REPACK_VERSION}"
 
 		# Delete the old git tag.
-	  echo "Deleting old tag ${VERSION}"
-		git tag -d "${VERSION}"
-		git push --delete origin "${VERSION}"
+	  echo "Deleting old tag v${VERSION}"
+		git tag -d "v${VERSION}"
+		git push --delete origin "v${VERSION}"
 	fi
 
 	git push
@@ -52,12 +57,13 @@ GQL_JSON="$(wget -q -O- "https://packagist.org/packages/wp-graphql/wp-graphql.js
 
 # Get every possible version from GQL_JSON. Valid versions are prefixed with `v`, followed by anything.
 printf -v JQ_FILTER '.package.versions[].version | select(. | startswith("v"))'
-POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -t ".")"
+# Sort the versions.
+POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n)"
 
 # Loop through all possible versions and see if they exist as tags
 for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
 	# Skip versions before 1.0.0
-	if [ "${POSSIBLE_VERSION}" \< "v0.9.9" ]; then
+	if [ "${POSSIBLE_VERSION#v}" \< "1.0.0" ]; then
 		echo "Skipping ${POSSIBLE_VERSION}"
 		continue
 	fi
@@ -88,5 +94,5 @@ for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
 	fi
 
 	# If the tag doesn't exist, release it
-	do_release "${POSSIBLE_VERSION//v/}"
+	do_release "${POSSIBLE_VERSION}"
 done
