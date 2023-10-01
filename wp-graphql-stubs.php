@@ -10407,6 +10407,17 @@ namespace WPGraphQL\Utils {
         {
         }
         /**
+         * @param \GraphQL\Type\Definition\Type $type The Type of field
+         * @param \GraphQL\Type\Definition\FieldDefinition $field_def The field definition the type is for
+         * @param mixed $parent_type The Parent Type
+         * @param bool $is_list_type Whether the field is a list type field
+         *
+         * @return  \GraphQL\Type\Definition\Type|String|null
+         */
+        public static function get_wrapped_field_type(\GraphQL\Type\Definition\Type $type, \GraphQL\Type\Definition\FieldDefinition $field_def, $parent_type, bool $is_list_type = false)
+        {
+        }
+        /**
          * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
          * by the query.
          *
