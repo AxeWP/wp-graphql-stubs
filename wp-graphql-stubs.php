@@ -5574,6 +5574,30 @@ namespace WPGraphQL\Mutation {
         public static function register_mutation()
         {
         }
+        /**
+         * Defines the mutation input field configuration.
+         *
+         * @return array
+         */
+        public static function get_input_fields() : array
+        {
+        }
+        /**
+         * Defines the mutation output field configuration.
+         *
+         * @return array
+         */
+        public static function get_output_fields() : array
+        {
+        }
+        /**
+         * Defines the mutation data modification closure.
+         *
+         * @return callable
+         */
+        public static function mutate_and_get_payload() : callable
+        {
+        }
     }
     class TermObjectCreate
     {
