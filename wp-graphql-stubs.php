@@ -6271,21 +6271,22 @@ namespace WPGraphQL {
         {
         }
         /**
+         * Execute an HTTP request.
+         *
+         * @return array
+         * @throws Exception
+         * @deprecated Use execute instead
+         */
+        public function execute_http()
+        {
+        }
+        /**
          * Execute an internal request (graphql() function call).
          *
          * @return array
          * @throws Exception
          */
         public function execute()
-        {
-        }
-        /**
-         * Execute an HTTP request.
-         *
-         * @return array
-         * @throws Exception
-         */
-        public function execute_http()
         {
         }
         /**
@@ -9389,15 +9390,14 @@ namespace WPGraphQL\Utils {
         /**
          * Filter the results of the GraphQL Response to include the Query Log
          *
-         * @param mixed    $response
+         * @param array    $response
          * @param WPSchema $schema         The WPGraphQL Schema
          * @param string   $operation_name The operation name being executed
          * @param string   $request        The GraphQL Request being made
-         * @param array    $variables      The variables sent with the request
          *
          * @return array
          */
-        public function show_results($response, $schema, $operation_name, $request, $variables)
+        public function show_results(array $response, \WPGraphQL\WPSchema $schema, string $operation_name, string $request)
         {
         }
         /**
@@ -9499,10 +9499,10 @@ namespace WPGraphQL\Utils {
         /**
          * Initialize tracing for an individual field
          *
-         * @param mixed               $source         The source passed down the Resolve Tree
-         * @param array               $args           The args for the field
-         * @param AppContext          $context        The AppContext passed down the ResolveTree
-         * @param ResolveInfo         $info           The ResolveInfo passed down the ResolveTree
+         * @param mixed       $source  The source passed down the Resolve Tree
+         * @param array       $args    The args for the field
+         * @param AppContext  $context The AppContext passed down the ResolveTree
+         * @param ResolveInfo $info    The ResolveInfo passed down the ResolveTree
          *
          * @return void
          */
@@ -9579,14 +9579,14 @@ namespace WPGraphQL\Utils {
         /**
          * Filter the results of the GraphQL Response to include the Query Log
          *
-         * @param mixed|array|object $response       The response of the GraphQL Request
-         * @param mixed              $schema         The WPGraphQL Schema
-         * @param string             $operation_name The operation name being executed
-         * @param string             $request        The GraphQL Request being made
+         * @param array    $response       The response of the GraphQL Request
+         * @param WPSchema $schema         The WPGraphQL Schema
+         * @param string   $operation_name The operation name being executed
+         * @param string   $request        The GraphQL Request being made
          *
          * @return mixed $response
          */
-        public function add_tracing_to_response_extensions($response, $schema, string $operation_name, string $request)
+        public function add_tracing_to_response_extensions(array $response, \WPGraphQL\WPSchema $schema, string $operation_name, string $request)
         {
         }
         /**
