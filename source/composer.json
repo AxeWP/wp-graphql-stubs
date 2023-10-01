@@ -13,7 +13,7 @@
     "ext-mbstring": "*",
     "ext-openssl": "*",
     "ext-sodium": "*",
-    "wpackagist-plugin/wp-graphql": "1.7.1"
+    "wpackagist-plugin/wp-graphql": "1.7.2"
   },
   "config": {
     "allow-plugins": {
