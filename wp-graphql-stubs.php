@@ -74,9 +74,9 @@ namespace WPGraphQL\Admin\GraphiQL {
     class GraphiQL
     {
         /**
-         * @var bool Whether GraphiQL is enabled or disabled
+         * @var bool Whether GraphiQL is enabled
          */
-        protected $is_disabled = false;
+        protected $is_enabled = false;
         /**
          * Initialize Admin functionality for WPGraphQL
          *
@@ -112,14 +112,6 @@ namespace WPGraphQL\Admin\GraphiQL {
         {
         }
         /**
-         * Get the helpers JS
-         *
-         * @return string
-         */
-        public function get_app_script_helpers()
-        {
-        }
-        /**
          * Enqueues the stylesheet and js for the WPGraphiQL app
          *
          * @return void
@@ -128,11 +120,30 @@ namespace WPGraphQL\Admin\GraphiQL {
         {
         }
         /**
-         * Loads the React App from the manifest.json
+         * Enqueue the GraphiQL Auth Switch extension, which adds a button to the GraphiQL toolbar
+         * that allows the user to switch between the logged in user and the current user
          *
          * @return void
          */
-        public function load_app()
+        public function graphiql_enqueue_auth_switch()
+        {
+        }
+        /**
+         * Enqueue the Query Composer extension, which adds a button to the GraphiQL toolbar
+         * that allows the user to open the Query Composer and compose a query with a form-based UI
+         *
+         * @return void
+         */
+        public function graphiql_enqueue_query_composer()
+        {
+        }
+        /**
+         * Enqueue the GraphiQL Fullscreen Toggle extension, which adds a button to the GraphiQL toolbar
+         * that allows the user to toggle the fullscreen mode
+         *
+         * @return void
+         */
+        public function graphiql_enqueue_fullscreen_toggle()
         {
         }
     }
@@ -3112,23 +3123,27 @@ namespace WPGraphQL\Data {
          *
          * @return array $settings_groups[ $group ]
          */
-        public static function get_setting_group_fields(string $group)
+        public static function get_setting_group_fields(string $group, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
          * Get all of the allowed settings by group
          *
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
          * @return array $allowed_settings_by_group
          */
-        public static function get_allowed_settings_by_group()
+        public static function get_allowed_settings_by_group(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
          * Get all of the $allowed_settings
          *
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
          * @return array $allowed_settings
          */
-        public static function get_allowed_settings()
+        public static function get_allowed_settings(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
@@ -5667,34 +5682,45 @@ namespace WPGraphQL\Mutation {
         /**
          * Registers the CommentCreate mutation.
          *
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
          * @return void
-         * @throws \Exception
+         * @throws Exception
          */
-        public static function register_mutation()
+        public static function register_mutation(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
          * Defines the mutation input field configuration.
          *
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
          * @return array
          */
-        public static function get_input_fields()
+        public static function get_input_fields(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
          * Defines the mutation output field configuration.
          *
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
          * @return array
          */
-        public static function get_output_fields()
+        public static function get_output_fields(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @param array $input The mutation input
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
+         * @return array
+         *
+         * @throws UserError
          */
-        public static function mutate_and_get_payload()
+        public static function mutate_and_get_payload(array $input, \WPGraphQL\Registry\TypeRegistry $type_registry) : array
         {
         }
     }
@@ -5960,6 +5986,7 @@ namespace WPGraphQL\Registry {
          * @param TypeRegistry $type_registry
          *
          * @return void
+         * @throws Exception
          */
         public function init_type_registry(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
@@ -6170,7 +6197,7 @@ namespace WPGraphQL\Registry {
          *
          * @return void
          */
-        public function deregister_field($type_name, $field_name)
+        public function deregister_field(string $type_name, string $field_name)
         {
         }
         /**
@@ -6194,7 +6221,7 @@ namespace WPGraphQL\Registry {
          * @return void
          * @throws Exception
          */
-        public function register_mutation($mutation_name, $config)
+        public function register_mutation(string $mutation_name, array $config)
         {
         }
         /**
@@ -7853,12 +7880,14 @@ namespace WPGraphQL\Type\ObjectType {
         /**
          * Register each settings group to the GraphQL Schema
          *
-         * @param string $group_name The name of the setting group
-         * @param string $group      The settings group config
+         * @param string       $group_name    The name of the setting group
+         * @param string       $group         The settings group config
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
          *
-         * @return void
+         * @return string|null
+         * @throws Exception
          */
-        public static function register_settings_group(string $group_name, string $group)
+        public static function register_settings_group(string $group_name, string $group, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
@@ -7866,10 +7895,11 @@ namespace WPGraphQL\Type\ObjectType {
          *
          * @param string $group_name Name of the settings group to retrieve fields for
          * @param string $group      The settings group config
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
          *
          * @return array
          */
-        public static function get_settings_group_fields(string $group_name, string $group)
+        public static function get_settings_group_fields(string $group_name, string $group, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
@@ -7884,17 +7914,21 @@ namespace WPGraphQL\Type\ObjectType {
          * Registers a Settings Type with fields for all settings based on settings
          * registered using the core register_setting API
          *
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
          * @return void
          */
-        public static function register_type()
+        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
          * Returns an array of fields for all settings based on the `register_setting` WordPress API
          *
+         * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         *
          * @return array
          */
-        public static function get_fields()
+        public static function get_fields(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
@@ -10174,6 +10208,633 @@ namespace WPGraphQL {
          * @since 0.0.9
          */
         public function __construct(\GraphQL\Type\SchemaConfig $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+    }
+}
+namespace Appsero {
+    /**
+     * Appsero Client
+     *
+     * This class is necessary to set project data
+     */
+    class Client
+    {
+        /**
+         * The client version
+         *
+         * @var string
+         */
+        public $version = '1.2.0';
+        /**
+         * Hash identifier of the plugin
+         *
+         * @var string
+         */
+        public $hash;
+        /**
+         * Name of the plugin
+         *
+         * @var string
+         */
+        public $name;
+        /**
+         * The plugin/theme file path
+         * @example .../wp-content/plugins/test-slug/test-slug.php
+         *
+         * @var string
+         */
+        public $file;
+        /**
+         * Main plugin file
+         * @example test-slug/test-slug.php
+         *
+         * @var string
+         */
+        public $basename;
+        /**
+         * Slug of the plugin
+         * @example test-slug
+         *
+         * @var string
+         */
+        public $slug;
+        /**
+         * The project version
+         *
+         * @var string
+         */
+        public $project_version;
+        /**
+         * The project type
+         *
+         * @var string
+         */
+        public $type;
+        /**
+         * textdomain
+         *
+         * @var string
+         */
+        public $textdomain;
+        /**
+         * Initialize the class
+         *
+         * @param string  $hash hash of the plugin
+         * @param string  $name readable name of the plugin
+         * @param string  $file main plugin file path
+         */
+        public function __construct($hash, $name, $file)
+        {
+        }
+        /**
+         * Initialize insights class
+         *
+         * @return Appsero\Insights
+         */
+        public function insights()
+        {
+        }
+        /**
+         * Initialize plugin/theme updater
+         *
+         * @return Appsero\Updater
+         */
+        public function updater()
+        {
+        }
+        /**
+         * Initialize license checker
+         *
+         * @return Appsero\License
+         */
+        public function license()
+        {
+        }
+        /**
+         * API Endpoint
+         *
+         * @return string
+         */
+        public function endpoint()
+        {
+        }
+        /**
+         * Set project basename, slug and version
+         *
+         * @return void
+         */
+        protected function set_basename_and_slug()
+        {
+        }
+        /**
+         * Send request to remote endpoint
+         *
+         * @param  array  $params
+         * @param  string $route
+         *
+         * @return array|WP_Error   Array of results including HTTP headers or WP_Error if the request failed.
+         */
+        public function send_request($params, $route, $blocking = false)
+        {
+        }
+        /**
+         * Check if the current server is localhost
+         *
+         * @return boolean
+         */
+        public function is_local_server()
+        {
+        }
+        /**
+         * Translate function _e()
+         */
+        public function _etrans($text)
+        {
+        }
+        /**
+         * Translate function __()
+         */
+        public function __trans($text)
+        {
+        }
+        /**
+         * Set project textdomain
+         */
+        public function set_textdomain($textdomain)
+        {
+        }
+    }
+    /**
+     * Appsero Insights
+     *
+     * This is a tracker class to track plugin usage based on if the customer has opted in.
+     * No personal information is being tracked by this class, only general settings, active plugins, environment details
+     * and admin email.
+     */
+    class Insights
+    {
+        /**
+         * The notice text
+         *
+         * @var string
+         */
+        public $notice;
+        /**
+         * Wheather to the notice or not
+         *
+         * @var boolean
+         */
+        protected $show_notice = true;
+        /**
+         * If extra data needs to be sent
+         *
+         * @var array
+         */
+        protected $extra_data = array();
+        /**
+         * AppSero\Client
+         *
+         * @var object
+         */
+        protected $client;
+        /**
+         * Initialize the class
+         *
+         * @param AppSero\Client
+         */
+        public function __construct($client, $name = null, $file = null)
+        {
+        }
+        /**
+         * Don't show the notice
+         *
+         * @return \self
+         */
+        public function hide_notice()
+        {
+        }
+        /**
+         * Add extra data if needed
+         *
+         * @param array $data
+         *
+         * @return \self
+         */
+        public function add_extra($data = array())
+        {
+        }
+        /**
+         * Set custom notice text
+         *
+         * @param  string $text
+         *
+         * @return \self
+         */
+        public function notice($text)
+        {
+        }
+        /**
+         * Initialize insights
+         *
+         * @return void
+         */
+        public function init()
+        {
+        }
+        /**
+         * Initialize theme hooks
+         *
+         * @return void
+         */
+        public function init_theme()
+        {
+        }
+        /**
+         * Initialize plugin hooks
+         *
+         * @return void
+         */
+        public function init_plugin()
+        {
+        }
+        /**
+         * Initialize common hooks
+         *
+         * @return void
+         */
+        protected function init_common()
+        {
+        }
+        /**
+         * Send tracking data to AppSero server
+         *
+         * @param  boolean  $override
+         *
+         * @return void
+         */
+        public function send_tracking_data($override = false)
+        {
+        }
+        /**
+         * Get the tracking data points
+         *
+         * @return array
+         */
+        protected function get_tracking_data()
+        {
+        }
+        /**
+         * If a child class wants to send extra data
+         *
+         * @return mixed
+         */
+        protected function get_extra_data()
+        {
+        }
+        /**
+         * Explain the user which data we collect
+         *
+         * @return array
+         */
+        protected function data_we_collect()
+        {
+        }
+        /**
+         * Check if the user has opted into tracking
+         *
+         * @return bool
+         */
+        public function tracking_allowed()
+        {
+        }
+        /**
+         * Check if the notice has been dismissed or enabled
+         *
+         * @return boolean
+         */
+        public function notice_dismissed()
+        {
+        }
+        /**
+         * Display the admin notice to users that have not opted-in or out
+         *
+         * @return void
+         */
+        public function admin_notice()
+        {
+        }
+        /**
+         * handle the optin/optout
+         *
+         * @return void
+         */
+        public function handle_optin_optout()
+        {
+        }
+        /**
+         * Tracking optin
+         *
+         * @return void
+         */
+        public function optin()
+        {
+        }
+        /**
+         * Optout from tracking
+         *
+         * @return void
+         */
+        public function optout()
+        {
+        }
+        /**
+         * Get the number of post counts
+         *
+         * @param  string  $post_type
+         *
+         * @return integer
+         */
+        public function get_post_count($post_type)
+        {
+        }
+        /**
+         * Get user totals based on user role.
+         *
+         * @return array
+         */
+        public function get_user_counts()
+        {
+        }
+        /**
+         * Add weekly cron schedule
+         *
+         * @param array  $schedules
+         *
+         * @return array
+         */
+        public function add_weekly_schedule($schedules)
+        {
+        }
+        /**
+         * Plugin activation hook
+         *
+         * @return void
+         */
+        public function activate_plugin()
+        {
+        }
+        /**
+         * Clear our options upon deactivation
+         *
+         * @return void
+         */
+        public function deactivation_cleanup()
+        {
+        }
+        /**
+         * Hook into action links and modify the deactivate link
+         *
+         * @param  array  $links
+         *
+         * @return array
+         */
+        public function plugin_action_links($links)
+        {
+        }
+        /**
+         * Plugin deactivation uninstall reason submission
+         *
+         * @return void
+         */
+        public function uninstall_reason_submission()
+        {
+        }
+        /**
+         * Handle the plugin deactivation feedback
+         *
+         * @return void
+         */
+        public function deactivate_scripts()
+        {
+        }
+        /**
+         * Run after theme deactivated
+         * @param  string $new_name
+         * @param  object $new_theme
+         * @param  object $old_theme
+         * @return void
+         */
+        public function theme_deactivated($new_name, $new_theme, $old_theme)
+        {
+        }
+    }
+    /**
+     * Appsero License Checker
+     *
+     * This class will check, active and deactive license
+     */
+    class License
+    {
+        /**
+         * AppSero\Client
+         *
+         * @var object
+         */
+        protected $client;
+        /**
+         * Arguments of create menu
+         *
+         * @var array
+         */
+        protected $menu_args;
+        /**
+         * `option_name` of `wp_options` table
+         *
+         * @var string
+         */
+        protected $option_key;
+        /**
+         * Error message of HTTP request
+         *
+         * @var string
+         */
+        public $error;
+        /**
+         * Success message on form submit
+         *
+         * @var string
+         */
+        public $success;
+        /**
+         * Corn schedule hook name
+         *
+         * @var string
+         */
+        protected $schedule_hook;
+        /**
+         * Initialize the class
+         *
+         * @param Appsero\Client
+         */
+        public function __construct(\Appsero\Client $client)
+        {
+        }
+        /**
+         * Check license
+         *
+         * @return boolean
+         */
+        public function check($license_key)
+        {
+        }
+        /**
+         * Active a license
+         *
+         * @return boolean
+         */
+        public function activate($license_key)
+        {
+        }
+        /**
+         * Deactivate a license
+         *
+         * @return boolean
+         */
+        public function deactivate($license_key)
+        {
+        }
+        /**
+         * Send common request
+         *
+         * @param $license_key
+         * @param $route
+         *
+         * @return array
+         */
+        protected function send_request($license_key, $route)
+        {
+        }
+        /**
+         * Add settings page for license
+         *
+         * @param array $args
+         *
+         * @return void
+         */
+        public function add_settings_page($args = array())
+        {
+        }
+        /**
+         * Admin Menu hook
+         *
+         * @return void
+         */
+        public function admin_menu()
+        {
+        }
+        /**
+         * License menu output
+         */
+        public function menu_output()
+        {
+        }
+        /**
+         * License form submit
+         */
+        public function license_form_submit($form)
+        {
+        }
+        /**
+         * Check license status on schedule
+         */
+        public function check_license_status()
+        {
+        }
+        /**
+         * Check this is a valid license
+         */
+        public function is_valid()
+        {
+        }
+        /**
+         * Check this is a valid license
+         */
+        public function is_valid_by($option, $value)
+        {
+        }
+        /**
+         * Schedule daily sicense checker event
+         */
+        public function schedule_cron_event()
+        {
+        }
+        /**
+         * Clear any scheduled hook
+         */
+        public function clear_scheduler()
+        {
+        }
+    }
+    /**
+     * Appsero Updater
+     *
+     * This class will show new updates project
+     */
+    class Updater
+    {
+        /**
+         * Appsero\Client
+         *
+         * @var object
+         */
+        protected $client;
+        /**
+         * Initialize the class
+         *
+         * @param Appsero\Client
+         */
+        public function __construct(\Appsero\Client $client)
+        {
+        }
+        /**
+         * Set up WordPress filter to hooks to get update.
+         *
+         * @return void
+         */
+        public function run_plugin_hooks()
+        {
+        }
+        /**
+         * Set up WordPress filter to hooks to get update.
+         *
+         * @return void
+         */
+        public function run_theme_hooks()
+        {
+        }
+        /**
+         * Check for Update for this specific project
+         */
+        public function check_plugin_update($transient_data)
+        {
+        }
+        /**
+         * Updates information on the "View version x.x details" page with custom data.
+         *
+         * @param mixed   $data
+         * @param string  $action
+         * @param object  $args
+         *
+         * @return object $data
+         */
+        public function plugins_api_filter($data, $action = '', $args = null)
+        {
+        }
+        /**
+         * Check theme upate
+         */
+        public function check_theme_update($transient_data)
         {
         }
     }
@@ -18485,6 +19146,14 @@ namespace {
      * @return object
      */
     function graphql_init()
+    {
+    }
+    /**
+     * Initialize the plugin tracker
+     *
+     * @return void
+     */
+    function graphql_init_appsero_telemetry()
     {
     }
 }
