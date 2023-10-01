@@ -1706,7 +1706,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Determine if the model is valid
          *
-         * @param array $model
+         * @param ?\_WP_Dependency $model
          *
          * @return bool
          */
@@ -1794,7 +1794,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Determine if the model is valid
          *
-         * @param array $model
+         * @param ?\_WP_Dependency $model
          *
          * @return bool
          */
@@ -1969,7 +1969,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Returns the query being executed
          *
-         * @return \WP_Query
+         * @return \WP_Query|object
          *
          * @throws Exception
          */
@@ -2167,6 +2167,12 @@ namespace WPGraphQL\Data\Connection {
          * @throws Exception
          */
         public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
+        {
+        }
+        public function has_next_page()
+        {
+        }
+        public function has_previous_page()
         {
         }
         /**
@@ -3052,10 +3058,10 @@ namespace WPGraphQL\Data {
          * @param int   $user_id ID of the user to get the avatar data for
          * @param array $args    The args to pass to the get_avatar_data function
          *
-         * @return array|null|Avatar
+         * @return Avatar|null
          * @throws Exception
          */
-        public static function resolve_avatar($user_id, $args)
+        public static function resolve_avatar(int $user_id, array $args)
         {
         }
         /**
@@ -3629,7 +3635,7 @@ namespace WPGraphQL\Data\Loader {
          * For example:
          * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
          *
-         * @param array $keys
+         * @param int[] $keys
          *
          * @return array
          * @throws Exception
@@ -4009,7 +4015,7 @@ namespace WPGraphQL\Model {
         /**
          * Stores the raw data passed to the child class when it's instantiated before it's transformed
          *
-         * @var array $data
+         * @var array|object|mixed $data
          */
         protected $data;
         /**
@@ -4128,7 +4134,7 @@ namespace WPGraphQL\Model {
         /**
          * Return the visibility state for the current piece of data
          *
-         * @return string
+         * @return string|null
          */
         public function get_visibility()
         {
@@ -4235,9 +4241,9 @@ namespace WPGraphQL\Model {
          *
          * @param array $avatar The incoming avatar to be modeled
          *
-         * @throws \Exception Throws Exception.
+         * @throws Exception Throws Exception.
          */
-        public function __construct($avatar)
+        public function __construct(array $avatar)
         {
         }
         /**
@@ -4425,7 +4431,7 @@ namespace WPGraphQL\Model {
         /**
          * Stores the incoming post data
          *
-         * @var mixed|WP_Post|object $data
+         * @var mixed|object $data
          */
         protected $data;
         /**
@@ -4452,7 +4458,7 @@ namespace WPGraphQL\Model {
         {
         }
         /**
-         * Initialize the Post object
+         * Initialize the MenuItem object
          *
          * @return void
          */
@@ -6239,7 +6245,7 @@ namespace WPGraphQL {
         /**
          * Cached global post.
          *
-         * @var WP_Post
+         * @var ?WP_Post
          */
         public $global_post;
         /**
@@ -9786,7 +9792,7 @@ namespace {
         /**
          * The instance of the WPGraphQL object
          *
-         * @return object|WPGraphQL - The one true WPGraphQL
+         * @return WPGraphQL - The one true WPGraphQL
          * @since  0.0.1
          */
         public static function instance()
@@ -10192,7 +10198,7 @@ namespace WPGraphQL {
          * Holds the $filterable_config which allows WordPress access to modifying the
          * $config that gets passed down to the Executable Schema
          *
-         * @var array|null
+         * @var SchemaConfig|null
          * @since 0.0.9
          */
         public $filterable_config;
@@ -19133,6 +19139,8 @@ namespace {
     }
     /**
      * Delete data on deactivation
+     *
+     * @return void
      */
     function delete_graphql_data()
     {
