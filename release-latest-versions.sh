@@ -12,10 +12,7 @@ do_release() {
 	local REPACK_VERSION="$2"
 	local SED_EXP
 	
-	# If VERSION starts with v, remove it.
-	if [ "${VERSION}" == "v${VERSION#v}" ]; then
-		VERSION="${VERSION#v}"
-	fi
+	VERSION="${VERSION#v}"
 
 	echo "Releasing v${VERSION}..."
 
