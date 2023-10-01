@@ -45,5 +45,5 @@ jobs:
             DRY_RUN="--dry-run"
           fi
 
-          bash -x ./release-lastest-versions.sh $SHOULD_RERELEASE $DRY_RUN --from-version=${{ inputs.from_version }}
+          bash -x ./release-latest-versions.sh $SHOULD_RERELEASE $DRY_RUN --from-version=${{ inputs.from_version }}
 
