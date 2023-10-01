@@ -7546,7 +7546,7 @@ namespace WPGraphQL\Type\InterfaceType {
         }
     }
 }
-namespace WPGraphQL\Type\Object {
+namespace WPGraphQL\Type\ObjectType {
     class Avatar
     {
         /**
@@ -7642,7 +7642,7 @@ namespace WPGraphQL\Type\Object {
     /**
      * Class MediaItemMeta
      *
-     * @package WPGraphQL\Type\Object
+     * @package WPGraphQL\Type\ObjectType
      */
     class MediaItemMeta
     {
