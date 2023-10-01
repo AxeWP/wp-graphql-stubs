@@ -2999,7 +2999,7 @@ namespace WPGraphQL\Data {
          *
          * @deprecated Use the Loader passed in $context instead
          */
-        public static function resolve_menu_item($id, \WPGraphQL\AppContext $context)
+        public static function resolve_menu_item(int $id, \WPGraphQL\AppContext $context)
         {
         }
         /**
