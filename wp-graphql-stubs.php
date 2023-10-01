@@ -3694,6 +3694,28 @@ namespace WPGraphQL\Data\Loader {
         {
         }
         /**
+         * The data loader always returns a user object if it exists, but we need to
+         * separately determine whether the user should be considered private. The
+         * WordPress frontend does not expose authors without published posts, so our
+         * privacy model follows that same convention.
+         *
+         * Example return format for input "[ 1, 2 ]":
+         *
+         * [
+         *   2 => true,  // User 2 is public (has published posts)
+         * ]
+         *
+         * In this example, user 1 is not public (has no published posts) and is
+         * omitted from the returned array.
+         *
+         * @param array $keys Array of author IDs (int).
+         *
+         * @return array
+         */
+        public function get_public_users(array $keys)
+        {
+        }
+        /**
          * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
          * values
          *
@@ -5873,6 +5895,21 @@ namespace WPGraphQL\Registry {
          */
         protected $types;
         /**
+         * The loaders needed to register types
+         *
+         * @var array
+         */
+        protected $type_loaders;
+        /**
+         * Stores a list of Types that need to be eagerly loaded instead of lazy loaded.
+         *
+         * Types that exist in the Schema but are only part of a Union/Interface ResolveType but not
+         * referenced directly need to be eagerly loaded.
+         *
+         * @var array
+         */
+        protected $eager_type_map;
+        /**
          * TypeRegistry constructor.
          */
         public function __construct()
@@ -5886,6 +5923,18 @@ namespace WPGraphQL\Registry {
          * @return string
          */
         protected function format_key($key)
+        {
+        }
+        /**
+         * Returns the eager type map, an array of Type definitions for Types that
+         * are not directly referenced in the schema.
+         *
+         * Types can add "eagerlyLoadType => true" when being registered to be included
+         * in the eager_type_map.
+         *
+         * @return array
+         */
+        protected function get_eager_type_map()
         {
         }
         /**
@@ -5929,7 +5978,7 @@ namespace WPGraphQL\Registry {
          *
          * @throws Exception
          *
-         * @return mixed
+         * @return void
          */
         public function register_type(string $type_name, $config)
         {
@@ -6013,6 +6062,16 @@ namespace WPGraphQL\Registry {
          * @return mixed|null
          */
         public function get_type(string $type_name)
+        {
+        }
+        /**
+         * Given a type name, determines if the type is already present in the Type Loader
+         *
+         * @param string $type_name The name of the type to check the registry for
+         *
+         * @return bool
+         */
+        public function has_type(string $type_name)
         {
         }
         /**
@@ -6157,7 +6216,7 @@ namespace WPGraphQL {
         /**
          * Request data.
          *
-         * @var mixed|array|OperationParams
+         * @var array
          */
         public $data;
         /**
@@ -6170,7 +6229,7 @@ namespace WPGraphQL {
          * GraphQL operation parameters for this request. Can also be an array of
          * OperationParams.
          *
-         * @var mixed|array|OperationParams|OperationParams[]
+         * @var OperationParams|OperationParams[]
          */
         public $params;
         /**
@@ -6271,21 +6330,22 @@ namespace WPGraphQL {
         {
         }
         /**
+         * Execute an HTTP request.
+         *
+         * @return array
+         * @throws Exception
+         * @deprecated Use execute instead
+         */
+        public function execute_http()
+        {
+        }
+        /**
          * Execute an internal request (graphql() function call).
          *
          * @return array
          * @throws Exception
          */
         public function execute()
-        {
-        }
-        /**
-         * Execute an HTTP request.
-         *
-         * @return array
-         * @throws Exception
-         */
-        public function execute_http()
         {
         }
         /**
@@ -7182,17 +7242,6 @@ namespace WPGraphQL\Type\Input {
     {
         /**
          * Register the DateQueryInput Input
-         *
-         * @return void
-         */
-        public static function register_type()
-        {
-        }
-    }
-    class MenuItemsConnectionWhereArgs
-    {
-        /**
-         * Register the MenuItemsWhereArgs Input
          *
          * @return void
          */
@@ -8643,7 +8692,7 @@ namespace WPGraphQL\Type {
          *
          * @param array        $config
          */
-        public function __construct(array $config)
+        public function __construct(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
         /**
@@ -8659,7 +8708,7 @@ namespace WPGraphQL\Type {
          * @return mixed
          * @since 0.0.5
          */
-        public static function prepare_fields(array $fields, string $type_name, array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        public function prepare_fields(array $fields, string $type_name, array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
@@ -8685,11 +8734,13 @@ namespace WPGraphQL\Type {
         /**
          * Registers connections that were passed through the Type registration config
          *
+         * @param TypeRegistry $type_registry The WPGraphQL Type Registry
+         *
          * @return void
          *
          * @throws Exception
          */
-        protected function register_connections_from_config()
+        protected function register_connections_from_config(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
@@ -9278,11 +9329,12 @@ namespace WPGraphQL\Utils {
     class InstrumentSchema
     {
         /**
-         * @param WPSchema $schema Instance of the Schema.
+         * @param Type $type Instance of the Schema.
+         * @param string $type_name Name of the Type
          *
-         * @return WPSchema
+         * @return Type
          */
-        public static function instrument_schema(\WPGraphQL\WPSchema $schema) : \WPGraphQL\WPSchema
+        public static function instrument_resolvers(\GraphQL\Type\Definition\Type $type, string $type_name) : \GraphQL\Type\Definition\Type
         {
         }
         /**
@@ -9389,15 +9441,14 @@ namespace WPGraphQL\Utils {
         /**
          * Filter the results of the GraphQL Response to include the Query Log
          *
-         * @param mixed    $response
+         * @param array    $response
          * @param WPSchema $schema         The WPGraphQL Schema
          * @param string   $operation_name The operation name being executed
          * @param string   $request        The GraphQL Request being made
-         * @param array    $variables      The variables sent with the request
          *
          * @return array
          */
-        public function show_results($response, $schema, $operation_name, $request, $variables)
+        public function show_results(array $response, \WPGraphQL\WPSchema $schema, string $operation_name, string $request)
         {
         }
         /**
@@ -9499,10 +9550,10 @@ namespace WPGraphQL\Utils {
         /**
          * Initialize tracing for an individual field
          *
-         * @param mixed               $source         The source passed down the Resolve Tree
-         * @param array               $args           The args for the field
-         * @param AppContext          $context        The AppContext passed down the ResolveTree
-         * @param ResolveInfo         $info           The ResolveInfo passed down the ResolveTree
+         * @param mixed       $source  The source passed down the Resolve Tree
+         * @param array       $args    The args for the field
+         * @param AppContext  $context The AppContext passed down the ResolveTree
+         * @param ResolveInfo $info    The ResolveInfo passed down the ResolveTree
          *
          * @return void
          */
@@ -9579,14 +9630,14 @@ namespace WPGraphQL\Utils {
         /**
          * Filter the results of the GraphQL Response to include the Query Log
          *
-         * @param mixed|array|object $response       The response of the GraphQL Request
-         * @param mixed              $schema         The WPGraphQL Schema
-         * @param string             $operation_name The operation name being executed
-         * @param string             $request        The GraphQL Request being made
+         * @param array    $response       The response of the GraphQL Request
+         * @param WPSchema $schema         The WPGraphQL Schema
+         * @param string   $operation_name The operation name being executed
+         * @param string   $request        The GraphQL Request being made
          *
          * @return mixed $response
          */
-        public function add_tracing_to_response_extensions($response, $schema, string $operation_name, string $request)
+        public function add_tracing_to_response_extensions(array $response, \WPGraphQL\WPSchema $schema, string $operation_name, string $request)
         {
         }
         /**
