@@ -8708,6 +8708,12 @@ namespace WPGraphQL\Type {
          */
         protected $resolve_cursor;
         /**
+         * Whether to  include and generate the default GraphQL interfaces on the connection Object types.
+         *
+         * @var bool
+         */
+        protected $include_default_interfaces;
+        /**
          * The name of the GraphQL Type the connection connects to
          *
          * @var string
