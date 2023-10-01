@@ -6311,7 +6311,7 @@ namespace WPGraphQL {
         /**
          * App context for this request.
          *
-         * @var \WPGraphQL\AppContext
+         * @var AppContext
          */
         public $app_context;
         /**
@@ -6503,9 +6503,9 @@ namespace WPGraphQL {
         /**
          * Adds rewrite rule for the route endpoint
          *
-         * @uses   add_rewrite_rule()
-         * @since  0.0.1
          * @return void
+         * @since  0.0.1
+         * @uses   add_rewrite_rule()
          */
         public static function add_rewrite_rule()
         {
@@ -6527,8 +6527,8 @@ namespace WPGraphQL {
          *
          * @param array $query_vars The array of whitelisted query variables.
          *
-         * @since  0.0.1
          * @return array
+         * @since  0.0.1
          */
         public static function add_query_var($query_vars)
         {
@@ -6563,10 +6563,10 @@ namespace WPGraphQL {
          * JSON response instead of responding with a template from the standard WordPress Template
          * Loading process
          *
-         * @since  0.0.1
          * @return void
          * @throws \Exception Throws exception.
          * @throws \Throwable Throws exception.
+         * @since  0.0.1
          */
         public static function resolve_http_request()
         {
@@ -6574,12 +6574,11 @@ namespace WPGraphQL {
         /**
          * Sends an HTTP header.
          *
-         * @since  0.0.5
-         *
          * @param string $key   Header key.
          * @param string $value Header value.
          *
          * @return void
+         * @since  0.0.5
          */
         public static function send_header($key, $value)
         {
@@ -6603,8 +6602,8 @@ namespace WPGraphQL {
         /**
          * Set the response headers
          *
-         * @since  0.0.1
          * @return void
+         * @since  0.0.1
          */
         public static function set_headers()
         {
@@ -6612,9 +6611,9 @@ namespace WPGraphQL {
         /**
          * Retrieves the raw request entity (body).
          *
-         * @since  0.0.5
-         * @global string php://input Raw post data.
          * @return string Raw request data.
+         * @global string php://input Raw post data.
+         * @since  0.0.5
          */
         public static function get_raw_data()
         {
@@ -6622,11 +6621,11 @@ namespace WPGraphQL {
         /**
          * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
          *
-         * @since  0.0.1
-         * @global WP_User $current_user The currently authenticated user.
          * @return mixed
          * @throws \Exception Throws Exception.
          * @throws \Throwable Throws Exception.
+         * @global WP_User $current_user The currently authenticated user.
+         * @since  0.0.1
          */
         public static function process_http_request()
         {
@@ -6634,16 +6633,221 @@ namespace WPGraphQL {
         /**
          * Prepare headers for response
          *
-         * @param mixed|array|ExecutionResult    $response        The response of the GraphQL Request.
-         * @param mixed|array|ExecutionResult    $graphql_results The results of the GraphQL execution.
-         * @param string   $query           The GraphQL query.
-         * @param string   $operation_name  The operation name of the GraphQL Request.
-         * @param mixed|array|null    $variables       The variables applied to the GraphQL Request.
-         * @param mixed|WP_User|null $user            The current user object.
+         * @param mixed|array|ExecutionResult $response        The response of the GraphQL Request.
+         * @param mixed|array|ExecutionResult $graphql_results The results of the GraphQL execution.
+         * @param string                      $query           The GraphQL query.
+         * @param string                      $operation_name  The operation name of the GraphQL
+         *                                                     Request.
+         * @param mixed|array|null            $variables       The variables applied to the GraphQL
+         *                                                     Request.
+         * @param mixed|WP_User|null          $user            The current user object.
          *
          * @return void
          */
         protected static function prepare_headers($response, $graphql_results, string $query, string $operation_name, $variables, $user = null)
+        {
+        }
+    }
+}
+namespace GraphQL\Validator\Rules {
+    abstract class ValidationRule
+    {
+        /** @var string */
+        protected $name;
+        public function getName()
+        {
+        }
+        public function __invoke(\GraphQL\Validator\ValidationContext $context)
+        {
+        }
+        /**
+         * Returns structure suitable for GraphQL\Language\Visitor
+         *
+         * @see \GraphQL\Language\Visitor
+         *
+         * @return mixed[]
+         */
+        public function getVisitor(\GraphQL\Validator\ValidationContext $context)
+        {
+        }
+        /**
+         * Returns structure suitable for GraphQL\Language\Visitor
+         *
+         * @see \GraphQL\Language\Visitor
+         *
+         * @return mixed[]
+         */
+        public function getSDLVisitor(\GraphQL\Validator\SDLValidationContext $context)
+        {
+        }
+    }
+    abstract class QuerySecurityRule extends \GraphQL\Validator\Rules\ValidationRule
+    {
+        public const DISABLED = 0;
+        /**
+         * check if equal to 0 no check is done. Must be greater or equal to 0.
+         *
+         * @param string $name
+         * @param int    $value
+         */
+        protected function checkIfGreaterOrEqualToZero($name, $value)
+        {
+        }
+        protected function getFragment(\GraphQL\Language\AST\FragmentSpreadNode $fragmentSpread)
+        {
+        }
+        /**
+         * @return FragmentDefinitionNode[]
+         */
+        protected function getFragments()
+        {
+        }
+        /**
+         * @param callable[] $validators
+         *
+         * @return callable[]
+         */
+        protected function invokeIfNeeded(\GraphQL\Validator\ValidationContext $context, array $validators)
+        {
+        }
+        protected abstract function isEnabled();
+        protected function gatherFragmentDefinition(\GraphQL\Validator\ValidationContext $context)
+        {
+        }
+        /**
+         * Given a selectionSet, adds all of the fields in that selection to
+         * the passed in map of fields, and returns it at the end.
+         *
+         * Note: This is not the same as execution's collectFields because at static
+         * time we do not know what object type will be used, so we unconditionally
+         * spread in all fragments.
+         *
+         * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
+         *
+         * @param Type|null $parentType
+         *
+         * @return ArrayObject
+         */
+        protected function collectFieldASTsAndDefs(\GraphQL\Validator\ValidationContext $context, $parentType, \GraphQL\Language\AST\SelectionSetNode $selectionSet, ?\ArrayObject $visitedFragmentNames = null, ?\ArrayObject $astAndDefs = null)
+        {
+        }
+        protected function getFieldName(\GraphQL\Language\AST\FieldNode $node)
+        {
+        }
+    }
+    class DisableIntrospection extends \GraphQL\Validator\Rules\QuerySecurityRule
+    {
+        public const ENABLED = 1;
+        public function __construct($enabled = self::ENABLED)
+        {
+        }
+        public function setEnabled($enabled)
+        {
+        }
+        public function getVisitor(\GraphQL\Validator\ValidationContext $context)
+        {
+        }
+        public static function introspectionDisabledMessage()
+        {
+        }
+        protected function isEnabled()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Server\ValidationRules {
+    /**
+     * Class DisableIntrospection
+     *
+     * @package WPGraphQL\Server\ValidationRules
+     */
+    class DisableIntrospection extends \GraphQL\Validator\Rules\DisableIntrospection
+    {
+        /**
+         * @return bool
+         */
+        public function isEnabled()
+        {
+        }
+    }
+    /**
+     * Class QueryDepth
+     *
+     * @package WPGraphQL\Server\ValidationRules
+     */
+    class QueryDepth extends \GraphQL\Validator\Rules\QuerySecurityRule
+    {
+        /**
+         * QueryDepth constructor.
+         */
+        public function __construct()
+        {
+        }
+        /**
+         * @param ValidationContext $context
+         *
+         * @return callable[]|mixed[]
+         */
+        public function getVisitor(\GraphQL\Validator\ValidationContext $context)
+        {
+        }
+        /**
+         * Return the maxQueryDepth allowed
+         *
+         * @return int
+         */
+        public function getMaxQueryDepth()
+        {
+        }
+        /**
+         * Set max query depth. If equal to 0 no check is done. Must be greater or equal to 0.
+         *
+         * @param int $maxQueryDepth The max query depth to allow for GraphQL operations
+         *
+         * @return void
+         */
+        public function setMaxQueryDepth(int $maxQueryDepth)
+        {
+        }
+        /**
+         * Return the max query depth error message
+         *
+         * @param int $max The max number of levels to allow in GraphQL operation
+         * @param int $count The number of levels in the current operation
+         *
+         * @return string
+         */
+        public function errorMessage($max, $count)
+        {
+        }
+        /**
+         * Determine whether the rule should be enabled
+         *
+         * @return bool
+         */
+        protected function isEnabled()
+        {
+        }
+    }
+    /**
+     * Class RequireAuthentication
+     *
+     * @package WPGraphQL\Server\ValidationRules
+     */
+    class RequireAuthentication extends \GraphQL\Validator\Rules\QuerySecurityRule
+    {
+        /**
+         * @return bool
+         */
+        protected function isEnabled()
+        {
+        }
+        /**
+         * @param ValidationContext $context
+         *
+         * @return callable[]|mixed[]
+         */
+        public function getVisitor(\GraphQL\Validator\ValidationContext $context)
         {
         }
     }
@@ -8590,7 +8794,7 @@ namespace WPGraphQL\Type {
          * @return mixed
          * @since 0.0.5
          */
-        public static function prepare_fields(array $fields, $type_name, $config = [], \WPGraphQL\Registry\TypeRegistry $type_registry)
+        public static function prepare_fields(array $fields, string $type_name, $config = [], \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
@@ -16851,37 +17055,6 @@ namespace GraphQL\Validator {
     }
 }
 namespace GraphQL\Validator\Rules {
-    abstract class ValidationRule
-    {
-        /** @var string */
-        protected $name;
-        public function getName()
-        {
-        }
-        public function __invoke(\GraphQL\Validator\ValidationContext $context)
-        {
-        }
-        /**
-         * Returns structure suitable for GraphQL\Language\Visitor
-         *
-         * @see \GraphQL\Language\Visitor
-         *
-         * @return mixed[]
-         */
-        public function getVisitor(\GraphQL\Validator\ValidationContext $context)
-        {
-        }
-        /**
-         * Returns structure suitable for GraphQL\Language\Visitor
-         *
-         * @see \GraphQL\Language\Visitor
-         *
-         * @return mixed[]
-         */
-        public function getSDLVisitor(\GraphQL\Validator\SDLValidationContext $context)
-        {
-        }
-    }
     class CustomValidationRule extends \GraphQL\Validator\Rules\ValidationRule
     {
         public function __construct($name, callable $visitorFn)
@@ -16891,79 +17064,6 @@ namespace GraphQL\Validator\Rules {
          * @return Error[]
          */
         public function getVisitor(\GraphQL\Validator\ValidationContext $context)
-        {
-        }
-    }
-    abstract class QuerySecurityRule extends \GraphQL\Validator\Rules\ValidationRule
-    {
-        public const DISABLED = 0;
-        /**
-         * check if equal to 0 no check is done. Must be greater or equal to 0.
-         *
-         * @param string $name
-         * @param int    $value
-         */
-        protected function checkIfGreaterOrEqualToZero($name, $value)
-        {
-        }
-        protected function getFragment(\GraphQL\Language\AST\FragmentSpreadNode $fragmentSpread)
-        {
-        }
-        /**
-         * @return FragmentDefinitionNode[]
-         */
-        protected function getFragments()
-        {
-        }
-        /**
-         * @param callable[] $validators
-         *
-         * @return callable[]
-         */
-        protected function invokeIfNeeded(\GraphQL\Validator\ValidationContext $context, array $validators)
-        {
-        }
-        protected abstract function isEnabled();
-        protected function gatherFragmentDefinition(\GraphQL\Validator\ValidationContext $context)
-        {
-        }
-        /**
-         * Given a selectionSet, adds all of the fields in that selection to
-         * the passed in map of fields, and returns it at the end.
-         *
-         * Note: This is not the same as execution's collectFields because at static
-         * time we do not know what object type will be used, so we unconditionally
-         * spread in all fragments.
-         *
-         * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
-         *
-         * @param Type|null $parentType
-         *
-         * @return ArrayObject
-         */
-        protected function collectFieldASTsAndDefs(\GraphQL\Validator\ValidationContext $context, $parentType, \GraphQL\Language\AST\SelectionSetNode $selectionSet, ?\ArrayObject $visitedFragmentNames = null, ?\ArrayObject $astAndDefs = null)
-        {
-        }
-        protected function getFieldName(\GraphQL\Language\AST\FieldNode $node)
-        {
-        }
-    }
-    class DisableIntrospection extends \GraphQL\Validator\Rules\QuerySecurityRule
-    {
-        public const ENABLED = 1;
-        public function __construct($enabled = self::ENABLED)
-        {
-        }
-        public function setEnabled($enabled)
-        {
-        }
-        public function getVisitor(\GraphQL\Validator\ValidationContext $context)
-        {
-        }
-        public static function introspectionDisabledMessage()
-        {
-        }
-        protected function isEnabled()
         {
         }
     }
