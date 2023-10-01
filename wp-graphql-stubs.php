@@ -1150,9 +1150,21 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Returns the $args passed to the connection
          *
-         * @return array
+         * @deprecated Deprecated since v1.11.0 in favor of $this->get_args();
+         *
+         * @codeCoverageIgnore
          */
         public function getArgs() : array
+        {
+        }
+        /**
+         * Returns the $args passed to the connection.
+         *
+         * Useful for modifying the $args before they are passed to $this->get_query_args().
+         *
+         * @return array
+         */
+        public function get_args() : array
         {
         }
         /**
@@ -1185,7 +1197,9 @@ namespace WPGraphQL\Data\Connection {
          *
          * @return AbstractConnectionResolver
          *
-         * @deprecated in favor of set_query_arg
+         * @deprecated 0.3.0
+         *
+         * @codeCoverageIgnore
          */
         public function setQueryArg($key, $value)
         {
@@ -1386,6 +1400,8 @@ namespace WPGraphQL\Data\Connection {
          * GraphQL query.
          *
          * @deprecated 1.9.0
+         *
+         * @codeCoverageIgnore
          *
          * @return int|mixed
          */
@@ -1596,6 +1612,14 @@ namespace WPGraphQL\Data\Connection {
          * @return boolean
          */
         public function should_execute()
+        {
+        }
+        /**
+         * Filters the GraphQL args before they are used in get_query_args().
+         *
+         * @return array
+         */
+        public function get_args() : array
         {
         }
         /**
@@ -1930,6 +1954,14 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
+         * Filters the GraphQL args before they are used in get_query_args().
+         *
+         * @return array
+         */
+        public function get_args() : array
+        {
+        }
+        /**
          * Determine whether or not the the offset is valid, i.e the term corresponding to the offset
          * exists. Offset is equivalent to term_id. So this function is equivalent to checking if the
          * term with the given ID exists.
@@ -2070,6 +2102,14 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
+         * Filters the GraphQL args before they are used in get_query_args().
+         *
+         * @return array
+         */
+        public function get_args() : array
+        {
+        }
+        /**
          * Determine whether or not the the offset is valid, i.e the post corresponding to the offset
          * exists. Offset is equivalent to post_id. So this function is equivalent to checking if the
          * post with the given ID exists.
@@ -2108,6 +2148,14 @@ namespace WPGraphQL\Data\Connection {
          * @return array
          */
         public function get_query_args()
+        {
+        }
+        /**
+         * Filters the GraphQL args before they are used in get_query_args().
+         *
+         * @return array
+         */
+        public function get_args() : array
         {
         }
     }
@@ -6313,6 +6361,10 @@ namespace WPGraphQL {
          */
         protected $root_value;
         /**
+         * @var QueryAnalyzer
+         */
+        protected $query_analyzer;
+        /**
          * Constructor
          *
          * @param array $data The request data (for non-HTTP requests).
@@ -6325,7 +6377,13 @@ namespace WPGraphQL {
         {
         }
         /**
-         * @return null
+         * @return QueryAnalyzer
+         */
+        public function get_query_analyzer() : \WPGraphQL\Utils\QueryAnalyzer
+        {
+        }
+        /**
+         * @return mixed
          */
         protected function get_field_resolver()
         {
@@ -6335,7 +6393,7 @@ namespace WPGraphQL {
          *
          * @return array
          */
-        protected function get_validation_rules()
+        protected function get_validation_rules() : array
         {
         }
         /**
@@ -6436,11 +6494,24 @@ namespace WPGraphQL {
          */
         public static $http_status_code = 200;
         /**
-         * Router constructor.
-         *
-         * @since  0.0.1
+         * @var Request
          */
-        public function __construct()
+        protected static $request;
+        /**
+         * Initialize the WPGraphQL Router
+         *
+         * @return void
+         * @throws Exception
+         */
+        public function init()
+        {
+        }
+        /**
+         * Returns the GraphQL Request being executed
+         *
+         * @return Request
+         */
+        public static function get_request()
         {
         }
         /**
@@ -6507,7 +6578,7 @@ namespace WPGraphQL {
          * Loading process
          *
          * @return void
-         * @throws \Exception Throws exception.
+         * @throws Exception Throws exception.
          * @throws \Throwable Throws exception.
          * @since  0.0.1
          */
@@ -6567,7 +6638,7 @@ namespace WPGraphQL {
          * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
          *
          * @return mixed
-         * @throws \Exception Throws Exception.
+         * @throws Exception Throws Exception.
          * @throws \Throwable Throws Exception.
          * @global WP_User $current_user The currently authenticated user.
          * @since  0.0.1
@@ -9477,6 +9548,186 @@ namespace WPGraphQL\Utils {
         }
     }
     /**
+     * This class is used to identify "keys" relevant to the GraphQL Request.
+     *
+     * These keys can be used to identify common patterns across documents.
+     *
+     * A common use case would be for caching a GraphQL request and tagging the cached
+     * object with these keys, then later using these keys to evict the cached
+     * document.
+     *
+     * These keys can also be used by loggers to identify patterns, etc.
+     */
+    class QueryAnalyzer
+    {
+        /**
+         * @var Schema
+         */
+        protected $schema;
+        /**
+         * Types that are referenced in the query
+         *
+         * @var array
+         */
+        protected $queried_types = [];
+        /**
+         * @var string
+         */
+        protected $root_operation = 'Query';
+        /**
+         * Models that are referenced in the query
+         *
+         * @var array
+         */
+        protected $models = [];
+        /**
+         * Types in the query that are lists
+         *
+         * @var array
+         */
+        protected $list_types = [];
+        /**
+         * @var array
+         */
+        protected $runtime_nodes = [];
+        /**
+         * @var string
+         */
+        protected $query_id;
+        /**
+         * @var Request
+         */
+        protected $request;
+        /**
+         * @param Request $request The GraphQL request being executed
+         */
+        public function __construct(\WPGraphQL\Request $request)
+        {
+        }
+        /**
+         * @return Request
+         */
+        public function get_request() : \WPGraphQL\Request
+        {
+        }
+        /**
+         * @return void
+         */
+        public function init() : void
+        {
+        }
+        /**
+         * Determine the keys associated with the GraphQL document being executed
+         *
+         * @param ?string         $query     The GraphQL query
+         * @param ?string         $operation The name of the operation
+         * @param ?array          $variables Variables to be passed to your GraphQL request
+         * @param OperationParams $params    The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
+         *
+         * @return void
+         * @throws Exception
+         */
+        public function determine_graphql_keys(?string $query, ?string $operation, ?array $variables, \GraphQL\Server\OperationParams $params) : void
+        {
+        }
+        /**
+         * @return array
+         */
+        public function get_list_types() : array
+        {
+        }
+        /**
+         * @return array
+         */
+        public function get_query_types() : array
+        {
+        }
+        /**
+         * @return array
+         */
+        public function get_query_models() : array
+        {
+        }
+        /**
+         * @return array
+         */
+        public function get_runtime_nodes() : array
+        {
+        }
+        /**
+         * @return string
+         */
+        public function get_root_operation() : string
+        {
+        }
+        /**
+         * @return string|null
+         */
+        public function get_query_id() : ?string
+        {
+        }
+        /**
+         * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
+         * by the query.
+         *
+         * @param ?Schema $schema The WPGraphQL Schema
+         * @param ?string $query  The query string
+         *
+         * @return array
+         * @throws SyntaxError|Exception
+         */
+        public function set_list_types(?\GraphQL\Type\Schema $schema, ?string $query) : array
+        {
+        }
+        /**
+         * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
+         * by the query.
+         *
+         * @param ?Schema $schema The WPGraphQL Schema
+         * @param ?string $query  The query string
+         *
+         * @return array
+         * @throws Exception
+         */
+        public function set_query_types(?\GraphQL\Type\Schema $schema, ?string $query) : array
+        {
+        }
+        /**
+         * Given the Schema and a query string, return a list of GraphQL model names that are being asked for
+         * by the query.
+         *
+         * @param ?Schema $schema The WPGraphQL Schema
+         * @param ?string $query  The query string
+         *
+         * @return array
+         * @throws SyntaxError|Exception
+         */
+        public function set_query_models(?\GraphQL\Type\Schema $schema, ?string $query) : array
+        {
+        }
+        /**
+         * Track the nodes that were resolved by ensuring the Node's model
+         * matches one of the models asked for in the query
+         *
+         * @param mixed $model The Model to be returned by the loader
+         *
+         * @return mixed
+         */
+        public function track_nodes($model)
+        {
+        }
+        /**
+         * Return headers
+         *
+         * @param array $headers The array of headers being returned
+         *
+         * @return array
+         */
+        public function get_headers(array $headers = []) : array
+        {
+        }
+    }
+    /**
      * Class QueryLog
      *
      * @package WPGraphQL\Utils
@@ -9749,7 +10000,17 @@ namespace WPGraphQL\Utils {
     class Utils
     {
         /**
-         * Maps new input query args and sanitizes the input
+         * Given a GraphQL Query string, return a hash
+         *
+         * @param string $query The Query String to hash
+         *
+         * @return string|null
+         */
+        public static function get_query_id(string $query)
+        {
+        }
+        /**
+         * Maps new input query args and sa nitizes the input
          *
          * @param mixed|array|string $args The raw query args from the GraphQL query
          * @param mixed|array|string $map  The mapping of where each of the args should go
@@ -18831,15 +19092,16 @@ namespace {
     {
     }
     /**
-     * Provides a simple way to run a GraphQL query with out posting a request to the endpoint.
+     * Provides a simple way to run a GraphQL query without posting a request to the endpoint.
      *
-     * @param array $request_data The GraphQL request data (query, variables, operation_name).
+     * @param array $request_data   The GraphQL request data (query, variables, operation_name).
+     * @param bool  $return_request If true, return the Request object, else return the results of the request execution
      *
-     * @return array
+     * @return array | Request
      * @throws Exception
      * @since  0.2.0
      */
-    function graphql($request_data = [])
+    function graphql(array $request_data = [], bool $return_request = \false)
     {
     }
     /**
@@ -18849,12 +19111,13 @@ namespace {
      * @param string $query          The GraphQL query to run
      * @param string $operation_name The name of the operation
      * @param array  $variables      Variables to be passed to your GraphQL request
+     * @param bool   $return_requst If true, return the Request object, else return the results of the request execution
      *
-     * @return array
-     * @throws \Exception
+     * @return array | Request
+     * @throws Exception
      * @since  0.0.2
      */
-    function do_graphql_request($query, $operation_name = '', $variables = [])
+    function do_graphql_request($query, $operation_name = '', $variables = [], $return_requst = \false)
     {
     }
     /**
