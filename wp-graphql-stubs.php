@@ -5922,7 +5922,7 @@ namespace WPGraphQL\Registry {
          *
          * @return string
          */
-        protected function format_key($key)
+        protected function format_key(string $key)
         {
         }
         /**
@@ -5968,6 +5968,18 @@ namespace WPGraphQL\Registry {
          * @return void
          */
         public function register_scalar(string $type_name, array $config)
+        {
+        }
+        /**
+         * Registers connections that were passed through the Type registration config
+         *
+         * @param array $config Type config
+         *
+         * @return void
+         *
+         * @throws Exception
+         */
+        protected function register_connections_from_config(array $config)
         {
         }
         /**
@@ -6091,7 +6103,7 @@ namespace WPGraphQL\Registry {
          * @return array
          * @throws Exception
          */
-        public function prepare_fields($fields, $type_name)
+        public function prepare_fields(array $fields, string $type_name)
         {
         }
         /**
@@ -6108,6 +6120,9 @@ namespace WPGraphQL\Registry {
         {
         }
         /**
+         * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
+         * not call before types are ready to be loaded.
+         *
          * @param mixed|string|array $type The type definition
          *
          * @return mixed
@@ -8728,18 +8743,6 @@ namespace WPGraphQL\Type {
          * @return array
          */
         protected function get_implemented_interfaces()
-        {
-        }
-        /**
-         * Registers connections that were passed through the Type registration config
-         *
-         * @param TypeRegistry $type_registry The WPGraphQL Type Registry
-         *
-         * @return void
-         *
-         * @throws Exception
-         */
-        protected function register_connections_from_config(\WPGraphQL\Registry\TypeRegistry $type_registry)
         {
         }
     }
