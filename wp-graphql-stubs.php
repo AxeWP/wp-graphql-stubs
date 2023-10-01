@@ -9599,6 +9599,10 @@ namespace WPGraphQL\Utils {
          */
         protected $request;
         /**
+         * @var Int The character length limit for headers
+         */
+        protected $header_length_limit;
+        /**
          * @param Request $request The GraphQL request being executed
          */
         public function __construct(\WPGraphQL\Request $request)
