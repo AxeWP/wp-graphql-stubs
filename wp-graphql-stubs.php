@@ -1164,7 +1164,7 @@ namespace WPGraphQL\Data {
          *
          * @return array $pieces
          */
-        public function graphql_wp_term_query_cursor_pagination_support(array $pieces, $taxonomies, $args)
+        public function graphql_wp_term_query_cursor_pagination_support(array $pieces, array $taxonomies, array $args)
         {
         }
         /**
@@ -2687,15 +2687,15 @@ namespace WPGraphQL\Data\Cursor {
          * will be the primary field and latter ones will be used if the primary
          * field has duplicate values
          *
-         * @param string                $key           database column
-         * @param mixed|string|int      $value         value from the current cursor
-         * @param string|null           $type          type cast
-         * @param string|null           $order         custom order
-         * @param PostObjectCursor|null $object_cursor The PostObjectCursor class
+         * @param string           $key           database column
+         * @param mixed|string|int $value         value from the current cursor
+         * @param string|null      $type          type cast
+         * @param string|null      $order         custom order
+         * @param object|null      $object_cursor The Cursor class
          *
          * @return void
          */
-        public function add_field(string $key, $value, string $type = null, string $order = null, \WPGraphQL\Data\Cursor\PostObjectCursor $object_cursor = null)
+        public function add_field(string $key, $value, string $type = null, string $order = null, $object_cursor = null)
         {
         }
         /**
@@ -2822,6 +2822,94 @@ namespace WPGraphQL\Data\Cursor {
          * @return string|null
          */
         public function get_where()
+        {
+        }
+    }
+    class TermObjectCursor
+    {
+        /**
+         * The global WordPress Database instance
+         *
+         * @var wpdb $wpdb
+         */
+        public $wpdb;
+        /**
+         * The WP_Query instance
+         *
+         * @var WP_Term_Query $query
+         */
+        public $query;
+        /**
+         * The current term id which is our cursor offset
+         *
+         * @var int $cursor_offset
+         */
+        public $cursor_offset;
+        /**
+         * @var CursorBuilder
+         */
+        public $builder;
+        /**
+         * Counter for meta value joins
+         *
+         * @var integer
+         */
+        public $meta_join_alias = 0;
+        /**
+         * @var array
+         */
+        public $query_args = [];
+        /**
+         * @var string|null
+         */
+        public $cursor;
+        /**
+         * @var string
+         */
+        public $compare;
+        /**
+         * TermObjectCursor constructor.
+         *
+         * @param array  $args The query args used for the WP_Term_Query
+         * @param string $cursor Whether to generate the before or after cursor. Default "after"
+         */
+        public function __construct(array $args, $cursor = '')
+        {
+        }
+        /**
+         * @param string $name The name of the query var to get
+         *
+         * @return mixed|null
+         */
+        public function get_query_arg(string $name)
+        {
+        }
+        /**
+         * Return the additional AND operators for the where statement
+         *
+         * @return string|null
+         */
+        public function get_where()
+        {
+        }
+        /**
+         * Get term instance for the cursor.
+         *
+         * This is cached internally so it does not generate extra queries
+         *
+         * @return mixed \WP_Term|null
+         */
+        public function get_cursor_term()
+        {
+        }
+        /**
+         * Build and return the SQL statement to add to the Query
+         *
+         * @param array|null $fields The fields from the CursorBuilder to convert to SQL
+         *
+         * @return string|null
+         */
+        public function to_sql($fields = null)
         {
         }
     }
@@ -8412,7 +8500,7 @@ namespace WPGraphQL\Type {
     class WPEnumType extends \GraphQL\Type\Definition\EnumType
     {
         /**
-         * WPInputObjectType constructor.
+         * WPEnumType constructor.
          *
          * @param array $config
          */
@@ -8481,6 +8569,14 @@ namespace WPGraphQL\Type {
      */
     class WPInputObjectType extends \GraphQL\Type\Definition\InputObjectType
     {
+        /**
+         * WPInputObjectType constructor.
+         *
+         * @param array        $config
+         */
+        public function __construct(array $config)
+        {
+        }
         /**
          * Prepare_fields
          *
@@ -17629,6 +17725,30 @@ namespace {
      * @return void
      */
     function register_graphql_fields(string $type_name, array $fields)
+    {
+    }
+    /**
+     * Renames a GraphQL field.
+     *
+     * @param string $type_name       Name of the Type to rename a field on.
+     * @param string $field_name      Field name to be renamed.
+     * @param string $new_field_name  New field name.
+     *
+     * @return void
+     */
+    function rename_graphql_field(string $type_name, string $field_name, string $new_field_name)
+    {
+    }
+    /**
+     * Renames a GraphQL Type in the Schema.
+     *
+     * @param string $type_name The name of the Type in the Schema to rename.
+     * @param string $new_type_name  The new name to give the Type.
+     *
+     * @return void
+     * @throws Exception
+     */
+    function rename_graphql_type(string $type_name, string $new_type_name)
     {
     }
     /**
