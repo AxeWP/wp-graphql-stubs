@@ -126,7 +126,7 @@ for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
 	echo "Checking ${POSSIBLE_VERSION}"
 
 	# Get the latest tag that starts with POSSIBLE_VERSION
-	MATCHED_TAG="$(git tag --list "${POSSIBLE_VERSION}*" --sort=-v:refname | head -n 1)"
+	MATCHED_TAG="$(git tag --list "${POSSIBLE_VERSION}^*" "${POSSIBLE_VERSION}+*" --sort=-v:refname | head -n 1)"
 
 	# If we matched a tag, check if we should rerelease it
 	if [ -n "${MATCHED_TAG}" ]; then
