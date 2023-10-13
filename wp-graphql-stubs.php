@@ -304,7 +304,7 @@ namespace WPGraphQL\Admin\Settings {
         {
         }
         /**
-         * Initialize and registers the settings sections and fileds to WordPress
+         * Initialize and registers the settings sections and fields to WordPress
          *
          * Usually this should be called at `admin_init` hook.
          *
@@ -501,11 +501,11 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @param string $option  settings field name
          * @param string $section the section name this field belongs to
-         * @param string $default default text if it's not found
+         * @param string $default_value default text if it's not found
          *
          * @return string
          */
-        public function get_option($option, $section, $default = '')
+        public function get_option($option, $section, $default_value = '')
         {
         }
         /**
@@ -1420,7 +1420,7 @@ namespace WPGraphQL\Data\Connection {
          *
          * Determine whether or not the query should execute.
          *
-         * Return true to exeucte, return false to prevent execution.
+         * Return true to execute, return false to prevent execution.
          *
          * Various criteria can be used to determine whether a Connection Query should
          * be executed.
@@ -3346,7 +3346,7 @@ namespace WPGraphQL\Data {
          * @param array       $source  The Query results
          * @param array       $args    The query arguments
          * @param \WPGraphQL\AppContext $context The AppContext passed down to the query
-         * @param \GraphQL\Type\Definition\ResolveInfo $info The ResloveInfo object
+         * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
          *
          * @return array
          * @throws \Exception
@@ -4269,7 +4269,7 @@ namespace WPGraphQL\Data {
          * and mapped from input args to WordPress $args
          *
          * @throws \GraphQL\Error\UserError User error for invalid term.
-         * 
+         *
          * @param array        $input         The input from the GraphQL Request
          * @param \WP_Taxonomy $taxonomy The Taxonomy object for the type of term being mutated
          * @param string       $mutation_name The name of the mutation (create, update, etc)
@@ -4510,13 +4510,13 @@ namespace WPGraphQL\Model {
          * Given a string, and optional context, this decodes html entities if html_entity_decode is
          * enabled.
          *
-         * @param string $string     The string to decode
+         * @param string $str        The string to decode
          * @param string $field_name The name of the field being encoded
          * @param bool   $enabled    Whether decoding is enabled by default for the string passed in
          *
          * @return string
          */
-        public function html_entity_decode($string, $field_name, $enabled = false)
+        public function html_entity_decode($str, $field_name, $enabled = false)
         {
         }
         /**
@@ -9424,7 +9424,7 @@ namespace WPGraphQL\Type {
         {
         }
         /**
-         * Generate a safe / sanitized name from a menu location slug.
+         * Generate a safe / sanitized Enum value from a string.
          *
          * @param  string $value Enum value.
          * @return string
@@ -10275,7 +10275,7 @@ namespace WPGraphQL\Utils {
          * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
          *
          * @return void
-         *             
+         *
          * @throws \GraphQL\Error\UserError
          */
         public static function check_field_permissions($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info, $field_resolver, string $type_name, string $field_key, \GraphQL\Type\Definition\FieldDefinition $field)
@@ -10399,9 +10399,8 @@ namespace WPGraphQL\Utils {
          * @param ?string         $query     The GraphQL query
          * @param ?string         $operation The name of the operation
          * @param ?array          $variables Variables to be passed to your GraphQL request
-         * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params, such
-         * as extenions or any other modifications to the request
-         * body
+         * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params,
+         * such as extensions or any other modifications to the request body
          *
          * @return void
          * @throws \Exception
@@ -10856,6 +10855,22 @@ namespace WPGraphQL\Utils {
         {
         }
         /**
+         * Format a GraphQL name according to the GraphQL spec.
+         *
+         * Per the GraphQL spec, characters in names are limited to Latin ASCII letter, digits, or underscores.
+         *
+         * @see http://spec.graphql.org/draft/#sec-Names
+         *
+         * @param string $name The name to format.
+         * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
+         * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
+         *
+         * @since v1.17.0
+         */
+        public static function format_graphql_name(string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i') : string
+        {
+        }
+        /**
          * Given a field name, formats it for GraphQL
          *
          * @param string $field_name         The field name to format
@@ -10874,6 +10889,18 @@ namespace WPGraphQL\Utils {
          * @return string
          */
         public static function format_type_name($type_name)
+        {
+        }
+        /**
+         * Returns a GraphQL type name for a given WordPress template name.
+         *
+         * If the template name has no ASCII characters, the file name will be used instead.
+         *
+         * @param string $name The template name.
+         * @param string $file The file name.
+         * @return string The formatted type name. If the name is empty, an empty string will be returned.
+         */
+        public static function format_type_name_for_wp_template(string $name, string $file) : string
         {
         }
         /**
@@ -20009,12 +20036,31 @@ namespace GraphQL\Validator {
 }
 namespace {
     /**
+     * Formats a string for use as a GraphQL name.
+     *
+     * Per the GraphQL spec, characters in names are limited to Latin ASCII letter, digits, or underscores.
+     *
+     * @see http://spec.graphql.org/draft/#sec-Names
+     * @uses graphql_pre_format_name filter.
+     *
+     * @param string $name The name to format.
+     * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
+     * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
+     *
+     * @since v1.17.0
+     */
+    function graphql_format_name(string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i') : string
+    {
+    }
+    /**
      * Formats the name of a field so that it plays nice with GraphiQL
      *
      * @param string $field_name Name of the field
      *
      * @return string Name of the field
      * @since  0.0.2
+     *
+     * @todo refactor to use Utils::format_field_name()
      */
     function graphql_format_field_name($field_name)
     {
@@ -20050,13 +20096,13 @@ namespace {
      * @param string $query          The GraphQL query to run
      * @param string $operation_name The name of the operation
      * @param array  $variables      Variables to be passed to your GraphQL request
-     * @param bool   $return_requst If true, return the Request object, else return the results of the request execution
+     * @param bool   $return_request If true, return the Request object, else return the results of the request execution
      *
      * @return array|\WPGraphQL\Request
      * @throws \Exception
      * @since  0.0.2
      */
-    function do_graphql_request($query, $operation_name = '', $variables = [], $return_requst = \false)
+    function do_graphql_request($query, $operation_name = '', $variables = [], $return_request = \false)
     {
     }
     /**
@@ -20447,14 +20493,14 @@ namespace {
     /**
      * Get an option value from GraphQL settings
      *
-     * @param string $option_name  The key of the option to return
-     * @param mixed  $default      The default value the setting should return if no value is set
-     * @param string $section_name The settings group section that the option belongs to
+     * @param string $option_name   The key of the option to return
+     * @param mixed  $default_value The default value the setting should return if no value is set
+     * @param string $section_name  The settings group section that the option belongs to
      *
      * @return mixed|string|int|boolean
      * @since 0.13.0
      */
-    function get_graphql_setting(string $option_name, $default = '', $section_name = 'graphql_general_settings')
+    function get_graphql_setting(string $option_name, $default_value = '', $section_name = 'graphql_general_settings')
     {
     }
     /**
@@ -20484,6 +20530,17 @@ namespace {
     {
     }
     /**
+     * Sets up constants for use throughout the plugin and by other extending plugins.
+     *
+     * This is in its own file so that it can be used via the autoloaded classes, but also
+     * can be pulled in when composer dependencies have not been installed.
+     *
+     * @return void
+     */
+    function graphql_setup_constants()
+    {
+    }
+    /**
      * Runs when WPGraphQL is de-activated
      *
      * This cleans up data that WPGraphQL stores
@@ -20502,11 +20559,47 @@ namespace {
     {
     }
     /**
+     * Load files that are required even if the composer autoloader isn't installed
+     *
+     * @return void
+     */
+    function graphql_require_bootstrap_files() : void
+    {
+    }
+    /**
+     * Determines if the plugin can load.
+     *
+     * Test env:
+     *  - WPGRAPHQL_AUTOLOAD: false
+     *  - autoload installed and manually added in test env
+     *
+     * Bedrock
+     *  - WPGRAPHQL_AUTOLOAD: not defined
+     *  - composer deps installed outside of the plugin
+     *
+     * Normal (.org repo install)
+     * - WPGRAPHQL_AUTOLOAD: not defined
+     * - composer deps installed INSIDE the plugin
+     *
+     * @return bool
+     */
+    function graphql_can_load_plugin() : bool
+    {
+    }
+    /**
      * Function that instantiates the plugins main class
      *
-     * @return object
+     * @return object|null
      */
     function graphql_init()
+    {
+    }
+    /**
+     * Render an admin notice if the plugin cannot load
+     *
+     * @return void
+     */
+    function graphql_cannot_load_admin_notice_callback() : void
     {
     }
     /**
