@@ -7507,6 +7507,20 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    /**
+     * Class ScriptLoadingStrategyEnum
+     */
+    class ScriptLoadingStrategyEnum
+    {
+        /**
+         * Register the ScriptLoadingStrategy Enum Type to the Schema
+         *
+         * @return void
+         */
+        public static function register_type()
+        {
+        }
+    }
     class TaxonomyEnum
     {
         /**
