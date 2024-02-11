@@ -71,9 +71,13 @@ do_release() {
 
 	# Tag version
 	if [ "${IS_REPACK}" = false ]; then
-		echo "Tagging ${TAG}"
-		git commit --all -m "Generate stubs for WPGraphQL ${TAG}"
-		git tag "${TAG}"
+		if ! git rev-parse "${TAG}" >/dev/null 2>&1; then
+			echo "Tagging ${TAG}"
+			git commit --all -m "Generate stubs for WPGraphQL ${TAG}"
+			git tag "${TAG}"
+		else
+			echo "Tag ${TAG} already exists. Skipping..."
+		fi
 	else
 		REPACK_VERSION=$((REPACK_VERSION + 1))
 		echo "Tagging v${VERSION}+repack.${REPACK_VERSION}"
