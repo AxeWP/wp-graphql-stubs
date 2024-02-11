@@ -62,6 +62,121 @@ namespace WPGraphQL\Admin {
         {
         }
     }
+    /**
+     * This class isn't intended for direct extending or customizing.
+     *
+     * This class is responsible for handling the management and display of admin notices
+     * related directly to WPGraphQL.
+     *
+     * Breaking changes to this class will not be considered a semver breaking change as there's no
+     * expectation that users will be calling these functions directly or extending this class.
+     *
+     * @internal
+     */
+    class AdminNotices
+    {
+        /**
+         * Stores the admin notices to display
+         *
+         * @var array<string,array<string,mixed>>
+         */
+        protected $admin_notices = [];
+        /**
+         * @var array<string>
+         */
+        protected $dismissed_notices = [];
+        /**
+         * Initialize the Admin Notices class
+         */
+        public function init() : void
+        {
+        }
+        /**
+         * Pre-filters dismissed notices from the admin notices array.
+         */
+        protected function pre_filter_dismissed_notices() : void
+        {
+        }
+        /**
+         * Return all admin notices
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        public function get_admin_notices() : array
+        {
+        }
+        /**
+         * @param string              $slug The slug identifying the admin notice
+         * @param array<string,mixed> $config The config of the admin notice
+         *
+         * @return array<string,mixed>
+         */
+        public function add_admin_notice(string $slug, array $config) : array
+        {
+        }
+        /**
+         * Throw an error if the config is not valid.
+         *
+         * @since v1.21.0
+         *
+         * @param array<string,mixed> $config The config of the admin notice
+         */
+        public function is_valid_config(array $config) : bool
+        {
+        }
+        /**
+         * Given the slug of an admin notice, remove it from the notices
+         *
+         * @param string $slug The slug identifying the admin notice to remove
+         *
+         * @return array<mixed>
+         */
+        public function remove_admin_notice(string $slug) : array
+        {
+        }
+        /**
+         * Determine whether a notice is dismissable or not
+         *
+         * @param array<mixed> $notice The notice to check whether its dismissable or not
+         */
+        public function is_notice_dismissable(array $notice = []) : bool
+        {
+        }
+        /**
+         * Display notices if they are displayable
+         */
+        public function maybe_display_notices() : void
+        {
+        }
+        /**
+         * Adds the notification count to the menu item.
+         */
+        public function add_notification_bubble() : void
+        {
+        }
+        /**
+         * Render the notices.
+         */
+        protected function render_notices() : void
+        {
+        }
+        /**
+         * Checks if the current admin page is within the scope of the plugin's own pages.
+         *
+         * @return bool True if the current page is within scope of the plugin's pages.
+         */
+        protected function is_plugin_scoped_page() : bool
+        {
+        }
+        /**
+         * Handles the dismissal of the ACF notice.
+         * set_transient reference: https://developer.wordpress.org/reference/functions/set_transient/
+         * This function sets a transient to remember the dismissal status of the notice.
+         */
+        public function handle_dismissal_of_notice() : void
+        {
+        }
+    }
 }
 namespace WPGraphQL\Admin\GraphiQL {
     /**
@@ -562,8 +677,16 @@ namespace WPGraphQL {
      *
      * @package WPGraphQL
      */
+    // @phpcs:ignore
+    #[\AllowDynamicProperties]
     class AppContext
     {
+        /**
+         * Stores the class to use for the connection query.
+         *
+         * @var \WP_Query|null
+         */
+        public $connection_query_class = null;
         /**
          * Stores the url string for the current site
          *
@@ -3005,7 +3128,7 @@ namespace WPGraphQL\Data {
          * @throws \GraphQL\Error\UserError Throws UserError.
          * @throws \Exception Throws UserError.
          *
-         * @since      0.0.5
+         * @since 0.0.5
          *
          * @deprecated Use the Loader passed in $context instead
          */
@@ -20224,7 +20347,7 @@ namespace {
      *
      * @param mixed|string|mixed[] $message The debug message
      * @param array<string,mixed>  $config  The debug config. Should be an associative array of keys and values.
-     *                                      $config['type'] will set the "type" of the log, default type is GRAPHQL_DEBUG. 
+     *                                      $config['type'] will set the "type" of the log, default type is GRAPHQL_DEBUG.
      *                                      Other fields added to $config will be merged into the debug entry.
      *
      * @return void
@@ -20285,6 +20408,13 @@ namespace {
      * @since 1.12.0
      */
     function graphql_get_endpoint_url()
+    {
+    }
+    /**
+     * @param string       $slug A unique slug to identify the admin notice by
+     * @param array<mixed> $config The config for the admin notice. Determines visibility, context, etc.
+     */
+    function register_graphql_admin_notice(string $slug, array $config) : void
     {
     }
     /**
