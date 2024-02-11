@@ -483,7 +483,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @param array<string,mixed> $options settings field args
          *
-         * @return mixed
+         * @return array<string,mixed>
          */
         public function sanitize_options(array $options)
         {
@@ -493,7 +493,7 @@ namespace WPGraphQL\Admin\Settings {
          *
          * @param string $slug option slug
          *
-         * @return mixed string or bool false
+         * @return callable|false
          */
         public function get_sanitize_callback($slug = '')
         {
@@ -595,7 +595,7 @@ namespace WPGraphQL {
         /**
          * Passes context about the current connection being resolved
          *
-         * @var mixed|String|null
+         * @var mixed|string|null
          */
         public $currentConnection = null;
         /**
@@ -627,7 +627,7 @@ namespace WPGraphQL {
          *
          * @param string $key The name of the loader to get
          *
-         * @return mixed
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
          *
          * @deprecated Use get_loader instead.
          */
@@ -1266,7 +1266,7 @@ namespace WPGraphQL\Data\Connection {
          */
         protected $ids;
         /**
-         * @var array<string,mixed>
+         * @var mixed[]
          */
         protected $nodes;
         /**
@@ -1474,8 +1474,9 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Get_query_amount
          *
-         * Returns the max between what was requested and what is defined as the $max_query_amount to
-         * ensure that queries don't exceed unwanted limits when querying data.
+         * Returns the max between what was requested and what is defined as the $max_query_amount to ensure that queries don't exceed unwanted limits when querying data.
+         *
+         * If the amount requested is greater than the max query amount, a debug message will be included in the GraphQL response.
          *
          * @return int
          * @throws \Exception
@@ -1488,7 +1489,7 @@ namespace WPGraphQL\Data\Connection {
          *
          * This checks the $args to determine the amount requested, and if
          *
-         * @return int|null
+         * @return int
          * @throws \GraphQL\Error\UserError If there is an issue with the pagination $args.
          */
         public function get_amount_requested()
@@ -2103,7 +2104,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * The name of the post type, or array of post types the connection resolver is resolving for
          *
-         * @var mixed string|array
+         * @var mixed|string|string[]
          */
         protected $post_type;
         /**
@@ -2176,7 +2177,7 @@ namespace WPGraphQL\Data\Connection {
          * This strips the status from the query_args if the user doesn't have permission to query for
          * posts of that status.
          *
-         * @param mixed $stati The status(es) to sanitize
+         * @param string[]|string $stati The status(es) to sanitize.
          *
          * @return string[]|null
          */
@@ -2618,7 +2619,7 @@ namespace WPGraphQL\Data\Cursor {
         /**
          * Returns the ID key.
          *
-         * @return mixed
+         * @return string
          */
         public function get_cursor_id_key()
         {
@@ -3016,7 +3017,7 @@ namespace WPGraphQL\Data {
          *
          * @param int $comment_id The ID of the comment the comment author is associated with.
          *
-         * @return mixed|\WPGraphQL\Model\CommentAuthor|null
+         * @return \WPGraphQL\Model\CommentAuthor|null
          * @throws \Exception Throws Exception.
          */
         public static function resolve_comment_author(int $comment_id)
@@ -3030,7 +3031,7 @@ namespace WPGraphQL\Data {
          * @param \WPGraphQL\AppContext                $context The context of the query to pass along
          * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
          *
-         * @return mixed
+         * @return \GraphQL\Deferred
          * @throws \Exception
          * @since 0.0.5
          */
@@ -3090,7 +3091,7 @@ namespace WPGraphQL\Data {
          * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
          * @param mixed|string|string[]                $post_type Post type of the post we are trying to resolve
          *
-         * @return mixed
+         * @return \GraphQL\Deferred
          * @throws \Exception
          * @since  0.0.5
          */
@@ -3115,7 +3116,7 @@ namespace WPGraphQL\Data {
          * @param int                   $id      ID of the term you are trying to retrieve the object for
          * @param \WPGraphQL\AppContext $context The context of the GraphQL Request
          *
-         * @return mixed
+         * @return \GraphQL\Deferred
          * @throws \Exception
          * @since      0.0.5
          *
@@ -3330,7 +3331,7 @@ namespace WPGraphQL\Data {
          * @param \WPGraphQL\AppContext                $context The AppContext passed through the GraphQL Resolve Tree
          * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed through the GraphQL Resolve tree
          *
-         * @return mixed
+         * @return \GraphQL\Deferred
          * @throws \Exception
          */
         public static function resolve_resource_by_uri($uri, $context, $info)
@@ -3386,9 +3387,9 @@ namespace WPGraphQL\Data\Loader {
          * Loads a key and returns value represented by this key.
          * Internally this method will load all currently buffered items and cache them locally.
          *
-         * @param mixed $key
+         * @param int|string|mixed $key
          *
-         * @return mixed
+         * @return ?\WPGraphQL\Model\Model
          * @throws \Exception
          */
         public function load($key)
@@ -3501,7 +3502,7 @@ namespace WPGraphQL\Data\Loader {
         /**
          * Returns a cached data object by key.
          *
-         * @param mixed $key  Key.
+         * @param int|string $key Key.
          *
          * @return mixed
          */
@@ -3682,7 +3683,7 @@ namespace WPGraphQL\Data\Loader {
         /**
          * {@inheritDoc}
          *
-         * @return array<string|int, \WP_Post|null>
+         * @return array<string|int,\WP_Post|null>
          */
         public function loadKeys(array $keys)
         {
@@ -3766,7 +3767,7 @@ namespace WPGraphQL\Data\Loader {
          *
          * @param int[] $keys
          *
-         * @return array<int, mixed>
+         * @return array<int,\WP_Term|\WP_Error|null>
          */
         public function loadKeys(array $keys)
         {
@@ -3833,7 +3834,7 @@ namespace WPGraphQL\Data\Loader {
          *
          * @param int[] $keys Array of author IDs (int).
          *
-         * @return array<int, bool> Associative array of author IDs (int) to boolean.
+         * @return array<int,bool> Associative array of author IDs (int) to boolean.
          */
         public function get_public_users(array $keys)
         {
@@ -3843,7 +3844,7 @@ namespace WPGraphQL\Data\Loader {
          *
          * @param int[] $keys
          *
-         * @return array<int, \WP_User|null>
+         * @return array<int,\WP_User|null>
          */
         public function loadKeys(array $keys)
         {
@@ -3883,10 +3884,10 @@ namespace WPGraphQL\Data {
         /**
          * This prepares the media item for insertion
          *
-         * @param array<string,mixed> $input            The input for the mutation from the GraphQL request
-         * @param \WP_Post_Type       $post_type_object The post_type_object for the mediaItem (attachment)
-         * @param string              $mutation_name    The name of the mutation being performed (create, update, etc.)
-         * @param mixed               $file             The mediaItem (attachment) file
+         * @param array<string,mixed>       $input            The input for the mutation from the GraphQL request
+         * @param \WP_Post_Type             $post_type_object The post_type_object for the mediaItem (attachment)
+         * @param string                    $mutation_name    The name of the mutation being performed (create, update, etc.)
+         * @param array<string,mixed>|false $file             The mediaItem (attachment) file
          *
          * @return array<string,mixed>
          */
@@ -5168,7 +5169,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5204,7 +5205,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5244,7 +5245,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5285,7 +5286,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5321,7 +5322,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5357,7 +5358,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5393,7 +5394,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5442,7 +5443,7 @@ namespace WPGraphQL\Mutation {
          * @param \WP_Post_Type $post_type_object The post type of the mutation.
          * @param string        $mutation_name    The mutation name.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload($post_type_object, $mutation_name)
         {
@@ -5487,7 +5488,7 @@ namespace WPGraphQL\Mutation {
          * @param \WP_Post_Type $post_type_object The post type of the mutation.
          * @param string        $mutation_name    The mutation name.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload(\WP_Post_Type $post_type_object, string $mutation_name)
         {
@@ -5532,7 +5533,7 @@ namespace WPGraphQL\Mutation {
          * @param \WP_Post_Type $post_type_object The post type of the mutation.
          * @param string        $mutation_name      The mutation name.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload($post_type_object, $mutation_name)
         {
@@ -5568,7 +5569,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5603,6 +5604,8 @@ namespace WPGraphQL\Mutation {
         }
         /**
          * Defines the mutation data modification closure.
+         *
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload() : callable
         {
@@ -5646,7 +5649,7 @@ namespace WPGraphQL\Mutation {
          * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
          * @param string       $mutation_name The name of the mutation.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload(\WP_Taxonomy $taxonomy, string $mutation_name)
         {
@@ -5695,7 +5698,7 @@ namespace WPGraphQL\Mutation {
          * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
          * @param string       $mutation_name The name of the mutation.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload(\WP_Taxonomy $taxonomy, string $mutation_name)
         {
@@ -5744,7 +5747,7 @@ namespace WPGraphQL\Mutation {
          * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
          * @param string       $mutation_name  The name of the mutation.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload(\WP_Taxonomy $taxonomy, $mutation_name)
         {
@@ -5835,7 +5838,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5875,7 +5878,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5910,7 +5913,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -5952,7 +5955,7 @@ namespace WPGraphQL\Mutation {
         /**
          * Defines the mutation data modification closure.
          *
-         * @return callable
+         * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
          */
         public static function mutate_and_get_payload()
         {
@@ -6007,7 +6010,7 @@ namespace WPGraphQL\Registry {
         /**
          * The loaders needed to register types
          *
-         * @var array<string,Callable>
+         * @var array<string,callable():(mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null)>
          */
         protected $type_loaders;
         /**
@@ -6200,8 +6203,7 @@ namespace WPGraphQL\Registry {
          *
          * @param string $type_name The name of the Type to get from the registry
          *
-         * @return mixed
-         * |null
+         * @return mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null
          */
         public function get_type(string $type_name)
         {
@@ -6253,7 +6255,7 @@ namespace WPGraphQL\Registry {
          *
          * @param mixed|string|array<string,mixed> $type The type definition to process.
          *
-         * @return mixed
+         * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>|mixed
          * @throws \Exception
          */
         public function setup_type_modifiers($type)
@@ -6344,7 +6346,7 @@ namespace WPGraphQL\Registry {
         /**
          * Given a Type, this returns an instance of a NonNull of that type
          *
-         * @param mixed $type The Type being wrapped
+         * @param string|callable|\GraphQL\Type\Definition\NullableType $type The Type being wrapped
          *
          * @return \GraphQL\Type\Definition\NonNull
          */
@@ -6354,7 +6356,7 @@ namespace WPGraphQL\Registry {
         /**
          * Given a Type, this returns an instance of a listOf of that type
          *
-         * @param mixed $type The Type being wrapped
+         * @param string|\GraphQL\Type\Definition\Type $type The Type being wrapped
          *
          * @return \GraphQL\Type\Definition\ListOfType
          */
@@ -6544,7 +6546,7 @@ namespace WPGraphQL {
          * GraphQL operation parameters for this request. Can also be an array of
          * OperationParams.
          *
-         * @var mixed|array|\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
+         * @var mixed|mixed[]|\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
          */
         public $params;
         /**
@@ -6574,7 +6576,7 @@ namespace WPGraphQL {
         /**
          * The default field resolver function. Default null
          *
-         * @var mixed|callable|null
+         * @var callable|null
          */
         protected $field_resolver;
         /**
@@ -6606,7 +6608,7 @@ namespace WPGraphQL {
         {
         }
         /**
-         * @return mixed
+         * @return callable|null
          */
         protected function get_field_resolver()
         {
@@ -6857,7 +6859,7 @@ namespace WPGraphQL {
         /**
          * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
          *
-         * @return mixed
+         * @return void
          * @throws \Exception Throws Exception.
          * @throws \Throwable Throws Exception.
          * @global WP_User $current_user The currently authenticated user.
@@ -8622,7 +8624,7 @@ namespace WPGraphQL\Type {
         /**
          * The resolver function to resolve the connection
          *
-         * @var callable|\Closure
+         * @var callable(mixed $root,array<string,mixed> $args,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):mixed
          */
         protected $resolve_connection;
         /**
@@ -9439,7 +9441,7 @@ namespace WPGraphQL\Type {
          * @param array<string,array<string,mixed>> $fields The array of fields for the object config
          * @param string                            $type_name
          *
-         * @return mixed
+         * @return array<string,array<string,mixed>>
          * @since 0.0.5
          */
         public function prepare_fields(array $fields, string $type_name)
@@ -9492,7 +9494,7 @@ namespace WPGraphQL\Type {
         /**
          * The resolver function to resolve the mutation
          *
-         * @var callable|\Closure
+         * @var callable(mixed $root,array<string,mixed> $args,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info): array<string,mixed>
          */
         protected $resolve_mutation;
         /**
@@ -9538,6 +9540,8 @@ namespace WPGraphQL\Type {
         }
         /**
          * Gets the resolver callable for the mutation.
+         *
+         * @return callable(mixed $root,array<string,mixed> $args,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info): array<string,mixed>
          */
         protected function get_resolver() : callable
         {
@@ -9730,11 +9734,11 @@ namespace WPGraphQL\Type {
          * This function sorts the fields and applies a filter to allow for easily
          * extending/modifying the shape of the Schema for the type.
          *
-         * @param array<string,mixed> $fields         The array of fields for the object config
+         * @param array<string,mixed> $fields    The array of fields for the object config
          * @param string              $type_name
-         * @param array<string,mixed> $config         The config for the Object Type
+         * @param array<string,mixed> $config    The config for the Object Type
          *
-         * @return mixed
+         * @return array<string,mixed>
          * @since 0.0.5
          */
         public function prepare_fields($fields, $type_name, $config)
@@ -10000,7 +10004,7 @@ namespace WPGraphQL\Utils {
          * @param mixed[] $fields    The fields configured for a Type
          * @param string  $type_name The Type name
          *
-         * @return mixed
+         * @return mixed[]
          */
         protected static function wrap_fields(array $fields, string $type_name)
         {
@@ -10121,6 +10125,18 @@ namespace WPGraphQL\Utils {
          */
         protected $queried_list_types = [];
         /**
+         * @var ?bool Whether the Query Analyzer is enabled for the specific or not.
+         */
+        protected $is_enabled_for_query;
+        /**
+         * Checks whether the Query Analyzer is enabled on the site.
+         *
+         * @uses `graphql_query_analyzer_enabled` filter.
+         */
+        public static function is_enabled() : bool
+        {
+        }
+        /**
          * @param \WPGraphQL\Request $request The GraphQL request being executed
          */
         public function __construct(\WPGraphQL\Request $request)
@@ -10130,6 +10146,14 @@ namespace WPGraphQL\Utils {
          * Gets the request object.
          */
         public function get_request() : \WPGraphQL\Request
+        {
+        }
+        /**
+         * Checks if the Query Analyzer is enabled.
+         *
+         * @uses `graphql_should_analyze_queries` filter.
+         */
+        public function is_enabled_for_query() : bool
         {
         }
         /**
@@ -10350,7 +10374,7 @@ namespace WPGraphQL\Utils {
         /**
          * Return the query log produced from the logs stored by WPDB.
          *
-         * @return mixed[]
+         * @return array<string,mixed>
          */
         public function get_query_log()
         {
@@ -19864,8 +19888,8 @@ namespace {
      *
      * Should be used at the `graphql_register_types` hook.
      *
-     * @param mixed|string|array<string> $interface_names Array of one or more names of the GraphQL Interfaces to apply to the GraphQL Types
-     * @param mixed|string|array<string> $type_names      Array of one or more names of the GraphQL Types to apply the interfaces to.
+     * @param string|string[] $interface_names Array of one or more names of the GraphQL Interfaces to apply to the GraphQL Types
+     * @param string|string[] $type_names      Array of one or more names of the GraphQL Types to apply the interfaces to.
      *
      * Example:
      * The following would register the "MyNewInterface" interface to the Post and Page type in the
