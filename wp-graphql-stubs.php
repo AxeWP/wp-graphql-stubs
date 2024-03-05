@@ -324,9 +324,9 @@ namespace WPGraphQL\Admin\Settings {
         /**
          * Initialize the styles and scripts used on the settings admin page
          *
-         * @param string $hook_suffix The current admin page.
+         * @param ?string $hook_suffix The current admin page.
          */
-        public function initialize_settings_page_scripts(string $hook_suffix) : void
+        public function initialize_settings_page_scripts(?string $hook_suffix) : void
         {
         }
         /**
@@ -4117,6 +4117,14 @@ namespace WPGraphQL\Data {
         protected function resolve_home_page() : ?\GraphQL\Deferred
         {
         }
+        /**
+         * Checks if the URI is a comment URI and, if so, returns the comment ID.
+         *
+         * @param string $uri The URI to check.
+         */
+        protected function maybe_parse_comment_uri(string $uri) : ?int
+        {
+        }
     }
     /**
      * Class PostObjectMutation
@@ -4553,9 +4561,11 @@ namespace WPGraphQL\Model {
      * @property string $dateGmt
      * @property string $id
      * @property string $karma
+     * @property string $link
      * @property string $parentId
      * @property string $status
      * @property string $type
+     * @property string $uri
      *
      * @package WPGraphQL\Model
      */
