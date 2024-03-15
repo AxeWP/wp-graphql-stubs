@@ -4536,6 +4536,12 @@ namespace WPGraphQL\Model {
         {
         }
         /**
+         * @return bool
+         */
+        protected function is_private()
+        {
+        }
+        /**
          * {@inheritDoc}
          */
         protected function init()
