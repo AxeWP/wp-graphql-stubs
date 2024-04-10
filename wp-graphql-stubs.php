@@ -1206,7 +1206,7 @@ namespace WPGraphQL\Data {
          *
          * @return \WP_User|false
          */
-        protected static function get_comment_author(string $author_email = null)
+        protected static function get_comment_author(?string $author_email = null)
         {
         }
     }
@@ -2877,7 +2877,7 @@ namespace WPGraphQL\Data\Cursor {
          *
          * @return void
          */
-        public function add_field(string $key, $value, string $type = null, string $order = null, $object_cursor = null)
+        public function add_field(string $key, $value, ?string $type = null, ?string $order = null, $object_cursor = null)
         {
         }
         /**
@@ -4823,6 +4823,7 @@ namespace WPGraphQL\Model {
      * @property array   $editLock
      * @property string  $enclosure
      * @property string  $guid
+     * @property bool    $hasPassword
      * @property int     $menuOrder
      * @property string  $link
      * @property string  $uri
@@ -4830,6 +4831,7 @@ namespace WPGraphQL\Model {
      * @property string  $featuredImageId
      * @property int     $featuredImageDatabaseId
      * @property string  $pageTemplate
+     * @property string  $password
      * @property int     $previewRevisionDatabaseId
      *
      * @property string  $captionRaw
