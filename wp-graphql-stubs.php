@@ -1310,21 +1310,28 @@ namespace WPGraphQL\Data\Connection {
     /**
      * Class AbstractConnectionResolver
      *
-     * ConnectionResolvers should extend this to make returning data in proper shape for
-     * connections easier, ensure data is passed through consistent filters, etc.
+     * Individual Connection Resolvers should extend this to make returning data in proper shape for Relay-compliant connections easier, ensure data is passed through consistent filters, etc.
      *
      * @package WPGraphQL\Data\Connection
      */
     abstract class AbstractConnectionResolver
     {
         /**
-         * The source from the field calling the connection
+         * The source from the field calling the connection.
          *
-         * @var mixed
+         * @var \WPGraphQL\Model\Model|mixed[]|mixed
          */
         protected $source;
         /**
-         * The args input on the field calling the connection
+         * The args input before it is filtered and prepared by the constructor.
+         *
+         * @var array<string,mixed>
+         */
+        protected $unfiltered_args;
+        /**
+         * The args input on the field calling the connection.
+         *
+         * Filterable by `graphql_connection_args`.
          *
          * @var array<string,mixed>
          */
@@ -1342,21 +1349,29 @@ namespace WPGraphQL\Data\Connection {
          */
         protected $info;
         /**
-         * The query args used to query for data to resolve the connection
+         * The query args used to query for data to resolve the connection.
          *
          * @var array<string,mixed>
          */
         protected $query_args;
         /**
-         * Whether the connection resolver should execute
+         * Whether the connection resolver should execute.
          *
          * @var bool
          */
         protected $should_execute = true;
         /**
+         * The loader name.
+         *
+         * Defaults to `loader_name()` and filterable by `graphql_connection_loader_name`.
+         *
+         * @var ?string
+         */
+        protected $loader_name;
+        /**
          * The loader the resolver is configured to use.
          *
-         * @var \WPGraphQL\Data\Loader\AbstractDataLoader
+         * @var ?\WPGraphQL\Data\Loader\AbstractDataLoader
          */
         protected $loader;
         /**
@@ -1377,7 +1392,7 @@ namespace WPGraphQL\Data\Connection {
          * have context from what was queried and can make adjustments as needed, such
          * as exposing `totalCount` in pageInfo, etc.
          *
-         * @var mixed
+         * @var mixed[]|object|mixed
          */
         protected $query;
         /**
@@ -1385,28 +1400,44 @@ namespace WPGraphQL\Data\Connection {
          */
         protected $items;
         /**
+         * The IDs returned from the query.
+         *
          * @var int[]|string[]
          */
         protected $ids;
         /**
-         * @var mixed[]
+         * The nodes (usually GraphQL models) returned from the query.
+         *
+         * @var \WPGraphQL\Model\Model[]|mixed[]
          */
         protected $nodes;
         /**
+         * The edges for the connection.
+         *
          * @var array<string,mixed>[]
          */
         protected $edges;
         /**
-         * @var int
+         * The page info for the connection.
+         *
+         * Filterable by `graphql_connection_page_info`.
+         *
+         * @var ?array<string,mixed>
+         */
+        protected $page_info;
+        /**
+         * The query amount to return for the connection.
+         *
+         * @var ?int
          */
         protected $query_amount;
         /**
          * ConnectionResolver constructor.
          *
-         * @param mixed                                $source  source passed down from the resolve tree
-         * @param array<string,mixed>                  $args    array of arguments input in the field as part of the GraphQL query
-         * @param \WPGraphQL\AppContext                $context Object containing app context that gets passed down the resolve tree
-         * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
+         * @param mixed                                $source  Source passed down from the resolve tree
+         * @param array<string,mixed>                  $args    Array of arguments input in the field as part of the GraphQL query.
+         * @param \WPGraphQL\AppContext                $context The app context that gets passed down the resolve tree.
+         * @param \GraphQL\Type\Definition\ResolveInfo $info    Info about fields passed down the resolve tree.
          *
          * @throws \Exception
          */
@@ -1414,32 +1445,13 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Returns the source of the connection
+         * The name of the loader to use for this connection.
          *
-         * @return mixed
+         * Filterable by `graphql_connection_loader_name`.
+         *
+         * @todo This is protected for backwards compatibility, but should be abstract and implemented by the child classes.
          */
-        public function getSource()
-        {
-        }
-        /**
-         * Get the loader name
-         *
-         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-         * @throws \Exception
-         */
-        protected function getLoader()
-        {
-        }
-        /**
-         * Returns the $args passed to the connection
-         *
-         * @deprecated Deprecated since v1.11.0 in favor of $this->get_args();
-         *
-         * @return array<string,mixed>
-         *
-         * @codeCoverageIgnore
-         */
-        public function getArgs() : array
+        protected function loader_name() : string
         {
         }
         /**
@@ -1452,65 +1464,6 @@ namespace WPGraphQL\Data\Connection {
         public function get_args() : array
         {
         }
-        /**
-         * Returns the AppContext of the connection
-         */
-        public function getContext() : \WPGraphQL\AppContext
-        {
-        }
-        /**
-         * Returns the ResolveInfo of the connection
-         */
-        public function getInfo() : \GraphQL\Type\Definition\ResolveInfo
-        {
-        }
-        /**
-         * Returns whether the connection should execute
-         */
-        public function getShouldExecute() : bool
-        {
-        }
-        /**
-         * @param string $key   The key of the query arg to set
-         * @param mixed  $value The value of the query arg to set
-         *
-         * @return \WPGraphQL\Data\Connection\AbstractConnectionResolver
-         *
-         * @deprecated 0.3.0
-         *
-         * @codeCoverageIgnore
-         */
-        public function setQueryArg($key, $value)
-        {
-        }
-        /**
-         * Given a key and value, this sets a query_arg which will modify the query_args used by
-         * the connection resolvers get_query();
-         *
-         * @param string $key   The key of the query arg to set
-         * @param mixed  $value The value of the query arg to set
-         *
-         * @return \WPGraphQL\Data\Connection\AbstractConnectionResolver
-         */
-        public function set_query_arg($key, $value)
-        {
-        }
-        /**
-         * Whether the connection should resolve as a one-to-one connection.
-         *
-         * @return \WPGraphQL\Data\Connection\AbstractConnectionResolver
-         */
-        public function one_to_one()
-        {
-        }
-        /**
-         * Get_loader_name
-         *
-         * Return the name of the loader to be used with the connection resolver
-         *
-         * @return string
-         */
-        public abstract function get_loader_name();
         /**
          * Get_query_args
          *
@@ -1553,6 +1506,14 @@ namespace WPGraphQL\Data\Connection {
          */
         public abstract function should_execute();
         /**
+         * The maximum number of items that should be returned by the query.
+         *
+         * This is filtered by `graphql_connection_max_query_amount` in ::get_query_amount().
+         */
+        protected function max_query_amount() : int
+        {
+        }
+        /**
          * Is_valid_offset
          *
          * Determine whether or not the the offset is valid, i.e the item corresponding to the offset
@@ -1584,20 +1545,80 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Given an ID, return the model for the entity or null
+         * Returns the offset for a given cursor.
          *
-         * @param mixed $id The ID to identify the object by. Could be a database ID or an in-memory ID (like post_type name)
+         * Connections that use a string-based offset should override this method.
          *
-         * @return mixed|\WPGraphQL\Model\Model|null
-         * @throws \Exception
+         * @param ?string $cursor The cursor to convert to an offset.
+         *
+         * @return int|mixed
          */
-        public function get_node_by_id($id)
+        public function get_offset_for_cursor(string $cursor = null)
         {
         }
         /**
-         * Get_query_amount
+         * Validates Model.
          *
-         * Returns the max between what was requested and what is defined as the $max_query_amount to ensure that queries don't exceed unwanted limits when querying data.
+         * If model isn't a class with a `fields` member, this function with have be overridden in
+         * the Connection class.
+         *
+         * @param \WPGraphQL\Model\Model|mixed $model The model being validated
+         *
+         * @return bool
+         */
+        protected function is_valid_model($model)
+        {
+        }
+        /**
+         * Returns the source of the connection
+         *
+         * @return mixed
+         */
+        public function get_source()
+        {
+        }
+        /**
+         * Returns the AppContext of the connection.
+         */
+        public function get_context() : \WPGraphQL\AppContext
+        {
+        }
+        /**
+         * Returns the ResolveInfo of the connection.
+         */
+        public function get_info() : \GraphQL\Type\Definition\ResolveInfo
+        {
+        }
+        /**
+         * Returns the loader name.
+         *
+         * If $loader_name is not initialized, this plugin will initialize it.
+         *
+         * @return string
+         *
+         * @throws \Exception
+         */
+        public function get_loader_name()
+        {
+        }
+        /**
+         * Returns whether the connection should execute.
+         */
+        public function get_should_execute() : bool
+        {
+        }
+        /**
+         * Returns the $args passed to the connection, before any modifications.
+         *
+         * @return array<string,mixed>
+         */
+        public function get_unfiltered_args() : array
+        {
+        }
+        /**
+         * Returns the amount of items to query from the database.
+         *
+         * The amount is calculated as the the max between what was requested and what is defined as the $max_query_amount to ensure that queries don't exceed unwanted limits when querying data.
          *
          * If the amount requested is greater than the max query amount, a debug message will be included in the GraphQL response.
          *
@@ -1608,41 +1629,102 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get_amount_requested
+         * Returns an array of IDs for the connection.
          *
-         * This checks the $args to determine the amount requested, and if
+         * These IDs have been fetched from the query with all the query args applied,
+         * then sliced (overfetching by 1) by pagination args.
+         *
+         * @return int[]|string[]
+         */
+        public function get_ids()
+        {
+        }
+        /**
+         * Get the nodes from the query.
+         *
+         * @uses AbstractConnectionResolver::get_ids_for_nodes()
+         *
+         * @return array<int|string,mixed|\WPGraphQL\Model\Model|null>
+         *
+         * @throws \Exception
+         */
+        public function get_nodes()
+        {
+        }
+        /**
+         * Get the edges from the nodes.
+         *
+         * @return array<string,mixed>[]
+         */
+        public function get_edges()
+        {
+        }
+        /**
+         * Returns pageInfo for the connection
+         *
+         * @return array<string,mixed>
+         */
+        public function get_page_info()
+        {
+        }
+        /**
+         * Given a key and value, this sets a query_arg which will modify the query_args used by
+         * the connection resolvers get_query();
+         *
+         * @param string $key   The key of the query arg to set
+         * @param mixed  $value The value of the query arg to set
+         *
+         * @return self
+         */
+        public function set_query_arg($key, $value)
+        {
+        }
+        /**
+         * Whether the connection should resolve as a one-to-one connection.
+         *
+         * @return self
+         */
+        public function one_to_one()
+        {
+        }
+        /**
+         * Returns the loader.
+         *
+         * If $loader is not initialized, this method will initialize it.
+         *
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+         */
+        protected function get_loader()
+        {
+        }
+        /**
+         * Returns the amount of items requested from the connection.
          *
          * @return int
-         * @throws \GraphQL\Error\UserError If there is an issue with the pagination $args.
+         *
+         * @throws \GraphQL\Error\UserError If the `first` or `last` args are used together.
          */
         public function get_amount_requested()
         {
         }
         /**
-         * Gets the offset for the `after` cursor.
+         * Get the connection to return to the Connection Resolver
          *
-         * @return int|string|null
+         * @return \GraphQL\Deferred
+         *
+         * @throws \Exception
          */
-        public function get_after_offset()
+        public function get_connection()
         {
         }
         /**
-         * Gets the offset for the `before` cursor.
+         * Execute the resolver query and get the data for the connection
          *
-         * @return int|string|null
+         * @return int[]|string[]
+         *
+         * @throws \Exception
          */
-        public function get_before_offset()
-        {
-        }
-        /**
-         * Gets the array index for the given offset.
-         *
-         * @param int|string|false $offset The cursor pagination offset.
-         * @param int[]|string[]   $ids    The array of ids from the query.
-         *
-         * @return int|false $index The array index of the offset.
-         */
-        public function get_array_index_for_offset($offset, $ids)
+        public function execute_and_get_ids()
         {
         }
         /**
@@ -1662,14 +1744,141 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Returns an array of IDs for the connection.
+         * Gets the array index for the given offset.
          *
-         * These IDs have been fetched from the query with all the query args applied,
-         * then sliced (overfetching by 1) by pagination args.
+         * @param int|string|false $offset The cursor pagination offset.
+         * @param int[]|string[]   $ids    The array of ids from the query.
+         *
+         * @return int|false $index The array index of the offset.
+         */
+        public function get_array_index_for_offset($offset, $ids)
+        {
+        }
+        /**
+         * Gets the IDs for the currently-paginated slice of nodes.
+         *
+         * We slice the array to match the amount of items that was asked for, as we over-fetched by 1 item to calculate pageInfo.
+         *
+         * @used-by AbstractConnectionResolver::get_nodes()
          *
          * @return int[]|string[]
          */
-        public function get_ids()
+        public function get_ids_for_nodes()
+        {
+        }
+        /**
+         * Given an ID, return the model for the entity or null
+         *
+         * @param int|string|mixed $id The ID to identify the object by. Could be a database ID or an in-memory ID (like post_type name)
+         *
+         * @return mixed|\WPGraphQL\Model\Model|null
+         * @throws \Exception
+         */
+        public function get_node_by_id($id)
+        {
+        }
+        /**
+         * Given an ID, a cursor is returned.
+         *
+         * @param int|string $id The ID to get the cursor for.
+         *
+         * @return string
+         */
+        protected function get_cursor_for_node($id)
+        {
+        }
+        /**
+         * Prepares the page info for the connection.
+         *
+         * @used-by self::get_page_info()
+         *
+         * @return array<string,mixed>
+         */
+        protected function prepare_page_info() : array
+        {
+        }
+        /**
+         * Determine the start cursor from the connection
+         *
+         * @return mixed|string|null
+         */
+        public function get_start_cursor()
+        {
+        }
+        /**
+         * Determine the end cursor from the connection
+         *
+         * @return mixed|string|null
+         */
+        public function get_end_cursor()
+        {
+        }
+        /**
+         * Gets the offset for the `after` cursor.
+         *
+         * @return int|string|null
+         */
+        public function get_after_offset()
+        {
+        }
+        /**
+         * Gets the offset for the `before` cursor.
+         *
+         * @return int|string|null
+         */
+        public function get_before_offset()
+        {
+        }
+        /**
+         * Whether there is a next page in the connection.
+         *
+         * If there are more "items" than were asked for in the "first" argument
+         * ore if there are more "items" after the "before" argument, has_next_page() will be set to true.
+         *
+         * @return bool
+         */
+        public function has_next_page()
+        {
+        }
+        /**
+         * Whether there is a previous page in the connection.
+         *
+         * If there are more "items" than were asked for in the "last" argument
+         * or if there are more "items" before the "after" argument, has_previous_page() will be set to true.
+         *
+         * @return bool
+         */
+        public function has_previous_page()
+        {
+        }
+        /**
+         * DEPRECATED METHODS
+         *
+         * These methods are deprecated and will be removed in a future release.
+         */
+        /**
+         * Returns the $args passed to the connection
+         *
+         * @deprecated Deprecated since v1.11.0 in favor of $this->get_args();
+         *
+         * @return array<string,mixed>
+         *
+         * @codeCoverageIgnore
+         */
+        public function getArgs() : array
+        {
+        }
+        /**
+         * @param string $key   The key of the query arg to set
+         * @param mixed  $value The value of the query arg to set
+         *
+         * @return \WPGraphQL\Data\Connection\AbstractConnectionResolver
+         *
+         * @deprecated 0.3.0
+         *
+         * @codeCoverageIgnore
+         */
+        public function setQueryArg($key, $value)
         {
         }
         /**
@@ -1688,153 +1897,48 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Returns the offset for a given cursor.
+         * Returns the source of the connection.
          *
-         * Connections that use a string-based offset should override this method.
+         * @deprecated 1.24.0 in favor of $this->get_source().
          *
-         * @param ?string $cursor The cursor to convert to an offset.
-         *
-         * @return int|mixed
+         * @return mixed
          */
-        public function get_offset_for_cursor(string $cursor = null)
+        public function getSource()
         {
         }
         /**
-         * Has_next_page
+         * Returns the AppContext of the connection.
          *
-         * Whether there is a next page in the connection.
-         *
-         * If there are more "items" than were asked for in the "first" argument
-         * ore if there are more "items" after the "before" argument, has_next_page()
-         * will be set to true
-         *
-         * @return bool
+         * @deprecated 1.24.0 in favor of $this->get_context().
          */
-        public function has_next_page()
+        public function getContext() : \WPGraphQL\AppContext
         {
         }
         /**
-         * Has_previous_page
+         * Returns the ResolveInfo of the connection.
          *
-         * Whether there is a previous page in the connection.
-         *
-         * If there are more "items" than were asked for in the "last" argument
-         * or if there are more "items" before the "after" argument, has_previous_page()
-         * will be set to true.
-         *
-         * @return bool
+         * @deprecated 1.24.0 in favor of $this->get_info().
          */
-        public function has_previous_page()
+        public function getInfo() : \GraphQL\Type\Definition\ResolveInfo
         {
         }
         /**
-         * Get_start_cursor
+         * Returns whether the connection should execute.
          *
-         * Determine the start cursor from the connection
-         *
-         * @return mixed|string|null
+         * @deprecated 1.24.0 in favor of $this->get_should_execute().
          */
-        public function get_start_cursor()
+        public function getShouldExecute() : bool
         {
         }
         /**
-         * Get_end_cursor
+         * Returns the loader.
          *
-         * Determine the end cursor from the connection
+         * @deprecated 1.24.0 in favor of $this->get_loader().
          *
-         * @return mixed|string|null
-         */
-        public function get_end_cursor()
-        {
-        }
-        /**
-         * Gets the IDs for the currently-paginated slice of nodes.
-         *
-         * We slice the array to match the amount of items that was asked for, as we over-fetched by 1 item to calculate pageInfo.
-         *
-         * @used-by AbstractConnectionResolver::get_nodes()
-         *
-         * @return int[]|string[]
-         */
-        public function get_ids_for_nodes()
-        {
-        }
-        /**
-         * Get_nodes
-         *
-         * Get the nodes from the query.
-         *
-         * @uses AbstractConnectionResolver::get_ids_for_nodes()
-         *
-         * @return array<int|string,mixed|\WPGraphQL\Model\Model|null>
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
          * @throws \Exception
          */
-        public function get_nodes()
-        {
-        }
-        /**
-         * Validates Model.
-         *
-         * If model isn't a class with a `fields` member, this function with have be overridden in
-         * the Connection class.
-         *
-         * @param \WPGraphQL\Model\Model|mixed $model The model being validated
-         *
-         * @return bool
-         */
-        protected function is_valid_model($model)
-        {
-        }
-        /**
-         * Given an ID, a cursor is returned
-         *
-         * @param int|string $id
-         *
-         * @return string
-         */
-        protected function get_cursor_for_node($id)
-        {
-        }
-        /**
-         * Get_edges
-         *
-         * This iterates over the nodes and returns edges
-         *
-         * @return array<string,mixed>[]
-         */
-        public function get_edges()
-        {
-        }
-        /**
-         * Get_page_info
-         *
-         * Returns pageInfo for the connection
-         *
-         * @return array<string,mixed>
-         */
-        public function get_page_info()
-        {
-        }
-        /**
-         * Execute the resolver query and get the data for the connection
-         *
-         * @return int[]|string[]
-         *
-         * @throws \Exception
-         */
-        public function execute_and_get_ids()
-        {
-        }
-        /**
-         * Get_connection
-         *
-         * Get the connection to return to the Connection Resolver
-         *
-         * @return \GraphQL\Deferred
-         *
-         * @throws \Exception
-         */
-        public function get_connection()
+        protected function getLoader()
         {
         }
     }
@@ -1854,7 +1958,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          *
-         * @throws \GraphQL\Error\UserError If there is a problem with the $args.
+         * @throws \GraphQL\Error\UserError
          */
         public function get_query_args()
         {
@@ -1871,26 +1975,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
          * {@inheritDoc}
          */
         public function get_ids_from_query()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * For example, if the $source were a post_type that didn't support comments, we could prevent
-         * the connection query from even executing. In our case, we prevent comments from even showing
-         * in the Schema for post types that don't have comment support, so we don't need to worry
-         * about that, but there may be other situations where we'd need to prevent it.
-         *
-         * @return bool
-         */
-        public function should_execute()
         {
         }
         /**
@@ -1922,6 +2013,12 @@ namespace WPGraphQL\Data\Connection {
          * @param int $offset The ID of the node used for the cursor offset.
          */
         public function is_valid_offset($offset)
+        {
+        }
+        /**
+         * {@inheritDoc}
+         */
+        public function should_execute()
         {
         }
     }
@@ -1961,7 +2058,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
@@ -1989,12 +2086,6 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
         public function get_ids_from_query()
         {
         }
@@ -2015,15 +2106,19 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
-         * Determine if the model is valid
+         * {@inheritDoc}
+         */
+        protected function max_query_amount() : int
+        {
+        }
+        /**
+         * {@inheritDoc}
          *
-         * @param ?\_WP_Dependency $model
-         *
-         * @return bool
+         * @param ?\_WP_Dependency $model The model to check.
          */
         protected function is_valid_model($model)
         {
@@ -2057,14 +2152,6 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
-        /**
-         * Get the IDs from the source
-         *
-         * @return mixed[]
-         */
         public function get_ids_from_query()
         {
         }
@@ -2075,7 +2162,7 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the items from the source
+         * {@inheritDoc}
          *
          * @return string[]
          */
@@ -2083,19 +2170,21 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * The name of the loader to load the data
-         *
-         * @return string
+         * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
-         * Determine if the model is valid
+         * {@inheritDoc}
+         */
+        protected function max_query_amount() : int
+        {
+        }
+        /**
+         * {@inheritDoc}
          *
          * @param ?\_WP_Dependency $model
-         *
-         * @return bool
          */
         protected function is_valid_model($model)
         {
@@ -2107,7 +2196,7 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * D{@inheritDoc}
+         * {@inheritDoc}
          */
         public function should_execute()
         {
@@ -2164,15 +2253,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * Default is true, meaning any time a TermObjectConnection resolver is asked for, it will execute.
-         */
-        public function should_execute()
+        protected function loader_name() : string
         {
         }
         /**
@@ -2198,6 +2279,14 @@ namespace WPGraphQL\Data\Connection {
          * @param int $offset The ID of the node used in the cursor for offset.
          */
         public function is_valid_offset($offset)
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * Default is true, meaning any time a TermObjectConnection resolver is asked for, it will execute.
+         */
+        public function should_execute()
         {
         }
     }
@@ -2247,7 +2336,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
@@ -2351,7 +2440,7 @@ namespace WPGraphQL\Data\Connection {
     /**
      * Class PluginConnectionResolver - Connects plugins to other objects
      *
-     * @package WPGraphQL\Data\Resolvers
+     * @package WPGraphQL\Data\Connection
      * @since 0.0.5
      */
     class PluginConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
@@ -2362,6 +2451,12 @@ namespace WPGraphQL\Data\Connection {
          * @var array<string,array<string,mixed>>
          */
         protected $query;
+        /**
+         * A list of all the installed plugins, keyed by their type.
+         *
+         * @var ?array{site:array<string,mixed>,mustuse:array<string,mixed>,dropins:array<string,mixed>}
+         */
+        protected $all_plugins;
         /**
          * {@inheritDoc}
          */
@@ -2385,7 +2480,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
@@ -2398,6 +2493,16 @@ namespace WPGraphQL\Data\Connection {
          * {@inheritDoc}
          */
         public function should_execute()
+        {
+        }
+        /**
+         * Gets all the installed plugins, including must use and drop in plugins.
+         *
+         * The result is cached in the ConnectionResolver instance.
+         *
+         * @return array{site:array<string,mixed>,mustuse:array<string,mixed>,dropins:array<string,mixed>}
+         */
+        protected function get_all_plugins() : array
         {
         }
     }
@@ -2427,7 +2532,7 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the items from the source
+         * {@inheritDoc}
          *
          * @return string[]
          */
@@ -2437,7 +2542,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
@@ -2482,7 +2587,7 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Get the items from the source
+         * {@inheritDoc}
          *
          * @return string[]
          */
@@ -2492,7 +2597,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
@@ -2526,13 +2631,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function should_execute()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
@@ -2544,7 +2643,7 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Return an instance of the WP_User_Query with the args for the connection being executed
+         * {@inheritDoc}
          *
          * @return object|\WP_User_Query
          * @throws \Exception
@@ -2579,11 +2678,15 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          *
-         * @param int $offset The ID of the node used as the offset in the cursor
-         *
-         * @return bool
+         * @param int $offset The ID of the node used as the offset in the cursor.
          */
         public function is_valid_offset($offset)
+        {
+        }
+        /**
+         * {@inheritDoc}
+         */
+        public function should_execute()
         {
         }
     }
@@ -2624,7 +2727,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_loader_name()
+        protected function loader_name() : string
         {
         }
         /**
@@ -3848,7 +3951,7 @@ namespace WPGraphQL\Data\Loader {
     {
         /**
          * {@inheritDoc}
-         * 
+         *
          * @param mixed|\WP_Taxonomy $entry The Taxonomy Object
          *
          * @return \WPGraphQL\Model\Taxonomy
@@ -9409,6 +9512,18 @@ namespace WPGraphQL\Type {
         protected function get_implemented_interfaces() : array
         {
         }
+        /**
+         * Returns the fields for a Type, applying any missing fields defined on interfaces implemented on the type
+         *
+         * @param array<mixed>                     $config
+         * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+         *
+         * @return array<mixed>
+         * @throws \Exception
+         */
+        protected function get_fields(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry) : array
+        {
+        }
     }
 }
 namespace GraphQL\Type\Definition {
@@ -9557,6 +9672,14 @@ namespace WPGraphQL\Type {
          */
         public $config;
         /**
+         * @var array<string, array<string, mixed>>
+         */
+        public $fields;
+        /**
+         * @var array<string, array<string, mixed>>
+         */
+        public $interfaces;
+        /**
          * WPInterfaceType constructor.
          *
          * @param array<string,mixed>              $config
@@ -9580,12 +9703,12 @@ namespace WPGraphQL\Type {
          * extending/modifying the shape of the Schema for the type.
          *
          * @param array<string,array<string,mixed>> $fields The array of fields for the object config
-         * @param string                            $type_name
-         *
+         * @param string                            $type_name The name of the type to prepare fields for
+         * @param array<string,mixed>               $config    The config for the Object Type
          * @return array<string,array<string,mixed>>
          * @since 0.0.5
          */
-        public function prepare_fields(array $fields, string $type_name)
+        public function prepare_fields(array $fields, string $type_name, array $config) : array
         {
         }
     }
@@ -9840,6 +9963,14 @@ namespace WPGraphQL\Type {
          */
         public $config;
         /**
+         * @var array<string, array<string, mixed>>
+         */
+        public $fields;
+        /**
+         * @var array<\GraphQL\Type\Definition\InterfaceType>
+         */
+        public $interfaces;
+        /**
          * WPObjectType constructor.
          *
          * @param array<string,mixed>              $config
@@ -9876,7 +10007,7 @@ namespace WPGraphQL\Type {
          * extending/modifying the shape of the Schema for the type.
          *
          * @param array<string,mixed> $fields    The array of fields for the object config
-         * @param string              $type_name
+         * @param string              $type_name The name of the type to prepare fields for
          * @param array<string,mixed> $config    The config for the Object Type
          *
          * @return array<string,mixed>
