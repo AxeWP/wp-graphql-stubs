@@ -1357,9 +1357,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Whether the connection resolver should execute.
          *
-         * @var bool
+         * If `false`, the connection resolve will short-circuit and return an empty array.
+         *
+         * Filterable by `graphql_connection_pre_should_execute` and `graphql_connection_should_execute`.
+         *
+         * @var ?bool
          */
-        protected $should_execute = true;
+        protected $should_execute;
         /**
          * The loader name.
          *
@@ -1489,22 +1493,18 @@ namespace WPGraphQL\Data\Connection {
          */
         public abstract function get_query();
         /**
-         * Should_execute
+         * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
          *
-         * Determine whether or not the query should execute.
+         * When `pre_should_excecute()` returns false, that's a sign the Resolver shouldn't execute the query. Otherwise, the more expensive logic logic in `should_execute()` will run later in the lifecycle.
          *
-         * Return true to execute, return false to prevent execution.
-         *
-         * Various criteria can be used to determine whether a Connection Query should
-         * be executed.
-         *
-         * For example, if a user is requesting revisions of a Post, and the user doesn't have
-         * permission to edit the post, they don't have permission to view the revisions, and therefore
-         * we can prevent the query to fetch revisions from executing in the first place.
-         *
-         * @return bool
+         * @param mixed                                $source  Source passed down from the resolve tree
+         * @param array<string,mixed>                  $args    Array of arguments input in the field as part of the GraphQL query.
+         * @param \WPGraphQL\AppContext                $context The app context that gets passed down the resolve tree.
+         * @param \GraphQL\Type\Definition\ResolveInfo $info    Info about fields passed down the resolve tree.
          */
-        public abstract function should_execute();
+        protected function pre_should_execute($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info) : bool
+        {
+        }
         /**
          * The maximum number of items that should be returned by the query.
          *
@@ -1542,6 +1542,24 @@ namespace WPGraphQL\Data\Connection {
          * @return int[]|string[] the array of IDs.
          */
         public function get_ids_from_query()
+        {
+        }
+        /**
+         * Determine whether or not the query should execute.
+         *
+         * Return true to exeucte, return false to prevent execution.
+         *
+         * Various criteria can be used to determine whether a Connection Query should be executed.
+         *
+         * For example, if a user is requesting revisions of a Post, and the user doesn't have permission to edit the post, they don't have permission to view the revisions, and therefore we can prevent the query to fetch revisions from executing in the first place.
+         *
+         * Runs only if `pre_should_execute()` returns true.
+         *
+         * @todo This is public for b/c but it should be protected.
+         *
+         * @return bool
+         */
+        public function should_execute()
         {
         }
         /**
@@ -1602,12 +1620,6 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Returns whether the connection should execute.
-         */
-        public function get_should_execute() : bool
-        {
-        }
-        /**
          * Returns the $args passed to the connection, before any modifications.
          *
          * @return array<string,mixed>
@@ -1626,6 +1638,14 @@ namespace WPGraphQL\Data\Connection {
          * @throws \Exception
          */
         public function get_query_amount()
+        {
+        }
+        /**
+         * Returns whether the connection should execute.
+         *
+         * If conditions are met that should prevent the execution, we can bail from resolving early, before the query is executed.
+         */
+        public function get_should_execute() : bool
         {
         }
         /**
@@ -1685,6 +1705,17 @@ namespace WPGraphQL\Data\Connection {
          * @return self
          */
         public function one_to_one()
+        {
+        }
+        /**
+         * Gets whether or not the query should execute, BEFORE any data is fetched or altered, filtered by 'graphql_connection_pre_should_execute'.
+         *
+         * @param mixed                                $source  The source that's passed down the GraphQL queries.
+         * @param array<string,mixed>                  $args    The inputArgs on the field.
+         * @param \WPGraphQL\AppContext                $context The AppContext passed down the GraphQL tree.
+         * @param \GraphQL\Type\Definition\ResolveInfo $info    The ResolveInfo passed down the GraphQL tree.
+         */
+        protected function get_pre_should_execute($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info) : bool
         {
         }
         /**
@@ -2015,12 +2046,6 @@ namespace WPGraphQL\Data\Connection {
         public function is_valid_offset($offset)
         {
         }
-        /**
-         * {@inheritDoc}
-         */
-        public function should_execute()
-        {
-        }
     }
     /**
      * Class ContentTypeConnectionResolver
@@ -2067,12 +2092,6 @@ namespace WPGraphQL\Data\Connection {
          * @param string $offset The offset (post type name) to check.
          */
         public function is_valid_offset($offset)
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function should_execute()
         {
         }
     }
@@ -2127,12 +2146,6 @@ namespace WPGraphQL\Data\Connection {
          * {@inheritDoc}
          */
         public function is_valid_offset($offset)
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function should_execute()
         {
         }
     }
@@ -2193,12 +2206,6 @@ namespace WPGraphQL\Data\Connection {
          * {@inheritDoc}
          */
         public function is_valid_offset($offset)
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function should_execute()
         {
         }
     }
@@ -2279,14 +2286,6 @@ namespace WPGraphQL\Data\Connection {
          * @param int $offset The ID of the node used in the cursor for offset.
          */
         public function is_valid_offset($offset)
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * Default is true, meaning any time a TermObjectConnection resolver is asked for, it will execute.
-         */
-        public function should_execute()
         {
         }
     }
@@ -2553,12 +2552,6 @@ namespace WPGraphQL\Data\Connection {
         public function is_valid_offset($offset)
         {
         }
-        /**
-         * {@inheritDoc}
-         */
-        public function should_execute()
-        {
-        }
     }
     /**
      * Class ThemeConnectionResolver
@@ -2604,12 +2597,6 @@ namespace WPGraphQL\Data\Connection {
          * {@inheritDoc}
          */
         public function is_valid_offset($offset)
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function should_execute()
         {
         }
     }
@@ -2681,12 +2668,6 @@ namespace WPGraphQL\Data\Connection {
          * @param int $offset The ID of the node used as the offset in the cursor.
          */
         public function is_valid_offset($offset)
-        {
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public function should_execute()
         {
         }
     }
@@ -9510,6 +9491,16 @@ namespace WPGraphQL\Type {
          * @return \GraphQL\Type\Definition\InterfaceType[]
          */
         protected function get_implemented_interfaces() : array
+        {
+        }
+        /**
+         * Given a type it will return a string representation of the type.
+         *
+         * This is used for optimistic comparison of the arg types.
+         *
+         * @param string|array<string,mixed>|mixed $type A GraphQL Type
+         */
+        private function field_arg_type_to_string($type) : string
         {
         }
         /**
