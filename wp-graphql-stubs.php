@@ -1313,6 +1313,12 @@ namespace WPGraphQL\Data\Connection {
      * Individual Connection Resolvers should extend this to make returning data in proper shape for Relay-compliant connections easier, ensure data is passed through consistent filters, etc.
      *
      * @package WPGraphQL\Data\Connection
+     *
+     * The template type `TQueryClass` is used by static analysis tools to correctly typehint the query class used by the Connection Resolver.
+     * Classes that extend `AbstractConnectionResolver` should add `@extends @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\MY_QUERY_CLASS>` to the class dockblock to get proper hinting.
+     * E.g. `@extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Term_Query>`
+     *
+     * @template TQueryClass
      */
     abstract class AbstractConnectionResolver
     {
@@ -1333,7 +1339,7 @@ namespace WPGraphQL\Data\Connection {
          *
          * Filterable by `graphql_connection_args`.
          *
-         * @var array<string,mixed>
+         * @var ?array<string,mixed>
          */
         protected $args;
         /**
@@ -1351,7 +1357,9 @@ namespace WPGraphQL\Data\Connection {
         /**
          * The query args used to query for data to resolve the connection.
          *
-         * @var array<string,mixed>
+         * Filterable by `graphql_connection_query_args`.
+         *
+         * @var ?array<string,mixed>
          */
         protected $query_args;
         /**
@@ -1385,40 +1393,60 @@ namespace WPGraphQL\Data\Connection {
          */
         public $one_to_one = false;
         /**
-         * The Query class/array/object used to fetch the data.
+         * The class name of the query to instantiate. Set to `null` if the Connection Resolver does not rely on a query class to fetch data.
+         *
+         * Examples `WP_Query`, `WP_Comment_Query`, `WC_Query`, `/My/Namespaced/CustomQuery`, etc.
+         *
+         * @var ?class-string<TQueryClass>
+         */
+        protected $query_class;
+        /**
+         * The instantiated query array/object used to fetch the data.
          *
          * Examples:
-         *   return new WP_Query( $this->query_args );
-         *   return new WP_Comment_Query( $this->query_args );
-         *   return new WP_Term_Query( $this->query_args );
+         *   return new WP_Query( $this->get_query_args() );
+         *   return new WP_Comment_Query( $this->get_query_args() );
+         *   return new WP_Term_Query( $this->get_query_args() );
          *
          * Whatever it is will be passed through filters so that fields throughout
          * have context from what was queried and can make adjustments as needed, such
          * as exposing `totalCount` in pageInfo, etc.
          *
-         * @var mixed[]|object|mixed
+         * Filterable by `graphql_connection_pre_get_query` and `graphql_connection_query`.
+         *
+         * @var ?TQueryClass
          */
         protected $query;
         /**
          * @var mixed[]
+         *
+         * @deprecated 1.26.0 This is an artifact and is unused. It will be removed in a future release.
          */
         protected $items;
         /**
          * The IDs returned from the query.
          *
-         * @var int[]|string[]
+         * The IDs are sliced to confirm with the pagination args, and overfetched by one.
+         *
+         * Filterable by `graphql_connection_ids`.
+         *
+         * @var int[]|string[]|null
          */
         protected $ids;
         /**
          * The nodes (usually GraphQL models) returned from the query.
          *
-         * @var \WPGraphQL\Model\Model[]|mixed[]
+         * Filterable by `graphql_connection_nodes`.
+         *
+         * @var \WPGraphQL\Model\Model[]|mixed[]|null
          */
         protected $nodes;
         /**
          * The edges for the connection.
          *
-         * @var array<string,mixed>[]
+         * Filterable by `graphql_connection_edges`.
+         *
+         * @var ?array<string,mixed>[]
          */
         protected $edges;
         /**
@@ -1442,12 +1470,19 @@ namespace WPGraphQL\Data\Connection {
          * @param array<string,mixed>                  $args    Array of arguments input in the field as part of the GraphQL query.
          * @param \WPGraphQL\AppContext                $context The app context that gets passed down the resolve tree.
          * @param \GraphQL\Type\Definition\ResolveInfo $info    Info about fields passed down the resolve tree.
-         *
-         * @throws \Exception
          */
         public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
         {
         }
+        /**
+         * ====================
+         * Required/Abstract Methods
+         *
+         * These methods must be implemented or overloaded in the extending class.
+         *
+         * The reason not all methods are abstract is to prevent backwards compatibility issues.
+         * ====================
+         */
         /**
          * The name of the loader to use for this connection.
          *
@@ -1459,39 +1494,60 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Returns the $args passed to the connection.
+         * Prepares the query args used to fetch the data for the connection.
          *
-         * Useful for modifying the $args before they are passed to $this->get_query_args().
+         * This accepts the GraphQL args and maps them to a format that can be read by our query class.
+         * For example, if the ConnectionResolver uses WP_Query to fetch the data, this should return $args for use in `new WP_Query( $args );`
+         *
+         * @todo This is protected for backwards compatibility, but should be abstract and implemented by the child classes.
+         *
+         * @param array<string,mixed> $args The GraphQL input args passed to the connection.
          *
          * @return array<string,mixed>
+         *
+         * @throws \GraphQL\Error\InvariantViolation If the method is not implemented.
+         *
+         * @codeCoverageIgnore
          */
-        public function get_args() : array
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
-         * Get_query_args
+         * Return an array of ids from the query
          *
-         * This method is used to accept the GraphQL Args input to the connection and return args
-         * that can be used in the Query to the datasource.
+         * Each Query class in WP and potential datasource handles this differently,
+         * so each connection resolver should handle getting the items into a uniform array of items.
          *
-         * For example, if the ConnectionResolver uses WP_Query to fetch the data, this
-         * should return $args for use in `new WP_Query`
+         * @todo: This is not an abstract function to prevent backwards compatibility issues, so it instead throws an exception.
          *
-         * @return array<string,mixed>
+         * Classes that extend AbstractConnectionResolver should
+         * override this method instead of ::get_ids().
+         *
+         * @since 1.9.0
+         *
+         * @throws \GraphQL\Error\InvariantViolation If child class forgot to implement this.
+         * @return int[]|string[] the array of IDs.
          */
-        public abstract function get_query_args();
+        public function get_ids_from_query()
+        {
+        }
         /**
-         * Get_query
+         * Determine whether or not the the offset is valid, i.e the item corresponding to the offset exists.
          *
-         * The Query used to get items from the database (or even external datasource) are all
-         * different.
+         * Offset is equivalent to WordPress ID (e.g post_id, term_id). So this is equivalent to checking if the WordPress object exists for the given ID.
          *
-         * Each connection resolver should be responsible for defining the Query object that
-         * is used to fetch items.
+         * @param mixed $offset The offset to validate. Typically a WordPress Database ID
          *
-         * @return mixed
+         * @return bool
          */
-        public abstract function get_query();
+        public abstract function is_valid_offset($offset);
+        /**
+         * ====================
+         * The following methods handle the underlying behavior of the connection, and are intended to be overloaded by the child class.
+         *
+         * These methods are wrapped in getters which apply the filters and set the properties of the class instance.
+         * ====================
+         */
         /**
          * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
          *
@@ -1506,6 +1562,18 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
+         * Prepares the GraphQL args for use by the connection.
+         *
+         * Useful for modifying the $args before they are passed to $this->get_query_args().
+         *
+         * @param array<string,mixed> $args The GraphQL input args to prepare.
+         *
+         * @return array<string,mixed>
+         */
+        protected function prepare_args(array $args) : array
+        {
+        }
+        /**
          * The maximum number of items that should be returned by the query.
          *
          * This is filtered by `graphql_connection_max_query_amount` in ::get_query_amount().
@@ -1514,34 +1582,39 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Is_valid_offset
+         * The default query class to use for the connection.
          *
-         * Determine whether or not the the offset is valid, i.e the item corresponding to the offset
-         * exists. Offset is equivalent to WordPress ID (e.g post_id, term_id). So this function is
-         * equivalent to checking if the WordPress object exists for the given ID.
+         * Should return null if the resolver does not use a query class to fetch the data.
          *
-         * @param mixed $offset The offset to validate. Typically a WordPress Database ID
-         *
-         * @return bool
+         * @return ?class-string<TQueryClass>
          */
-        public abstract function is_valid_offset($offset);
+        protected function query_class() : ?string
+        {
+        }
         /**
-         * Return an array of ids from the query
+         * Validates the query class. Will be ignored if the Connection Resolver does not use a query class.
          *
-         * Each Query class in WP and potential datasource handles this differently, so each connection
-         * resolver should handle getting the items into a uniform array of items.
+         * By default this checks if the query class has a `query()` method. If the query class requires the `query()` method to be named something else (e.g. $query_class->get_results()` ) this method should be overloaded.
          *
-         * Note: This is not an abstract function to prevent backwards compatibility issues, so it
-         * instead throws an exception. Classes that extend AbstractConnectionResolver should
-         * override this method, instead of AbstractConnectionResolver::get_ids().
-         *
-         * @since 1.9.0
-         *
-         * @throws \Exception If child class forgot to implement this.
-         *
-         * @return int[]|string[] the array of IDs.
+         * @param string $query_class The query class to validate.
          */
-        public function get_ids_from_query()
+        protected function is_valid_query_class(string $query_class) : bool
+        {
+        }
+        /**
+         * Executes the query and returns the results.
+         *
+         * Usually, the returned value is an instantiated `$query_class` (e.g. `WP_Query`), but it can be any collection of data. The `get_ids_from_query()` method will be used to extract the IDs from the returned value.
+         *
+         * If the resolver does not rely on a query class, this should be overloaded to return the data directly.
+         *
+         * @param array<string,mixed> $query_args The query args to use to query the data.
+         *
+         * @return TQueryClass
+         *
+         * @throws \GraphQL\Error\InvariantViolation If the query class is not valid.
+         */
+        protected function query(array $query_args)
         {
         }
         /**
@@ -1580,13 +1653,22 @@ namespace WPGraphQL\Data\Connection {
          * If model isn't a class with a `fields` member, this function with have be overridden in
          * the Connection class.
          *
-         * @param \WPGraphQL\Model\Model|mixed $model The model being validated
+         * @param \WPGraphQL\Model\Model|mixed $model The model being validated.
          *
          * @return bool
          */
         protected function is_valid_model($model)
         {
         }
+        /**
+         * ====================
+         * Public Getters
+         *
+         * These methods are used to get the properties of the class instance.
+         *
+         * You shouldn't need to overload these, but if you do, take care to ensure that the overloaded method applies the same filters and sets the same properties as the methods here.
+         * ====================
+         */
         /**
          * Returns the source of the connection
          *
@@ -1614,7 +1696,7 @@ namespace WPGraphQL\Data\Connection {
          *
          * @return string
          *
-         * @throws \Exception
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function get_loader_name()
         {
@@ -1628,6 +1710,14 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
+         * Returns the $args passed to the connection.
+         *
+         * @return array<string,mixed>
+         */
+        public function get_args() : array
+        {
+        }
+        /**
          * Returns the amount of items to query from the database.
          *
          * The amount is calculated as the the max between what was requested and what is defined as the $max_query_amount to ensure that queries don't exceed unwanted limits when querying data.
@@ -1635,9 +1725,26 @@ namespace WPGraphQL\Data\Connection {
          * If the amount requested is greater than the max query amount, a debug message will be included in the GraphQL response.
          *
          * @return int
-         * @throws \Exception
          */
         public function get_query_amount()
+        {
+        }
+        /**
+         * Gets the query args used by the connection to fetch the data.
+         *
+         * @return array<string,mixed>
+         */
+        public function get_query_args()
+        {
+        }
+        /**
+         * Gets the query class to be instantiated by the `query()` method.
+         *
+         * If null, the `query()` method will be overloaded to return the data.
+         *
+         * @return ?class-string<TQueryClass>
+         */
+        public function get_query_class() : ?string
         {
         }
         /**
@@ -1646,6 +1753,14 @@ namespace WPGraphQL\Data\Connection {
          * If conditions are met that should prevent the execution, we can bail from resolving early, before the query is executed.
          */
         public function get_should_execute() : bool
+        {
+        }
+        /**
+         * Gets the results of the executed query.
+         *
+         * @return TQueryClass
+         */
+        public function get_query()
         {
         }
         /**
@@ -1665,8 +1780,6 @@ namespace WPGraphQL\Data\Connection {
          * @uses AbstractConnectionResolver::get_ids_for_nodes()
          *
          * @return array<int|string,mixed|\WPGraphQL\Model\Model|null>
-         *
-         * @throws \Exception
          */
         public function get_nodes()
         {
@@ -1688,21 +1801,37 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Given a key and value, this sets a query_arg which will modify the query_args used by
-         * the connection resolvers get_query();
+         * ===============================
+         * Public setters
+         *
+         * These are used to directly modify the instance properties from outside the class.
+         * ===============================
+         */
+        /**
+         * Given a key and value, this sets a query_arg which will modify the query_args used by ::get_query();
          *
          * @param string $key   The key of the query arg to set
          * @param mixed  $value The value of the query arg to set
          *
-         * @return self
+         * @return static
          */
         public function set_query_arg($key, $value)
         {
         }
         /**
+         * Overloads the query_class which will be used to instantiate the query.
+         *
+         * @param class-string<TQueryClass> $query_class The class to use for the query. If empty, this will reset to the default query class.
+         *
+         * @return static
+         */
+        public function set_query_class(string $query_class)
+        {
+        }
+        /**
          * Whether the connection should resolve as a one-to-one connection.
          *
-         * @return self
+         * @return static
          */
         public function one_to_one()
         {
@@ -1739,11 +1868,16 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
+         * =====================
+         * Resolver lifecycle methods
+         *
+         * These methods are used internally by the class to resolve the connection. They rarely should be overloaded by the child class, but if you do, make sure to preserve any WordPress hooks included in the parent method.
+         * =====================
+         */
+        /**
          * Get the connection to return to the Connection Resolver
          *
          * @return \GraphQL\Deferred
-         *
-         * @throws \Exception
          */
         public function get_connection()
         {
@@ -1752,10 +1886,18 @@ namespace WPGraphQL\Data\Connection {
          * Execute the resolver query and get the data for the connection
          *
          * @return int[]|string[]
-         *
-         * @throws \Exception
          */
         public function execute_and_get_ids()
+        {
+        }
+        /**
+         * Validates the $query_class set on the resolver.
+         *
+         * This runs before the query is executed to ensure that the query class is valid.
+         *
+         * @throws \GraphQL\Error\InvariantViolation If the query class is invalid.
+         */
+        protected function validate_query_class() : void
         {
         }
         /**
@@ -1786,6 +1928,26 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
+         * Prepares the nodes for the connection.
+         *
+         * @used-by self::get_nodes()
+         *
+         * @return array<int|string,mixed|\WPGraphQL\Model\Model|null>
+         */
+        protected function prepare_nodes() : array
+        {
+        }
+        /**
+         * Prepares the IDs for the connection.
+         *
+         * @used-by self::get_ids()
+         *
+         * @return int[]|string[]
+         */
+        protected function prepare_ids() : array
+        {
+        }
+        /**
          * Gets the IDs for the currently-paginated slice of nodes.
          *
          * We slice the array to match the amount of items that was asked for, as we over-fetched by 1 item to calculate pageInfo.
@@ -1803,9 +1965,41 @@ namespace WPGraphQL\Data\Connection {
          * @param int|string|mixed $id The ID to identify the object by. Could be a database ID or an in-memory ID (like post_type name)
          *
          * @return mixed|\WPGraphQL\Model\Model|null
-         * @throws \Exception
          */
         public function get_node_by_id($id)
+        {
+        }
+        /**
+         * Gets whether or not the model is valid.
+         *
+         * @param mixed $model The model being validated.
+         */
+        protected function get_is_valid_model($model) : bool
+        {
+        }
+        /**
+         * Prepares the edges for the connection.
+         *
+         * @used-by self::get_edges()
+         *
+         * @param array<int|string,mixed|\WPGraphQL\Model\Model|null> $nodes The nodes for the connection.
+         *
+         * @return array<string,mixed>[]
+         */
+        protected function prepare_edges(array $nodes) : array
+        {
+        }
+        /**
+         * Prepares a single edge for the connection.
+         *
+         * @used-by self::prepare_edges()
+         *
+         * @param int|string                        $id   The ID of the node.
+         * @param mixed|\WPGraphQL\Model\Model|null $node The node for the edge.
+         *
+         * @return array<string,mixed>
+         */
+        protected function prepare_edge($id, $node) : array
         {
         }
         /**
@@ -1863,8 +2057,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Whether there is a next page in the connection.
          *
-         * If there are more "items" than were asked for in the "first" argument
-         * ore if there are more "items" after the "before" argument, has_next_page() will be set to true.
+         * If there are more "items" than were asked for in the "first" argument or if there are more "items" after the "before" argument, has_next_page() will be set to true.
          *
          * @return bool
          */
@@ -1874,8 +2067,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Whether there is a previous page in the connection.
          *
-         * If there are more "items" than were asked for in the "last" argument
-         * or if there are more "items" before the "after" argument, has_previous_page() will be set to true.
+         * If there are more "items" than were asked for in the "last" argument or if there are more "items" before the "after" argument, has_previous_page() will be set to true.
          *
          * @return bool
          */
@@ -1903,7 +2095,7 @@ namespace WPGraphQL\Data\Connection {
          * @param string $key   The key of the query arg to set
          * @param mixed  $value The value of the query arg to set
          *
-         * @return \WPGraphQL\Data\Connection\AbstractConnectionResolver
+         * @return static
          *
          * @deprecated 0.3.0
          *
@@ -1967,7 +2159,6 @@ namespace WPGraphQL\Data\Connection {
          * @deprecated 1.24.0 in favor of $this->get_loader().
          *
          * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-         * @throws \Exception
          */
         protected function getLoader()
         {
@@ -1977,30 +2168,22 @@ namespace WPGraphQL\Data\Connection {
      * Class CommentConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Comment_Query>
      */
     class CommentConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
         /**
          * {@inheritDoc}
          *
-         * @var \WP_Comment_Query
-         */
-        protected $query;
-        /**
-         * {@inheritDoc}
-         *
          * @throws \GraphQL\Error\UserError
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return \WP_Comment_Query
-         * @throws \Exception
          */
-        public function get_query()
+        protected function query_class() : string
         {
         }
         /**
@@ -2016,11 +2199,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Filters the GraphQL args before they are used in get_query_args().
-         *
-         * @return array<string,mixed>
+         * {@inheritDoc}
          */
-        public function get_args() : array
+        protected function prepare_args(array $args) : array
         {
         }
         /**
@@ -2051,15 +2232,10 @@ namespace WPGraphQL\Data\Connection {
      * Class ContentTypeConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
      */
     class ContentTypeConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * @var string[]
-         */
-        protected $query;
         /**
          * {@inheritDoc}
          */
@@ -2069,15 +2245,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return string[]
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
@@ -2099,6 +2273,7 @@ namespace WPGraphQL\Data\Connection {
      * Class EnqueuedScriptsConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
      */
     class EnqueuedScriptsConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
@@ -2111,15 +2286,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return string[]
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
@@ -2153,15 +2326,10 @@ namespace WPGraphQL\Data\Connection {
      * Class EnqueuedStylesheetConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
      */
     class EnqueuedStylesheetConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * @var string[]
-         */
-        protected $query;
         /**
          * {@inheritDoc}
          */
@@ -2171,15 +2339,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return string[]
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
@@ -2213,15 +2379,10 @@ namespace WPGraphQL\Data\Connection {
      * Class TermObjectConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Term_Query>
      */
     class TermObjectConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * @var \WP_Term_Query
-         */
-        protected $query;
         /**
          * The name of the Taxonomy the resolver is intended to be used for
          *
@@ -2239,16 +2400,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
-         * Return an instance of WP_Term_Query with the args mapped to the query
-         *
-         * @return \WP_Term_Query
-         * @throws \Exception
+         * {@inheritDoc}
          */
-        public function get_query()
+        protected function query_class() : string
         {
         }
         /**
@@ -2277,7 +2435,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_args() : array
+        protected function prepare_args(array $args) : array
         {
         }
         /**
@@ -2301,7 +2459,7 @@ namespace WPGraphQL\Data\Connection {
          *
          * @throws \Exception
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
     }
@@ -2309,6 +2467,7 @@ namespace WPGraphQL\Data\Connection {
      * Class PostObjectConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Query>
      */
     class PostObjectConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
@@ -2318,12 +2477,6 @@ namespace WPGraphQL\Data\Connection {
          * @var mixed|string|string[]
          */
         protected $post_type;
-        /**
-         * {@inheritDoc}
-         *
-         * @var \WP_Query|object
-         */
-        protected $query;
         /**
          * {@inheritDoc}
          *
@@ -2340,12 +2493,16 @@ namespace WPGraphQL\Data\Connection {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return \WP_Query|object
+         */
+        protected function query_class() : string
+        {
+        }
+        /**
+         * {@inheritDoc}
          *
          * @throws \GraphQL\Error\InvariantViolation If the query has been modified to suppress_filters.
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
@@ -2363,7 +2520,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
@@ -2398,7 +2555,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_args() : array
+        protected function prepare_args(array $args) : array
         {
         }
         /**
@@ -2426,13 +2583,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
          */
-        public function get_args() : array
+        protected function prepare_args(array $args) : array
         {
         }
     }
@@ -2441,15 +2598,10 @@ namespace WPGraphQL\Data\Connection {
      *
      * @package WPGraphQL\Data\Connection
      * @since 0.0.5
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<array<string,array<string,mixed>>>
      */
     class PluginConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * @var array<string,array<string,mixed>>
-         */
-        protected $query;
         /**
          * A list of all the installed plugins, keyed by their type.
          *
@@ -2465,7 +2617,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
@@ -2473,7 +2625,7 @@ namespace WPGraphQL\Data\Connection {
          *
          * @return array<string,array<string,mixed>>
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
@@ -2509,15 +2661,10 @@ namespace WPGraphQL\Data\Connection {
      * Class TaxonomyConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
      */
     class TaxonomyConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * @var string[]
-         */
-        protected $query;
         /**
          * {@inheritDoc}
          */
@@ -2527,15 +2674,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return string[]
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
@@ -2558,15 +2703,10 @@ namespace WPGraphQL\Data\Connection {
      *
      * @package WPGraphQL\Data\Resolvers
      * @since 0.5.0
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
      */
     class ThemeConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * @var string[]
-         */
-        protected $query;
         /**
          * {@inheritDoc}
          */
@@ -2576,15 +2716,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return string[]
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
@@ -2604,17 +2742,10 @@ namespace WPGraphQL\Data\Connection {
      * Class UserConnectionResolver
      *
      * @package WPGraphQL\Data\Connection
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_User_Query>
      */
     class UserConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * A custom class is assumed to have the same core functions as WP_User_Query.
-         *
-         * @var \WP_User_Query|object
-         */
-        protected $query;
         /**
          * {@inheritDoc}
          */
@@ -2626,22 +2757,17 @@ namespace WPGraphQL\Data\Connection {
          *
          * @throws \Exception
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return object|\WP_User_Query
-         * @throws \Exception
          */
-        public function get_query()
+        protected function query_class() : string
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return int[]
          */
         public function get_ids_from_query()
         {
@@ -2676,15 +2802,10 @@ namespace WPGraphQL\Data\Connection {
      *
      * @package WPGraphQL\Data\Resolvers
      * @since   0.0.5
+     * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
      */
     class UserRoleConnectionResolver extends \WPGraphQL\Data\Connection\AbstractConnectionResolver
     {
-        /**
-         * {@inheritDoc}
-         *
-         * @var string[]
-         */
-        protected $query;
         /**
          * {@inheritDoc}
          */
@@ -2694,15 +2815,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * {@inheritDoc}
          */
-        public function get_query_args()
+        protected function prepare_query_args(array $args) : array
         {
         }
         /**
          * {@inheritDoc}
-         *
-         * @return string[]
          */
-        public function get_query()
+        protected function query(array $query_args)
         {
         }
         /**
