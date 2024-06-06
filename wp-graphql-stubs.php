@@ -648,7 +648,7 @@ namespace WPGraphQL\Admin\Settings {
         /**
          * Tabbable JavaScript codes & Initiate Color Picker
          *
-         * This code uses localstorage for displaying active tabs
+         * This code uses URL hash fragments and localStorage for displaying active tabs
          *
          * @return void
          */
