@@ -9613,16 +9613,6 @@ namespace WPGraphQL\Type {
         {
         }
         /**
-         * Given a type it will return a string representation of the type.
-         *
-         * This is used for optimistic comparison of the arg types.
-         *
-         * @param string|array<string,mixed>|mixed $type A GraphQL Type
-         */
-        private function field_arg_type_to_string($type) : string
-        {
-        }
-        /**
          * Returns the fields for a Type, applying any missing fields defined on interfaces implemented on the type
          *
          * @param array<mixed>                     $config
@@ -9632,6 +9622,50 @@ namespace WPGraphQL\Type {
          * @throws \Exception
          */
         protected function get_fields(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry) : array
+        {
+        }
+        /**
+         * Get the fields from the implemented interfaces.
+         *
+         * @param \WPGraphQL\Registry\TypeRegistry $registry The TypeRegistry instance.
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        private function get_fields_from_implemented_interfaces(\WPGraphQL\Registry\TypeRegistry $registry) : array
+        {
+        }
+        /**
+         * Inherit missing field configs from the interface.
+         *
+         * @param string                            $field_name The field name.
+         * @param array<string,mixed>               $field The field config.
+         * @param array<string,array<string,mixed>> $interface_fields The fields from the interface. This is passed by reference.
+         *
+         * @return ?array<string,mixed> The field config with inherited values. Null if the field type cannot be determined.
+         */
+        private function inherit_field_config_from_interface(string $field_name, array $field, array $interface_fields) : ?array
+        {
+        }
+        /**
+         * Merge the field args from the field and the interface.
+         *
+         * @param string                            $field_name The field name.
+         * @param array<string,array<string,mixed>> $field_args The field args.
+         * @param array<string,array<string,mixed>> $interface_args The interface args.
+         *
+         * @return array<string,array<string,mixed>> The merged field args.
+         */
+        private function merge_field_args(string $field_name, array $field_args, array $interface_args) : array
+        {
+        }
+        /**
+         * Given a type it will return a string representation of the type.
+         *
+         * This is used for optimistic comparison of the arg types.
+         *
+         * @param string|array<string,mixed>|callable|\GraphQL\Type\Definition\Type $type The type to normalize.
+         */
+        private function normalize_type_name($type) : string
         {
         }
     }
@@ -11324,7 +11358,7 @@ namespace {
         /**
          * Return the static schema if there is one
          *
-         * @return string|null
+         * @return ?string
          */
         public static function get_static_schema()
         {
