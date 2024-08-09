@@ -10483,7 +10483,7 @@ namespace WPGraphQL\Utils {
     class QueryAnalyzer
     {
         /**
-         * @var \GraphQL\Type\Schema
+         * @var \WPGraphQL\WPSchema|null
          */
         protected $schema;
         /**
@@ -10545,6 +10545,12 @@ namespace WPGraphQL\Utils {
          */
         protected $is_enabled_for_query;
         /**
+         * @param \WPGraphQL\Request $request The GraphQL request being executed
+         */
+        public function __construct(\WPGraphQL\Request $request)
+        {
+        }
+        /**
          * Checks whether the Query Analyzer is enabled on the site.
          *
          * @uses `graphql_query_analyzer_enabled` filter.
@@ -10553,9 +10559,12 @@ namespace WPGraphQL\Utils {
         {
         }
         /**
-         * @param \WPGraphQL\Request $request The GraphQL request being executed
+         * Get the GraphQL Schema.
+         * If the schema is not set, it will be set.
+         *
+         * @throws \Exception
          */
-        public function __construct(\WPGraphQL\Request $request)
+        public function get_schema() : ?\WPGraphQL\WPSchema
         {
         }
         /**
@@ -11172,9 +11181,41 @@ namespace {
         {
         }
         /**
-         * @return bool
+         * Whether the request is a graphql request or not
          */
-        public static function is_graphql_request()
+        public static function is_graphql_request() : bool
+        {
+        }
+        /**
+         * Set whether the request is an introspection query or not
+         *
+         * @param bool $is_introspection_query
+         *
+         * @since todo
+         */
+        public static function set_is_introspection_query(bool $is_introspection_query = \false) : void
+        {
+        }
+        /**
+         * Whether the request is an introspection query or not (query for __type or __schema)
+         *
+         * @since todo
+         */
+        public static function is_introspection_query() : bool
+        {
+        }
+        /**
+         * @param ?string                         $query     The GraphQL query
+         * @param ?string                         $operation The name of the operation
+         * @param ?array<mixed>                   $variables Variables to be passed to your GraphQL
+         *                                                   request
+         * @param \GraphQL\Server\OperationParams $params    The Operation Params. This includes any
+         *                                                   extra params,
+         *
+         * @throws \GraphQL\Error\SyntaxError
+         * @throws \Exception
+         */
+        public function introspection_check(?string $query, ?string $operation, ?array $variables, \GraphQL\Server\OperationParams $params) : void
         {
         }
         /**
