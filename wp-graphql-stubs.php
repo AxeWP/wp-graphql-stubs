@@ -86,6 +86,24 @@ namespace WPGraphQL\Admin {
          */
         protected $dismissed_notices = [];
         /**
+         * Prevent cloning the instance
+         */
+        public function __clone()
+        {
+        }
+        /**
+         * Prevent unserializing the instance
+         */
+        public function __wakeup()
+        {
+        }
+        /**
+         * Get the singleton instance of the class
+         */
+        public static function get_instance() : self
+        {
+        }
+        /**
          * Initialize the Admin Notices class
          */
         public function init() : void
@@ -4763,6 +4781,8 @@ namespace WPGraphQL\Model {
      * @property string $authorIp
      * @property string $comment_author
      * @property string $comment_author_url
+     * @property string $commentAuthor
+     * @property string $commentAuthorUrl
      * @property string $commentAuthorEmail
      * @property string $contentRaw
      * @property string $contentRendered
@@ -20749,6 +20769,14 @@ namespace {
      * @param array<mixed> $config The config for the admin notice. Determines visibility, context, etc.
      */
     function register_graphql_admin_notice(string $slug, array $config) : void
+    {
+    }
+    /**
+     * Get the admin notices registered for the WPGraphQL plugin screens
+     *
+     * @return array|mixed[][] An array of admin notices
+     */
+    function get_graphql_admin_notices()
     {
     }
     /**
