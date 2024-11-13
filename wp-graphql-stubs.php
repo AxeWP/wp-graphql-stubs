@@ -5030,12 +5030,12 @@ namespace WPGraphQL\Model {
      * @property string  $pingStatus
      * @property string  $slug
      * @property array   $template
-     * @property bool $isFrontPage
-     * @property bool $isPrivacyPage
-     * @property bool $isPostsPage
-     * @property bool $isPreview
-     * @property bool $isRevision
-     * @property bool $isSticky
+     * @property bool    $isFrontPage
+     * @property bool    $isPrivacyPage
+     * @property bool    $isPostsPage
+     * @property bool    $isPreview
+     * @property bool    $isRevision
+     * @property bool    $isSticky
      * @property string  $toPing
      * @property string  $pinged
      * @property string  $modified
@@ -5063,11 +5063,10 @@ namespace WPGraphQL\Model {
      * @property string  $descriptionRaw
      * @property string  $descriptionRendered
      * @property string  $mediaType
+     * @property ?string $mediaItemUrl
      * @property string  $sourceUrl
      * @property string  $mimeType
      * @property array   $mediaDetails
-     *
-     * @package WPGraphQL\Model
      */
     class Post extends \WPGraphQL\Model\Model
     {
@@ -5095,6 +5094,16 @@ namespace WPGraphQL\Model {
          * @var \WP_Query
          */
         protected $wp_query;
+        /**
+         * Stores the resolved image `sourceUrl`s keyed by size.
+         *
+         * This is used to prevent multiple calls to `wp_get_attachment_image_src`.
+         *
+         * If no source URL is found for a size, the value will be `null`.
+         *
+         * @var array<string,?string>
+         */
+        protected $source_urls_by_size = [];
         /**
          * Post constructor.
          *
@@ -5139,6 +5148,16 @@ namespace WPGraphQL\Model {
          * {@inheritDoc}
          */
         protected function init()
+        {
+        }
+        /**
+         * Gets the source URL for an image attachment by size.
+         *
+         * This method caches the source URL for a given size to prevent multiple calls to `wp_get_attachment_image_src`.
+         *
+         * @param ?string $size The size of the image to get the source URL for. `full` by default.
+         */
+        public function get_source_url_by_size(?string $size = 'full') : ?string
         {
         }
     }
