@@ -11708,7 +11708,7 @@ namespace Appsero {
          *
          * @var string
          */
-        public $version = '1.2.0';
+        public $version = '2.0.4';
         /**
          * Hash identifier of the plugin
          *
@@ -11723,6 +11723,7 @@ namespace Appsero {
         public $name;
         /**
          * The plugin/theme file path
+         *
          * @example .../wp-content/plugins/test-slug/test-slug.php
          *
          * @var string
@@ -11730,6 +11731,7 @@ namespace Appsero {
         public $file;
         /**
          * Main plugin file
+         *
          * @example test-slug/test-slug.php
          *
          * @var string
@@ -11737,6 +11739,7 @@ namespace Appsero {
         public $basename;
         /**
          * Slug of the plugin
+         *
          * @example test-slug
          *
          * @var string
@@ -11755,7 +11758,7 @@ namespace Appsero {
          */
         public $type;
         /**
-         * textdomain
+         * Textdomain
          *
          * @var string
          */
@@ -11763,9 +11766,9 @@ namespace Appsero {
         /**
          * Initialize the class
          *
-         * @param string  $hash hash of the plugin
-         * @param string  $name readable name of the plugin
-         * @param string  $file main plugin file path
+         * @param string $hash hash of the plugin
+         * @param string $name readable name of the plugin
+         * @param string $file main plugin file path
          */
         public function __construct($hash, $name, $file)
         {
@@ -11781,7 +11784,7 @@ namespace Appsero {
         /**
          * Initialize plugin/theme updater
          *
-         * @return Appsero\Updater
+         * @return void
          */
         public function updater()
         {
@@ -11813,10 +11816,10 @@ namespace Appsero {
         /**
          * Send request to remote endpoint
          *
-         * @param  array  $params
-         * @param  string $route
+         * @param array  $params
+         * @param string $route
          *
-         * @return array|WP_Error   Array of results including HTTP headers or WP_Error if the request failed.
+         * @return array|WP_Error array of results including HTTP headers or WP_Error if the request failed
          */
         public function send_request($params, $route, $blocking = false)
         {
@@ -11824,7 +11827,7 @@ namespace Appsero {
         /**
          * Check if the current server is localhost
          *
-         * @return boolean
+         * @return bool
          */
         public function is_local_server()
         {
@@ -11832,12 +11835,14 @@ namespace Appsero {
         /**
          * Translate function _e()
          */
+        // phpcs:ignore
         public function _etrans($text)
         {
         }
         /**
          * Translate function __()
          */
+        // phpcs:ignore
         public function __trans($text)
         {
         }
@@ -11864,9 +11869,9 @@ namespace Appsero {
          */
         public $notice;
         /**
-         * Wheather to the notice or not
+         * Whether to show the notice or not
          *
-         * @var boolean
+         * @var bool
          */
         protected $show_notice = true;
         /**
@@ -11884,9 +11889,9 @@ namespace Appsero {
         /**
          * Initialize the class
          *
-         * @param      $client
-         * @param null $name
-         * @param null $file
+         * @param mixed  $client Client object or string.
+         * @param string $name   Name of the plugin/theme.
+         * @param string $file   Main plugin file path.
          */
         public function __construct($client, $name = null, $file = null)
         {
@@ -11894,7 +11899,7 @@ namespace Appsero {
         /**
          * Don't show the notice
          *
-         * @return \self
+         * @return self
          */
         public function hide_notice()
         {
@@ -11902,7 +11907,7 @@ namespace Appsero {
         /**
          * Add plugin data if needed
          *
-         * @return \self
+         * @return self
          */
         public function add_plugin_data()
         {
@@ -11910,9 +11915,9 @@ namespace Appsero {
         /**
          * Add extra data if needed
          *
-         * @param array $data
+         * @param array $data Extra data.
          *
-         * @return \self
+         * @return self
          */
         public function add_extra($data = array())
         {
@@ -11920,9 +11925,9 @@ namespace Appsero {
         /**
          * Set custom notice text
          *
-         * @param  string $text
+         * @param string $text Custom notice text.
          *
-         * @return \self
+         * @return self
          */
         public function notice($text = '')
         {
@@ -11962,7 +11967,7 @@ namespace Appsero {
         /**
          * Send tracking data to AppSero server
          *
-         * @param  boolean  $override
+         * @param bool $override Whether to override the tracking allowed check.
          *
          * @return void
          */
@@ -12004,7 +12009,7 @@ namespace Appsero {
         /**
          * Check if the notice has been dismissed or enabled
          *
-         * @return boolean
+         * @return bool
          */
         public function notice_dismissed()
         {
@@ -12018,7 +12023,7 @@ namespace Appsero {
         {
         }
         /**
-         * handle the optin/optout
+         * Handle the optin/optout
          *
          * @return void
          */
@@ -12044,9 +12049,8 @@ namespace Appsero {
         /**
          * Get the number of post counts
          *
-         * @param  string  $post_type
-         *
-         * @return integer
+         * @param string $post_type The post type to count.
+         * @return int
          */
         public function get_post_count($post_type)
         {
@@ -12062,8 +12066,7 @@ namespace Appsero {
         /**
          * Add weekly cron schedule
          *
-         * @param array  $schedules
-         *
+         * @param array $schedules Existing cron schedules.
          * @return array
          */
         public function add_weekly_schedule($schedules)
@@ -12088,7 +12091,7 @@ namespace Appsero {
         /**
          * Hook into action links and modify the deactivate link
          *
-         * @param  array  $links
+         * @param array $links
          *
          * @return array
          */
@@ -12113,9 +12116,11 @@ namespace Appsero {
         }
         /**
          * Run after theme deactivated
-         * @param  string $new_name
-         * @param  object $new_theme
-         * @param  object $old_theme
+         *
+         * @param string $new_name
+         * @param object $new_theme
+         * @param object $old_theme
+         *
          * @return void
          */
         public function theme_deactivated($new_name, $new_theme, $old_theme)
@@ -12168,7 +12173,7 @@ namespace Appsero {
         /**
          * Initialize the class
          *
-         * @param Appsero\Client
+         * @param Client $client
          */
         public function __construct(\Appsero\Client $client)
         {
@@ -12200,7 +12205,7 @@ namespace Appsero {
         /**
          * Check license
          *
-         * @return bool
+         * @return array
          */
         public function check($license_key)
         {
@@ -12208,7 +12213,7 @@ namespace Appsero {
         /**
          * Active a license
          *
-         * @return bool
+         * @return array
          */
         public function activate($license_key)
         {
@@ -12216,16 +12221,13 @@ namespace Appsero {
         /**
          * Deactivate a license
          *
-         * @return bool
+         * @return array
          */
         public function deactivate($license_key)
         {
         }
         /**
          * Send common request
-         *
-         * @param $license_key
-         * @param $route
          *
          * @return array
          */
@@ -12245,7 +12247,7 @@ namespace Appsero {
          *
          * @return void
          */
-        public function add_settings_page($args = array())
+        public function add_settings_page($args = [])
         {
         }
         /**
@@ -12265,7 +12267,7 @@ namespace Appsero {
         /**
          * License form submit
          */
-        public function license_form_submit($form)
+        public function license_form_submit($form_data = array())
         {
         }
         /**
@@ -12296,68 +12298,6 @@ namespace Appsero {
          * Clear any scheduled hook
          */
         public function clear_scheduler()
-        {
-        }
-    }
-    /**
-     * Appsero Updater
-     *
-     * This class will show new updates project
-     */
-    class Updater
-    {
-        /**
-         * Appsero\Client
-         *
-         * @var object
-         */
-        protected $client;
-        /**
-         * Initialize the class
-         *
-         * @param Appsero\Client
-         */
-        public function __construct(\Appsero\Client $client)
-        {
-        }
-        /**
-         * Set up WordPress filter to hooks to get update.
-         *
-         * @return void
-         */
-        public function run_plugin_hooks()
-        {
-        }
-        /**
-         * Set up WordPress filter to hooks to get update.
-         *
-         * @return void
-         */
-        public function run_theme_hooks()
-        {
-        }
-        /**
-         * Check for Update for this specific project
-         */
-        public function check_plugin_update($transient_data)
-        {
-        }
-        /**
-         * Updates information on the "View version x.x details" page with custom data.
-         *
-         * @param mixed   $data
-         * @param string  $action
-         * @param object  $args
-         *
-         * @return object $data
-         */
-        public function plugins_api_filter($data, $action = '', $args = null)
-        {
-        }
-        /**
-         * Check theme upate
-         */
-        public function check_theme_update($transient_data)
         {
         }
     }
