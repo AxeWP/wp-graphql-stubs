@@ -54,6 +54,10 @@ namespace WPGraphQL\Admin {
          */
         protected $settings;
         /**
+         * @var \WPGraphQL\Admin\Extensions\Extensions
+         */
+        protected $extensions;
+        /**
          * Initialize Admin functionality for WPGraphQL
          *
          * @return void
@@ -192,6 +196,150 @@ namespace WPGraphQL\Admin {
          * This function sets a transient to remember the dismissal status of the notice.
          */
         public function handle_dismissal_of_notice() : void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Admin\Extensions {
+    /**
+     * Class Extensions
+     *
+     * @package WPGraphQL\Admin\Extensions
+     *
+     * @phpstan-import-type Extension from \WPGraphQL\Admin\Extensions\Registry
+     *
+     * @phpstan-type PopulatedExtension array{
+     *   name: non-empty-string,
+     *   description: non-empty-string,
+     *   plugin_url: non-empty-string,
+     *   support_url: non-empty-string,
+     *   documentation_url: non-empty-string,
+     *   repo_url?: string,
+     *   author: array{
+     *     name: non-empty-string,
+     *     homepage?: string,
+     *   },
+     *   installed: bool,
+     *   active: bool,
+     *   settings_path?: string,
+     *   settings_url?: string,
+     * }
+     */
+    final class Extensions
+    {
+        /**
+         * Initialize Extensions functionality for WPGraphQL.
+         *
+         * @return void
+         */
+        public function init()
+        {
+        }
+        /**
+         * Register the admin page for extensions.
+         *
+         * @return void
+         */
+        public function register_admin_page()
+        {
+        }
+        /**
+         * Render the admin page content.
+         *
+         * @return void
+         */
+        public function render_admin_page()
+        {
+        }
+        /**
+         * Enqueue the necessary scripts and styles for the extensions page.
+         *
+         * @param string $hook_suffix The current admin page.
+         *
+         * @return void
+         */
+        public function enqueue_scripts($hook_suffix)
+        {
+        }
+        /**
+         * Register custom REST API routes.
+         *
+         * @return void
+         */
+        public function register_rest_routes()
+        {
+        }
+        /**
+         * Activate a plugin.
+         *
+         * @param \WP_REST_Request<array<string, mixed>> $request The REST request.
+         * @return \WP_REST_Response The REST response.
+         */
+        public function activate_plugin(\WP_REST_Request $request) : \WP_REST_Response
+        {
+        }
+        /**
+         * Validate an extension.
+         *
+         * Sanitization ensures that the values are correctly types, so we just need to check if the required fields are present.
+         *
+         * @param array<string,mixed> $extension The extension to validate.
+         *
+         * @return true|\WP_Error True if the extension is valid, otherwise an error.
+         *
+         * @phpstan-assert-if-true Extension $extension
+         */
+        public function is_valid_extension(array $extension)
+        {
+        }
+        /**
+         * Get the list of WPGraphQL extensions.
+         *
+         * @return PopulatedExtension[] The list of extensions.
+         */
+        public function get_extensions() : array
+        {
+        }
+    }
+    /**
+     * Class Registry
+     *
+     * @phpstan-type Extension array{
+     *  name: non-empty-string,
+     *  description: non-empty-string,
+     *  plugin_url: non-empty-string,
+     *  support_url: non-empty-string,
+     *  documentation_url: non-empty-string,
+     *  repo_url?: string,
+     *  author: array{
+     *   name: non-empty-string,
+     *   homepage?: string,
+     *  },
+     * }
+     */
+    final class Registry
+    {
+        /**
+         * Gets the registry of WPGraphQL Extensions.
+         *
+         * @see docs/submit-extensions.md for more information on how to submit an extension.
+         *
+         * Fields:
+         * - name: Required. The name of the extension.
+         * - description: Required. A description of the extension.
+         * - plugin_url: Required. The URL to the plugin.
+         * - repo_url: Optional. The URL to the repository for the plugin.
+         * - support_url: Required. The URL to the support page for the plugin.
+         * - documentation_url: Required. The URL to the documentation for the plugin.
+         * - author: Required. An array with the following fields:
+         *   - name: Required. The name of the author.
+         *   - homepage: Optional. The URL to the author's homepage.
+         *
+         * Array keys are solely used to sort the array and prevent merge conflicts when diffing. They should be unique.
+         *
+         * @return array<string,Extension>
+         */
+        public static function get_extenions() : array
         {
         }
     }
@@ -679,6 +827,281 @@ namespace WPGraphQL\Admin\Settings {
          * @return void
          */
         public function _style_fix()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Admin\Updates {
+    /**
+     * Class PluginsScreenLoader
+     */
+    class PluginsScreenLoader
+    {
+        /**
+         * The class constructor.
+         *
+         * Class properties are set inside the action.
+         */
+        public function __construct()
+        {
+        }
+        /**
+         * Injects a warning message into the plugin update message.
+         *
+         * @param array<string,mixed> $args The plugin update message arguments.
+         * @param object              $response The plugin update response.
+         */
+        public function in_plugin_update_message($args, $response) : void
+        {
+        }
+        /**
+         * The modal JS for the plugin update message.
+         */
+        public function modal_js() : void
+        {
+        }
+    }
+    /**
+     * Class SemVer
+     */
+    final class SemVer
+    {
+        /**
+         * Get the release type of the current version of WPGraphQL.
+         *
+         * @param string $old_version The old version of WPGraphQL.
+         * @param string $new_version The new version of WPGraphQL.
+         *
+         * @return 'major'|'minor'|'patch'|'prerelease'|'unknown' The release type.
+         */
+        public static function get_release_type(string $old_version, string $new_version) : string
+        {
+        }
+        /**
+         * Parse the version string.
+         *
+         * @param string $version The version string.
+         *
+         * @return ?array{major:int,minor:int,patch:int,prerelease:?string,buildmetadata:?string,version:string}
+         */
+        public static function parse(string $version) : ?array
+        {
+        }
+    }
+    /**
+     * Class UpdateChecker
+     *
+     * @internal This class is for internal use only. It may change in the future without warning.
+     */
+    class UpdateChecker
+    {
+        /**
+         * The version header to check for in the plugin file.
+         */
+        public const VERSION_HEADER = 'Requires WPGraphQL';
+        /**
+         * The tested up to header to check for in the plugin file.
+         */
+        public const TESTED_UP_TO_HEADER = 'WPGraphQL tested up to';
+        /**
+         * The current version of the plugin.
+         *
+         * @var string
+         */
+        public $current_version = WPGRAPHQL_VERSION;
+        /**
+         * The new version of the available.
+         *
+         * @var string
+         */
+        public $new_version;
+        /**
+         * UpdateChecker constructor.
+         *
+         * @param object $plugin_data The plugin data object from the update check.
+         */
+        public function __construct($plugin_data)
+        {
+        }
+        /**
+         * Checks whether any untested or incompatible WPGraphQL extensions should prevent an autoupdate.
+         *
+         * @param bool $default_value Whether to allow the update by default.
+         */
+        public function should_autoupdate(bool $default_value) : bool
+        {
+        }
+        /**
+         * Gets a list of plugins that use WPGraphQL as a dependency and are not tested with the current version of WPGraphQL.
+         *
+         * @param string $release_type The release type of the current version of WPGraphQL.
+         *
+         * @return array<string,array<string,mixed>> The array of untested plugin data.
+         * @throws \InvalidArgumentException If the WPGraphQL version is invalid.
+         */
+        public function get_untested_plugins(string $release_type) : array
+        {
+        }
+        /**
+         * Get incompatible plugins.
+         *
+         * @param string $version The current plugin version.
+         * @param bool   $active_only Whether to only return active plugins. Default false.
+         *
+         * @return array<string,array<string,mixed>> The array of incompatible plugins.
+         */
+        public function get_incompatible_plugins(string $version = WPGRAPHQL_VERSION, bool $active_only = false) : array
+        {
+        }
+        /**
+         * Get the shared modal HTML for the update checkers.
+         *
+         * @param array<string,array<string,mixed>> $untested_plugins The untested plugins.
+         */
+        public function get_untested_plugins_modal(array $untested_plugins) : string
+        {
+        }
+        /**
+         * Outputs the shared modal JS for the update checkers.
+         *
+         * @todo WIP.
+         */
+        public function modal_js() : void
+        {
+        }
+        /**
+         * Returns whether to allow major plugin autoupdates.
+         *
+         * Defaults to false.
+         *
+         * @uses 'wpgraphql_enable_major_autoupdates' filter.
+         */
+        protected function should_allow_major_autoupdates() : bool
+        {
+        }
+        /**
+         * Returns whether to allow plugin autoupdates when plugin dependencies are untested and might be incompatible.
+         *
+         * @uses `wpgraphql_untested_release_type` filter to determine the release type to use when checking for untested plugins.
+         *
+         * @uses 'wpgraphql_enable_untested_autoupdates' filter.
+         */
+        protected function should_allow_untested_autoupdates() : bool
+        {
+        }
+        /**
+         * Gets the release type to use when checking for untested plugins.
+         *
+         * @return 'major'|'minor'|'patch'|'prerelease' The release type to use when checking for untested plugins.
+         */
+        protected function get_untested_release_type() : string
+        {
+        }
+        /**
+         * Gets the plugins that use WPGraphQL as a dependency.
+         *
+         * @return array<string,array<string,mixed>> The array of plugins that use WPGraphQL as a dependency, keyed by plugin path.
+         */
+        protected function get_dependents() : array
+        {
+        }
+        /**
+         * Gets the plugins that *maybe* use WPGraphQL as a dependency.
+         *
+         * @return array<string,array<string,mixed>> The array of plugins that maybe use WPGraphQL as a dependency, keyed by plugin path.
+         */
+        protected function get_possible_dependents() : array
+        {
+        }
+        /**
+         * Gets the complete compatibility warning message including the plugins table and follow-up text.
+         *
+         * @param array<string,array<string,mixed>> $untested_plugins The untested plugins.
+         * @return string The formatted HTML message.
+         */
+        public function get_compatibility_warning_message(array $untested_plugins) : string
+        {
+        }
+    }
+    /**
+     * Class Updates
+     */
+    final class Updates
+    {
+        /**
+         * Initialize the Updates functionality.
+         */
+        public function init() : void
+        {
+        }
+        /**
+         * Enable the plugin headers.
+         *
+         * @param string[] $headers The headers.
+         * @return string[]
+         */
+        public function enable_plugin_headers($headers)
+        {
+        }
+        /**
+         * Prevent autoupdates when there is an untested WPGraphQL Extension.
+         *
+         * @param bool   $should_update Whether the plugin should autoupdate.
+         * @param object $plugin The plugin data object.
+         *
+         * @return bool Whether the plugin should autoupdate.
+         */
+        public function maybe_allow_autoupdates($should_update, $plugin)
+        {
+        }
+        /**
+         * Maybe loads the Update Checker for the current admin screen.
+         */
+        public function load_screen_checker() : void
+        {
+        }
+        /**
+         * Registers the admin assets.
+         */
+        public function register_assets() : void
+        {
+        }
+        /**
+         * Disables plugins that don't meet the minimum `Requires WPGraphQL` version.
+         */
+        public function disable_incompatible_plugins() : void
+        {
+        }
+        /**
+         * Displays a one-time notice to the user if incompatible plugins were deactivated.
+         */
+        public function disable_incompatible_plugins_notice() : void
+        {
+        }
+    }
+    /**
+     * Class UpdatesScreenLoader
+     */
+    class UpdatesScreenLoader
+    {
+        /**
+         * The class constructor.
+         *
+         * Class properties are set inside the action.
+         */
+        public function __construct()
+        {
+        }
+        /**
+         * Show a warning message on the upgrades screen if the user tries to upgrade and has untested plugins.
+         */
+        public function update_screen_modal() : void
+        {
+        }
+        /**
+         * The modal JS for the plugin update message.
+         */
+        public function modal_js() : void
         {
         }
     }
@@ -2404,13 +2827,13 @@ namespace WPGraphQL\Data\Connection {
         /**
          * The name of the Taxonomy the resolver is intended to be used for
          *
-         * @var string
+         * @var array<string>|string
          */
         protected $taxonomy;
         /**
          * {@inheritDoc}
          *
-         * @param mixed|string|null $taxonomy The name of the Taxonomy the resolver is intended to be used for.
+         * @param mixed|array<string>|string|null $taxonomy The name of the Taxonomy the resolver is intended to be used for.
          */
         public function __construct($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info, $taxonomy = null)
         {
@@ -2989,7 +3412,7 @@ namespace WPGraphQL\Data\Cursor {
          *
          * This is cached internally so it should not generate additionl queries.
          *
-         * @return mixed|null;
+         * @return mixed|null
          */
         public abstract function get_cursor_node();
         /**
@@ -4265,6 +4688,10 @@ namespace WPGraphQL\Data {
          */
         protected $context;
         /**
+         * @var string
+         */
+        protected $route;
+        /**
          * NodeResolver constructor.
          *
          * @param \WPGraphQL\AppContext $context
@@ -5294,7 +5721,6 @@ namespace WPGraphQL\Model {
      * @property string $link
      * @property string $parentId
      * @property int    $parentDatabaseId
-     * @property array  $ancestors
      *
      * @package WPGraphQL\Model
      */
@@ -5358,7 +5784,7 @@ namespace WPGraphQL\Model {
      * @property string     $description
      * @property string     $author
      * @property string     $authorUri
-     * @property array      $tags
+     * @property ?string[]  $tags
      * @property string|int $version
      *
      * @package WPGraphQL\Model
@@ -7885,6 +8311,20 @@ namespace WPGraphQL\Type\Enum {
     {
         /**
          * Register the RelationEnum Type to the Schema
+         *
+         * @return void
+         */
+        public static function register_type()
+        {
+        }
+    }
+    /**
+     * Class ScriptLoadingGroupLocationEnum
+     */
+    class ScriptLoadingGroupLocationEnum
+    {
+        /**
+         * Register the ScriptLoadingStrategy Enum Type to the Schema
          *
          * @return void
          */
@@ -11291,6 +11731,37 @@ namespace {
          * @return void
          */
         public function maybe_flush_permalinks()
+        {
+        }
+        /**
+         * Upgrade routine
+         *
+         * @return void
+         */
+        public function upgrade()
+        {
+        }
+        /**
+         * Executes update routines based on the previously stored version.
+         *
+         * This triggers an action that passes the previous version and new version and allows for specific actions or
+         * modifications needed to bring installations up-to-date with the current plugin version.
+         *
+         * Each update routine (callback that hooks into "graphql_do_update_routine") should handle backward compatibility as gracefully as possible.
+         *
+         * @since 1.2.3
+         * @param string|null $stored_version The version number currently stored in the database.
+         *                                    Null if no version has been previously stored.
+         */
+        public function run_update_routines(?string $stored_version = \null) : void
+        {
+        }
+        /**
+         * Clear all caches in the "wpgraphql_extensions" cache group.
+         *
+         * @return void
+         */
+        public function clear_extensions_cache()
         {
         }
         /**
@@ -20790,7 +21261,7 @@ namespace {
      *
      * Bedrock
      *  - WPGRAPHQL_AUTOLOAD: not defined
-     *  - composer deps installed outside of the plugin
+     *  - composer deps installed outside the plugin
      *
      * Normal (.org repo install)
      * - WPGRAPHQL_AUTOLOAD: not defined
