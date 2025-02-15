@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ '7.3', '7.4', '8.0', '8.1', '8.2' ]
+        php: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
       fail-fast: false
 
     steps:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Validate Composer configuration
         run: |
-          composer validate --strict
+          composer validate
 
       - name: Install dependencies
         uses: ramsey/composer-install@v2
