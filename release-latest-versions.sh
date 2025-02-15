@@ -117,8 +117,10 @@ POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -V)"
 
 # Read latest version from composer.json if no FROM_VERSION is set.
 if [ -z "${FROM_VERSION}" ]; then
-	FROM_VERSION="$(jq -r '.require."wpackagist-plugin/wp-graphql"' <source/composer.json | sed -e 's/[^0-9.]*//g')"
+	FROM_VERSION="$(jq -r '.require."wpackagist-plugin/wp-graphql"' <source/composer.json | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
 fi
+
+echo "Checking versions from ${FROM_VERSION:-1.0.0}..."
 
 # Loop through all possible versions and see if they exist as tags
 for POSSIBLE_VERSION in ${POSSIBLE_VERSIONS}; do
