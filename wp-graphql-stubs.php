@@ -1999,7 +1999,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
          *
-         * When `pre_should_excecute()` returns false, that's a sign the Resolver shouldn't execute the query. Otherwise, the more expensive logic logic in `should_execute()` will run later in the lifecycle.
+         * When `pre_should_execute()` returns false, that's a sign the Resolver shouldn't execute the query. Otherwise, the more expensive logic logic in `should_execute()` will run later in the lifecycle.
          *
          * @param mixed                                $source  Source passed down from the resolve tree
          * @param array<string,mixed>                  $args    Array of arguments input in the field as part of the GraphQL query.
@@ -2068,7 +2068,7 @@ namespace WPGraphQL\Data\Connection {
         /**
          * Determine whether or not the query should execute.
          *
-         * Return true to exeucte, return false to prevent execution.
+         * Return true to execute, return false to prevent execution.
          *
          * Various criteria can be used to determine whether a Connection Query should be executed.
          *
