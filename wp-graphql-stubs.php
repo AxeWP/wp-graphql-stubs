@@ -36,6 +36,60 @@ namespace {
         }
     }
 }
+namespace WPGraphQL\PHPCS\Sniffs\Commenting {
+    class ValidSinceTagSniff implements \PHP_CodeSniffer\Sniffs\Sniff
+    {
+        public function __construct()
+        {
+        }
+        /**
+         * Returns an array of tokens this test wants to listen for.
+         *
+         * @return array<int|string>
+         */
+        public function register()
+        {
+        }
+        /**
+         * Processes this test when one of its tokens is encountered.
+         *
+         * @param File $phpcsFile The file being scanned.
+         * @param int  $stackPtr  The position of the current token in the stack.
+         *
+         * @return void
+         */
+        public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
+        {
+        }
+    }
+}
+namespace WPGraphQL\PHPCS\Sniffs\Functions {
+    class VersionParameterSniff implements \PHP_CodeSniffer\Sniffs\Sniff
+    {
+        public function __construct()
+        {
+        }
+        /**
+         * Returns an array of tokens this test wants to listen for.
+         *
+         * @return array<int|string>
+         */
+        public function register()
+        {
+        }
+        /**
+         * Processes this test when one of its tokens is encountered.
+         *
+         * @param File $phpcsFile The file being scanned.
+         * @param int  $stackPtr  The position of the current token in the stack.
+         *
+         * @return void
+         */
+        public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
+        {
+        }
+    }
+}
 namespace WPGraphQL\Admin {
     /**
      * Class Admin
