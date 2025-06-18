@@ -1187,7 +1187,6 @@ namespace WPGraphQL {
      *
      * @package WPGraphQL
      */
-    // @phpcs:ignore
     #[\AllowDynamicProperties]
     class AppContext
     {
@@ -1228,11 +1227,15 @@ namespace WPGraphQL {
         /**
          * Passes context about the current connection being resolved
          *
+         * @todo These properties and methods are unused. We should consider deprecating/removing them.
+         *
          * @var mixed|string|null
          */
         public $currentConnection = null;
         /**
          * Passes context about the current connection
+         *
+         * @todo These properties and methods are unused. We should consider deprecating/removing them.
          *
          * @var array<string,mixed>
          */
@@ -1241,6 +1244,14 @@ namespace WPGraphQL {
          * Stores the loaders for the class
          *
          * @var array<string,\WPGraphQL\Data\Loader\AbstractDataLoader>
+         *
+         * phpcs:disable SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation, -- For phpstan type hinting
+         *
+         * @template T of key-of<self::DEFAULT_LOADERS>
+         *
+         * @phpstan-var array<T, new<self::DEFAULT_LOADERS[T]>>|array<string,\WPGraphQL\Data\Loader\AbstractDataLoader>
+         *
+         * phpcs:enable
          */
         public $loaders = [];
         /**
@@ -1260,7 +1271,7 @@ namespace WPGraphQL {
          *
          * @param string $key The name of the loader to get
          *
-         * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
          *
          * @deprecated Use get_loader instead.
          */
@@ -1270,12 +1281,27 @@ namespace WPGraphQL {
         /**
          * Retrieves loader assigned to $key
          *
-         * @param string $key The name of the loader to get
+         * @template T of key-of<self::DEFAULT_LOADERS>
          *
-         * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
+         * @param T|string $key The name of the loader to get.
+         *
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
          * @throws \GraphQL\Error\UserError If the loader is not found.
+         *
+         * @phpstan-return ( $key is T ? new<self::DEFAULT_LOADERS[T]> : \WPGraphQL\Data\Loader\AbstractDataLoader )
          */
         public function get_loader($key)
+        {
+        }
+        /**
+         * Magic getter used to warn about accessing the loaders property directly.
+         *
+         * @todo Remove this when we change the property visibility.
+         *
+         * @param string $key The name of the property to get.
+         * @return mixed
+         */
+        public function __get($key)
         {
         }
         /**
@@ -1290,6 +1316,8 @@ namespace WPGraphQL {
         /**
          * Returns the $args for the connection the field is a part of
          *
+         * @todo These properties and methods are unused. We should consider deprecating/removing them.
+         *
          * @return mixed[]|mixed
          */
         public function get_connection_args()
@@ -1297,6 +1325,8 @@ namespace WPGraphQL {
         }
         /**
          * Returns the current connection
+         *
+         * @todo These properties and methods are unused. We should consider deprecating/removing them.
          *
          * @return mixed|string|null
          */
@@ -3445,7 +3475,7 @@ namespace WPGraphQL\Data\Cursor {
          * Validates cursor compare field configuration. Validation failure results in a fatal
          * error because query execution is guaranteed to fail.
          *
-         * @param array<string,mixed>|mixed $field  Threshold configuration.
+         * @param array<string,mixed> $field Threshold configuration.
          *
          * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
          */
@@ -4144,7 +4174,7 @@ namespace WPGraphQL\Data {
          * @param \WPGraphQL\AppContext                $context The Context of the GraphQL Request
          * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo for the GraphQL Request
          *
-         * @return string|null
+         * @return ?\GraphQL\Deferred
          * @throws \GraphQL\Error\UserError If no ID is passed.
          */
         public static function resolve_node($global_id, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
@@ -4180,6 +4210,9 @@ namespace WPGraphQL\Data\Loader {
      * Class AbstractDataLoader
      *
      * @package WPGraphQL\Data\Loader
+     *
+     * @todo Replace this type with a generic.
+     * @phpstan-type TModel \WPGraphQL\Model\Model<mixed>
      */
     abstract class AbstractDataLoader
     {
@@ -4204,6 +4237,8 @@ namespace WPGraphQL\Data\Loader {
          *
          * @return \GraphQL\Deferred|null
          * @throws \Exception
+         *
+         * @phpstan-return ($database_id is int|string ? \GraphQL\Deferred : null)
          */
         public function load_deferred($database_id)
         {
@@ -4225,7 +4260,7 @@ namespace WPGraphQL\Data\Loader {
          *
          * @param int|string|mixed $key
          *
-         * @return ?\WPGraphQL\Model\Model
+         * @return ?TModel
          * @throws \Exception
          */
         public function load($key)
@@ -4330,7 +4365,7 @@ namespace WPGraphQL\Data\Loader {
          * @param mixed $entry The entry loaded from the dataloader to be used to generate a Model
          * @param mixed $key   The Key used to identify the loaded entry
          *
-         * @return \WPGraphQL\Model\Model|null
+         * @return TModel|null
          */
         protected function normalize_entry($entry, $key)
         {
@@ -4363,7 +4398,7 @@ namespace WPGraphQL\Data\Loader {
          * @param mixed $entry The entry data to be used to generate a Model.
          * @param mixed $key   The Key to identify the entry by.
          *
-         * @return ?\WPGraphQL\Model\Model
+         * @return ?TModel
          */
         protected function get_model($entry, $key)
         {
@@ -5015,7 +5050,7 @@ namespace WPGraphQL\Model {
      * @property bool $isPublic
      * @property bool $isRestricted
      *
-     * @package WPGraphQL\Model
+     * @template TData
      */
     abstract class Model
     {
@@ -5028,7 +5063,7 @@ namespace WPGraphQL\Model {
         /**
          * Stores the raw data passed to the child class when it's instantiated before it's transformed
          *
-         * @var mixed[]|object|mixed
+         * @var TData
          */
         protected $data;
         /**
@@ -5119,7 +5154,7 @@ namespace WPGraphQL\Model {
         {
         }
         /**
-         * Setup the global data for the model to have proper context when resolving.
+         * Setup the global state before each field is resolved so the Model has the necessary context.
          *
          * @return void
          */
@@ -5127,8 +5162,9 @@ namespace WPGraphQL\Model {
         {
         }
         /**
-         * Generic model tear down after the fields are setup. This can be used
-         * to reset state to where it was before the model was setup.
+         * Tear-down call that runs after each field is resolved.
+         *
+         * This can be used to reset state to where it was before the model was setup.
          *
          * @return void
          */
@@ -5208,11 +5244,7 @@ namespace WPGraphQL\Model {
         /**
          * Filter the fields returned for the object
          *
-         * @param string|mixed[]|null $fields The field or fields to build in the modeled object. You can
-         *                                  pass null to build all of the fields, a string to only
-         *                                  build an object with one field, or an array of field keys
-         *                                  to build an object with those keys and their respective values.
-         *
+         * @param string|string[]|null $fields The field or fields to build in the modeled object. Null to leave all fields.
          * @return void
          */
         public function filter($fields)
@@ -5240,15 +5272,11 @@ namespace WPGraphQL\Model {
      * @property ?int    $width
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<array<string,mixed>>
      */
     class Avatar extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming avatar to be modeled
-         *
-         * @var array<string,mixed>
-         */
-        protected $data;
         /**
          * Avatar constructor.
          *
@@ -5300,15 +5328,11 @@ namespace WPGraphQL\Model {
      * @property int     $comment_parent_id
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Comment>
      */
     class Comment extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming WP_Comment object to be modeled
-         *
-         * @var \WP_Comment $data
-         */
-        protected $data;
         /**
          * Comment constructor.
          *
@@ -5340,15 +5364,11 @@ namespace WPGraphQL\Model {
      * @property ?string $url
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Comment>
      */
     class CommentAuthor extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the comment author to be modeled
-         *
-         * @var \WP_Comment $data The raw data passed to he model
-         */
-        protected $data;
         /**
          * CommentAuthor constructor.
          *
@@ -5375,15 +5395,11 @@ namespace WPGraphQL\Model {
      * @property ?string       $slug
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Term>
      */
     class Menu extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming WP_Term object
-         *
-         * @var \WP_Term $data
-         */
-        protected $data;
         /**
          * Menu constructor.
          *
@@ -5431,15 +5447,11 @@ namespace WPGraphQL\Model {
      * @property ?string       $url
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<object|mixed>
      */
     class MenuItem extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming post data
-         *
-         * @var mixed|object $data
-         */
-        protected $data;
         /**
          * MenuItem constructor.
          *
@@ -5481,15 +5493,11 @@ namespace WPGraphQL\Model {
      * @property ?string $version
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<array<string,mixed>>
      */
     class Plugin extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming plugin data to be modeled
-         *
-         * @var array<string,mixed> $data
-         */
-        protected $data;
         /**
          * Plugin constructor.
          *
@@ -5578,15 +5586,11 @@ namespace WPGraphQL\Model {
      * @property ?int    $ID
      * @property ?int    $post_author
      * @property ?string $post_status
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Post>
      */
     class Post extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming post data
-         *
-         * @var \WP_Post $data
-         */
-        protected $data;
         /**
          * Store the global post to reset during model tear down
          *
@@ -5705,15 +5709,11 @@ namespace WPGraphQL\Model {
      * @property ?string       $graphql_single_name
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Post_Type>
      */
     class PostType extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming WP_Post_Type to be modeled
-         *
-         * @var \WP_Post_Type $data
-         */
-        protected $data;
         /**
          * PostType constructor.
          *
@@ -5763,15 +5763,11 @@ namespace WPGraphQL\Model {
      * @property ?string       $graphql_single_name
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Taxonomy>
      */
     class Taxonomy extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming WP_Taxonomy object to be modeled
-         *
-         * @var \WP_Taxonomy $data
-         */
-        protected $data;
         /**
          * Taxonomy constructor.
          *
@@ -5813,15 +5809,11 @@ namespace WPGraphQL\Model {
      * @property ?int     $term_id
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Term>
      */
     class Term extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming WP_Term object
-         *
-         * @var \WP_Term $data
-         */
-        protected $data;
         /**
          * Stores the taxonomy object for the term being modeled
          *
@@ -5878,15 +5870,11 @@ namespace WPGraphQL\Model {
      * @property ?string       $version
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_Theme>
      */
     class Theme extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming WP_Theme to be modeled
-         *
-         * @var \WP_Theme $data
-         */
-        protected $data;
         /**
          * Theme constructor.
          *
@@ -5937,15 +5925,11 @@ namespace WPGraphQL\Model {
      * @property ?string       $username
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<\WP_User>
      */
     class User extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the WP_User object for the incoming data
-         *
-         * @var \WP_User $data
-         */
-        protected $data;
         /**
          * The Global Post at time of Model generation
          *
@@ -6002,15 +5986,11 @@ namespace WPGraphQL\Model {
      * @property ?string   $name
      *
      * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<array<string,mixed>>
      */
     class UserRole extends \WPGraphQL\Model\Model
     {
-        /**
-         * Stores the incoming user role to be modeled
-         *
-         * @var array<string,mixed> $data
-         */
-        protected $data;
         /**
          * UserRole constructor.
          *
@@ -6898,6 +6878,10 @@ namespace WPGraphQL\Registry {
      * @phpstan-import-type InputObjectConfig from \GraphQL\Type\Definition\InputObjectType
      * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
      * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
+     * @phpstan-import-type WPEnumTypeConfig from \WPGraphQL\Type\WPEnumType
+     * @phpstan-import-type WPScalarConfig from \WPGraphQL\Type\WPScalar
+     *
+     * @phpstan-type TypeDef \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
      *
      * @package WPGraphQL\Registry
      */
@@ -6906,7 +6890,7 @@ namespace WPGraphQL\Registry {
         /**
          * The registered Types
          *
-         * @var array<string,mixed>
+         * @var array<string,?TypeDef>
          */
         protected $types;
         /**
@@ -6918,7 +6902,7 @@ namespace WPGraphQL\Registry {
         /**
          * The loaders needed to register types
          *
-         * @var array<string,callable():(mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null)>
+         * @var array<string,callable(): ?TypeDef>
          */
         protected $type_loaders;
         /**
@@ -6979,7 +6963,7 @@ namespace WPGraphQL\Registry {
          * Types can add "eagerlyLoadType => true" when being registered to be included
          * in the eager_type_map.
          *
-         * @return array<string,mixed>
+         * @return array<string,?TypeDef>
          */
         protected function get_eager_type_map()
         {
@@ -7011,6 +6995,8 @@ namespace WPGraphQL\Registry {
          * @param string              $type_name The name of the Type to register
          * @param array<string,mixed> $config    The config for the scalar type to register
          *
+         * @phpstan-param WPScalarConfig $config
+         *
          * @throws \Exception
          *
          * @return void
@@ -7033,8 +7019,8 @@ namespace WPGraphQL\Registry {
         /**
          * Add a Type to the Registry
          *
-         * @param string                                                  $type_name The name of the type to register
-         * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config The config for the type
+         * @param string                      $type_name The name of the type to register
+         * @param array<string,mixed>|TypeDef $config The config for the type
          *
          * @throws \Exception
          */
@@ -7055,8 +7041,8 @@ namespace WPGraphQL\Registry {
         /**
          * Add an Interface Type to the registry
          *
-         * @param string                                                  $type_name The name of the type to register
-         * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config The configuration of the type
+         * @param string              $type_name The name of the type to register
+         * @param array<string,mixed> $config The configuration of the type
          *
          * @throws \Exception
          */
@@ -7068,6 +7054,8 @@ namespace WPGraphQL\Registry {
          *
          * @param string              $type_name The name of the type to register
          * @param array<string,mixed> $config he configuration of the type
+         *
+         * @phpstan-param WPEnumTypeConfig $config
          *
          * @throws \Exception
          */
@@ -7108,9 +7096,11 @@ namespace WPGraphQL\Registry {
          * Prepare the config for introspection. This is used to resolve callable values for description and deprecationReason for
          * introspection queries.
          *
-         * @param array<string,mixed> $config The config to prepare.
+         * @template T of array<string,mixed>
+         * @param T $config The config to prepare.
          *
          * @return array<string,mixed> The prepared config.
+         * @phpstan-return T|array{description?: string|null, deprecationReason?: string|null}
          *
          * @internal
          */
@@ -7120,10 +7110,12 @@ namespace WPGraphQL\Registry {
         /**
          * Prepare the type for registration.
          *
-         * @param string                                                  $type_name The name of the type to prepare
-         * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The config for the type
+         * @template T of WPEnumTypeConfig|WPScalarConfig|array<string,mixed>
          *
-         * @return mixed|\GraphQL\Type\Definition\Type|null The prepared type
+         * @param string    $type_name The name of the type to prepare
+         * @param T|TypeDef $config    The config for the type
+         *
+         * @return ?TypeDef The prepared type
          */
         protected function prepare_type(string $type_name, $config)
         {
@@ -7133,7 +7125,7 @@ namespace WPGraphQL\Registry {
          *
          * @param string $type_name The name of the Type to get from the registry
          *
-         * @return mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null
+         * @return ?TypeDef
          */
         public function get_type(string $type_name)
         {
@@ -7149,7 +7141,7 @@ namespace WPGraphQL\Registry {
         /**
          * Return the Types in the registry
          *
-         * @return array<string,mixed>
+         * @return TypeDef[]
          */
         public function get_types(): array
         {
@@ -7183,9 +7175,10 @@ namespace WPGraphQL\Registry {
          * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
          * not call before types are ready to be loaded.
          *
-         * @param \GraphQL\Type\Definition\Type|string|array<string,mixed> $type The type definition to process.
+         * @template WrappedType of array{non_null:mixed}|array{list_of:mixed}
+         * @param WrappedType|array<string,mixed>|string|\GraphQL\Type\Definition\Type $type The type to process.
          *
-         * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>
+         * @return ($type is WrappedType ? \GraphQL\Type\Definition\Type : (array<string,mixed>|string|\GraphQL\Type\Definition\Type))
          * @throws \Exception
          */
         public function setup_type_modifiers($type)
@@ -7276,10 +7269,8 @@ namespace WPGraphQL\Registry {
         /**
          * Given a Type, this returns an instance of a NonNull of that type.
          *
-         * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
-         *
-         * @phpstan-template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
-         * @phpstan-param T|string $type The Type being wrapped
+         * @template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
+         * @param T|string $type The Type being wrapped.
          */
         public function non_null($type): \GraphQL\Type\Definition\NonNull
         {
@@ -7287,11 +7278,10 @@ namespace WPGraphQL\Registry {
         /**
          * Given a Type, this returns an instance of a listOf of that type.
          *
-         * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
+         * @template T of \GraphQL\Type\Definition\Type
+         * @param T|string $type The Type being wrapped.
          *
-         * @phpstan-template T of \GraphQL\Type\Definition\Type
-         * @phpstan-param T|string $type The Type being wrapped.
-         * @phpstan-return \GraphQL\Type\Definition\ListOfType<T>
+         * @return \GraphQL\Type\Definition\ListOfType<\GraphQL\Type\Definition\Type>
          */
         public function list_of($type): \GraphQL\Type\Definition\ListOfType
         {
@@ -7454,6 +7444,11 @@ namespace WPGraphQL {
      * data as needed.
      *
      * @package WPGraphQL
+     *
+     * phpcs:disable -- PHPStan annotation.
+     * @phpstan-import-type RootValueResolver from \GraphQL\Server\ServerConfig
+     * @phpstan-import-type SerializableResult from \GraphQL\Executor\ExecutionResult
+     * phpcs:enable
      */
     class Request
     {
@@ -7466,7 +7461,7 @@ namespace WPGraphQL {
         /**
          * Request data.
          *
-         * @var mixed|array<string,mixed>|\GraphQL\Server\OperationParams
+         * @var array<string,mixed>|\GraphQL\Server\OperationParams
          */
         public $data;
         /**
@@ -7476,10 +7471,10 @@ namespace WPGraphQL {
          */
         public $global_post;
         /**
-         * GraphQL operation parameters for this request. Can also be an array of
-         * OperationParams.
+         * GraphQL operation parameters for this request.
+         * Will be an array of OperationParams if this is a batch request.
          *
-         * @var mixed|mixed[]|\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
+         * @var \GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
          */
         public $params;
         /**
@@ -7503,7 +7498,7 @@ namespace WPGraphQL {
         /**
          * Validation rules for execution.
          *
-         * @var array<int|string,\GraphQL\Validator\Rules\ValidationRule>
+         * @var array<string,\GraphQL\Validator\Rules\ValidationRule>
          */
         protected $validation_rules;
         /**
@@ -7515,7 +7510,7 @@ namespace WPGraphQL {
         /**
          * The root value of the request. Default null;
          *
-         * @var mixed
+         * @var mixed|RootValueResolver
          */
         protected $root_value;
         /**
@@ -7525,7 +7520,7 @@ namespace WPGraphQL {
         /**
          * Constructor
          *
-         * @param array<string,mixed> $data The request data.
+         * @param array<string,mixed> $data The request data (for Non-HTTP requests).
          *
          * @return void
          *
@@ -7549,7 +7544,7 @@ namespace WPGraphQL {
         /**
          * Return the validation rules to use in the request
          *
-         * @return array<int|string,\GraphQL\Validator\Rules\ValidationRule>
+         * @return array<string,\GraphQL\Validator\Rules\ValidationRule>
          */
         protected function get_validation_rules(): array
         {
@@ -7557,7 +7552,7 @@ namespace WPGraphQL {
         /**
          * Returns the root value to use in the request.
          *
-         * @return mixed|null
+         * @return mixed|RootValueResolver|null
          */
         protected function get_root_value()
         {
@@ -7591,7 +7586,8 @@ namespace WPGraphQL {
         /**
          * Execute an internal request (graphql() function call).
          *
-         * @return array<string,mixed>
+         * @return mixed[]
+         * @phpstan-return SerializableResult|SerializableResult[]|mixed[]
          * @throws \Exception
          */
         public function execute()
@@ -7600,7 +7596,7 @@ namespace WPGraphQL {
         /**
          * Execute an HTTP request.
          *
-         * @return array<string,mixed>
+         * @return SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
          * @throws \Exception
          */
         public function execute_http()
@@ -7629,6 +7625,13 @@ namespace WPGraphQL {
      *
      * @package WPGraphQL
      * @since   0.0.1
+     *
+     * phpcs:disable -- PHPStan annotation. 
+     * @phpstan-import-type SerializableError from \GraphQL\Executor\ExecutionResult
+     * @phpstan-import-type SerializableResult from \GraphQL\Executor\ExecutionResult
+     * 
+     * @phpstan-type WPGraphQLResult = SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
+     * phpcs:enable
      */
     class Router
     {
@@ -7651,7 +7654,7 @@ namespace WPGraphQL {
          */
         public static $http_status_code = 200;
         /**
-         * @var \WPGraphQL\Request | null
+         * @var ?\WPGraphQL\Request
          */
         protected static $request;
         /**
@@ -7765,7 +7768,7 @@ namespace WPGraphQL {
         /**
          * Returns an array of headers to send with the HTTP response
          *
-         * @return array<string,mixed>
+         * @return array<string,string>
          */
         protected static function get_response_headers()
         {
@@ -7786,7 +7789,7 @@ namespace WPGraphQL {
          *
          * @global string php://input Raw post data.
          *
-         * @return string|false Raw request data.
+         * @return string Raw request data.
          */
         public static function get_raw_data()
         {
@@ -7795,7 +7798,6 @@ namespace WPGraphQL {
          * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
          *
          * @return void
-         * @throws \Exception Throws Exception.
          * @throws \Throwable Throws Exception.
          * @global WP_User $current_user The currently authenticated user.
          * @since  0.0.1
@@ -7806,16 +7808,16 @@ namespace WPGraphQL {
         /**
          * Prepare headers for response
          *
-         * @param mixed|array<string,mixed>|\GraphQL\Executor\ExecutionResult $response        The response of the GraphQL Request.
-         * @param mixed|array<string,mixed>|\GraphQL\Executor\ExecutionResult $graphql_results The results of the GraphQL execution.
-         * @param string                                                      $query           The GraphQL query.
-         * @param string                                                      $operation_name  The operation name of the GraphQL Request.
-         * @param mixed|array<string,mixed>|null                              $variables       The variables applied to the GraphQL Request.
-         * @param mixed|\WP_User|null                                         $user            The current user object.
+         * @param mixed[]|\GraphQL\Executor\ExecutionResult $response       The response of the GraphQL Request.
+         * @param mixed[]|\GraphQL\Executor\ExecutionResult $_deprecated    Deprecated.
+         * @param string                                    $query          The GraphQL query.
+         * @param string                                    $operation_name The operation name of the GraphQL Request.
+         * @param ?array<string,mixed>                      $variables      The variables applied to the GraphQL Request.
+         * @param ?\WP_User                                 $user           The current user object.
          *
          * @return void
          */
-        protected static function prepare_headers($response, $graphql_results, string $query, string $operation_name, $variables, $user = null)
+        protected static function prepare_headers($response, $_deprecated, string $query, string $operation_name, $variables, $user = null)
         {
         }
     }
@@ -8252,6 +8254,7 @@ namespace WPGraphQL\Server {
     class WPHelper extends \GraphQL\Server\Helper
     {
         /**
+         * {@inheritDoc}
          * Parses normalized request params and returns instance of OperationParams
          * or array of OperationParams in case of batch operation.
          *
@@ -8311,7 +8314,7 @@ namespace WPGraphQL\Type\Enum {
          * @param string $status_name The name of the comment status.
          * @return string The description for the comment status.
          *
-         * @since next-version
+         * @since 2.3.0
          */
         protected static function get_status_description($status_name)
         {
@@ -8328,6 +8331,13 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    /**
+     * Class - ContentNodeIdTypeEnum
+     *
+     * @package WPGraphQL\Type\Enum
+     *
+     * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+     */
     class ContentNodeIdTypeEnum
     {
         /**
@@ -8339,9 +8349,9 @@ namespace WPGraphQL\Type\Enum {
         {
         }
         /**
-         * Get the values for the Enum definitions
+         * Returns the values for the Enum.
          *
-         * @return array<string,array<string,(\Closure)|string>>
+         * @return array<string,PartialWPEnumValueConfig>
          */
         public static function get_values()
         {
@@ -8377,7 +8387,7 @@ namespace WPGraphQL\Type\Enum {
          * @param string $size Optional. The size to get information for.
          * @return array<string, array{width: int, height: int, crop: bool}>|null
          *
-         * @since next-version
+         * @since 2.3.0
          */
         protected static function get_image_sizes($size = ''): ?array
         {
@@ -8397,7 +8407,7 @@ namespace WPGraphQL\Type\Enum {
          * @param array<string,bool|int> $image_size_dimensions The dimensions of the image.
          * @return string The description for the media item size.
          *
-         * @since next-version
+         * @since 2.3.0
          */
         protected static function get_value_description(string $image_size, array $image_size_dimensions): string
         {
@@ -8479,6 +8489,13 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    /**
+     * Class - PluginStatusEnum
+     *
+     * @package WPGraphQL\Type\Enum
+     *
+     * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+     */
     class PluginStatusEnum
     {
         /**
@@ -8490,9 +8507,9 @@ namespace WPGraphQL\Type\Enum {
         {
         }
         /**
-         * Returns the array configuration for the GraphQL enum values.
+         * Returns the values for the Enum.
          *
-         * @return array<string,array<string,(\Closure)|string>>
+         * @return array<string,PartialWPEnumValueConfig>
          */
         protected static function get_enum_values()
         {
@@ -8531,6 +8548,13 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    /**
+     * Class - PostStatusEnum
+     *
+     * @package WPGraphQL\Type\Enum
+     *
+     * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+     */
     class PostStatusEnum
     {
         /**
@@ -8603,6 +8627,13 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    /**
+     * Class - TermNodeIdTypeEnum
+     *
+     * @package WPGraphQL\Type\Enum
+     *
+     * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+     */
     class TermNodeIdTypeEnum
     {
         /**
@@ -8614,9 +8645,9 @@ namespace WPGraphQL\Type\Enum {
         {
         }
         /**
-         * Get the values for the Enum definitions
+         * Returns the values for the Enum.
          *
-         * @return array<string,array<string,(\Closure)|string>>
+         * @return array<string,PartialWPEnumValueConfig>
          */
         public static function get_values()
         {
@@ -8644,6 +8675,13 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    /**
+     * Class - UserNodeIdTypeEnum
+     *
+     * @package WPGraphQL\Type\Enum
+     *
+     * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+     */
     class UserNodeIdTypeEnum
     {
         /**
@@ -8657,7 +8695,7 @@ namespace WPGraphQL\Type\Enum {
         /**
          * Returns the values for the Enum.
          *
-         * @return array<string,array<string,(\Closure)|string>>
+         * @return array<string,PartialWPEnumValueConfig>
          */
         public static function get_values()
         {
@@ -10247,6 +10285,27 @@ namespace WPGraphQL\Type {
      * EnumTypes should extend this class to have filters and sorting applied, etc.
      *
      * @package WPGraphQL\Type
+     *
+     * phpcs:disable -- For phpstan type hinting
+     * @phpstan-import-type PartialEnumValueConfig from \GraphQL\Type\Definition\EnumType
+     * @phpstan-import-type EnumValues from \GraphQL\Type\Definition\EnumType
+     *
+     * @phpstan-type PartialWPEnumValueConfig array{
+     *   name?: string,
+     *   value?: mixed,
+     *   deprecationReason?: string|callable():string|null,
+     *   description?: string|callable():string|null,
+     *   astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
+     * }
+     * @phpstan-type WPEnumTypeConfig array{
+     *  name: string,
+     *  description?: string|null,
+     *  values: array<string, PartialWPEnumValueConfig>,
+     *  astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+     *  extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null,
+     *  kind?:'enum'|null,
+     * }
+     * phpcs:enable
      */
     class WPEnumType extends \GraphQL\Type\Definition\EnumType
     {
@@ -10254,6 +10313,7 @@ namespace WPGraphQL\Type {
          * WPEnumType constructor.
          *
          * @param array<string,mixed> $config
+         * @phpstan-param WPEnumTypeConfig $config
          */
         public function __construct($config)
         {
@@ -10399,7 +10459,7 @@ namespace WPGraphQL\Type {
          * @param \WPGraphQL\Registry\TypeRegistry $type_registry
          * @return array<string,mixed>
          *
-         * @since next-version
+         * @since 2.3.0
          */
         protected function get_fields(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry): array
         {
@@ -10457,12 +10517,35 @@ namespace WPGraphQL\Type {
         {
         }
         /**
+         * Resolves a single interface configuration entry to an InterfaceType instance.
+         * Handles validation and debugging messages, using early returns for clarity.
+         *
+         * @param mixed  $type The interface entry from the config (string name or InterfaceType instance).
+         * @param string $implementing_type_name The name of the type that is implementing this interface (for debug messages and self-implementation check).
+         * @return \GraphQL\Type\Definition\InterfaceType|null The resolved InterfaceType or null if invalid/skipped.
+         */
+        private function maybe_resolve_interface($type, string $implementing_type_name): ?\GraphQL\Type\Definition\InterfaceType
+        {
+        }
+        /**
+         * Adds interfaces implemented by the given InterfaceType to the target array.
+         * Handles recursive collection of interfaces, avoiding duplicates.
+         *
+         * @param \GraphQL\Type\Definition\InterfaceType                $interface_type     The interface whose implemented interfaces should be added.
+         * @param array<string, \GraphQL\Type\Definition\InterfaceType> &$target_interfaces The array to add interfaces to (passed by reference).
+         *
+         * @@param-out array<string, \GraphQL\Type\Definition\InterfaceType> $target_interfaces The array to add interfaces to (passed by reference).
+         */
+        private function resolve_inherited_interfaces(\GraphQL\Type\Definition\InterfaceType $interface_type, array &$target_interfaces): void
+        {
+        }
+        /**
          * Returns the fields for a Type, applying any missing fields defined on interfaces implemented on the type
          *
-         * @param array<mixed>                     $config
+         * @param array<string,mixed>              $config
          * @param \WPGraphQL\Registry\TypeRegistry $type_registry
          *
-         * @return array<mixed>
+         * @return array<string, array<string,mixed>>
          * @throws \Exception
          */
         protected function get_fields(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry): array
@@ -10481,9 +10564,9 @@ namespace WPGraphQL\Type {
         /**
          * Inherit missing field configs from the interface.
          *
-         * @param string                            $field_name The field name.
-         * @param array<string,mixed>               $field The field config.
-         * @param array<string,array<string,mixed>> $interface_fields The fields from the interface. This is passed by reference.
+         * @param string                            $field_name       The field name.
+         * @param array<string,mixed>               $field            The field config.
+         * @param array<string,array<string,mixed>> $interface_fields The fields from the interface.
          *
          * @return ?array<string,mixed> The field config with inherited values. Null if the field type cannot be determined.
          */
@@ -10493,11 +10576,11 @@ namespace WPGraphQL\Type {
         /**
          * Merge the field args from the field and the interface.
          *
-         * @param string                            $field_name The field name.
-         * @param array<string,array<string,mixed>> $field_args The field args.
+         * @param string                            $field_name     The field name.
+         * @param array<string,array<string,mixed>> $field_args     The field args.
          * @param array<string,array<string,mixed>> $interface_args The interface args.
          *
-         * @return array<string,array<string,mixed>> The merged field args.
+         * @return array<string,array<string,mixed>>
          */
         private function merge_field_args(string $field_name, array $field_args, array $interface_args): array
         {
@@ -10505,7 +10588,7 @@ namespace WPGraphQL\Type {
         /**
          * Given a type it will return a string representation of the type.
          *
-         * This is used for optimistic comparison of the arg types.
+         * This is used for optimistic comparison of the arg types using strings.
          *
          * @param string|array<string,mixed>|callable|\GraphQL\Type\Definition\Type $type The type to normalize.
          */
@@ -11211,6 +11294,32 @@ namespace WPGraphQL\Type {
      * Class WPScalar
      *
      * @package WPGraphQL\Type
+     *
+     * phpcs:disable -- For phpstan type hinting.
+     * @phpstan-import-type CustomScalarConfig from \GraphQL\Type\Definition\CustomScalarType
+     *
+     * @phpstan-type InputWPScalarConfig array{
+     *   name: string,
+     *   description?: string|null,
+     *   serialize?: callable(mixed): mixed,
+     *   parseValue: callable(mixed): mixed,
+     *   parseLiteral: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+     *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeDefinitionNode>|null,
+     *   kind?:'scalar'|null,
+     * }
+     * @phpstan-type OutputWPScalarConfig array{
+     *   name: string,
+     *   description?: string|null,
+     *   serialize: callable(mixed): mixed,
+     *   parseValue?: callable(mixed): mixed,
+     *   parseLiteral?: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+     *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeDefinitionNode>|null,
+     *   kind?:'scalar'|null,
+     * }
+     * @phpstan-type WPScalarConfig InputWPScalarConfig|OutputWPScalarConfig
+     * phpcs:enable
      */
     class WPScalar extends \GraphQL\Type\Definition\CustomScalarType
     {
@@ -11219,6 +11328,8 @@ namespace WPGraphQL\Type {
          *
          * @param array<string,mixed>              $config
          * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+         *
+         * @phpstan-param WPScalarConfig $config
          */
         public function __construct(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
         {
@@ -11377,10 +11488,16 @@ namespace WPGraphQL\Utils {
         /**
          * Given a message and a config, a log entry is added to the log
          *
-         * @param mixed|string|mixed[] $message The debug log message
-         * @param array<string,mixed>  $config Config for the debug log. Set type and any additional information to log
+         * @template TMessage of mixed|string|mixed[]
+         * @template TConfig of array<string,mixed>
          *
-         * @return array<string,mixed>
+         * @param TMessage $message The debug log message
+         * @param TConfig  $config Config for the debug log. Set type and any additional information to log
+         *
+         * @return array<string,array{
+         *  type:string,
+         *  message:TMessage,
+         * }>
          */
         public function add_log_entry($message, $config = [])
         {
@@ -11414,10 +11531,10 @@ namespace WPGraphQL\Utils {
          * This wraps fields to provide sanitization on fields output by introspection queries
          * (description/deprecation reason) and provides hooks to resolvers.
          *
-         * @param mixed[] $fields    The fields configured for a Type
-         * @param string  $type_name The Type name
+         * @param \GraphQL\Type\Definition\FieldDefinition[] $fields    The fields configured for a Type
+         * @param string                                     $type_name The Type name
          *
-         * @return mixed[]
+         * @return \GraphQL\Type\Definition\FieldDefinition[]
          */
         protected static function wrap_fields(array $fields, string $type_name)
         {
@@ -11431,7 +11548,7 @@ namespace WPGraphQL\Utils {
          * @param array<string,mixed>                      $args           The args for the field
          * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
          * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
-         * @param mixed|callable|string                    $field_resolver The Resolve function for the field
+         * @param ?callable                                $field_resolver The Resolve function for the field
          * @param string                                   $type_name      The name of the type the fields belong to
          * @param string                                   $field_key      The name of the field
          * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
@@ -11476,6 +11593,16 @@ namespace WPGraphQL\Utils {
      * document.
      *
      * These keys can also be used by loggers to identify patterns, etc.
+     *
+     * @phpstan-type AnalyzedGraphQLKeys array{
+     *  keys: string,
+     *  keysLength: int,
+     *  keysCount: int,
+     *  skippedKeys: string,
+     *  skippedKeysSize: int,
+     *  skippedKeysCount: int,
+     *  skippedTypes: string[]
+     * }
      */
     class QueryAnalyzer
     {
@@ -11522,19 +11649,27 @@ namespace WPGraphQL\Utils {
          */
         protected $request;
         /**
-         * @var Int The character length limit for headers
+         * The character length limit for headers
+         *
+         * @var int
          */
         protected $header_length_limit;
         /**
-         * @var string The keys that were skipped from being returned in the X-GraphQL-Keys header.
+         * The keys that were skipped from being returned in the X-GraphQL-Keys header.
+         *
+         * @var string
          */
         protected $skipped_keys = '';
         /**
-         * @var string[] The GraphQL keys to return in the X-GraphQL-Keys header.
+         * The GraphQL keys to return in the X-GraphQL-Keys header.
+         *
+         * @var AnalyzedGraphQLKeys|array{}
          */
         protected $graphql_keys = [];
         /**
-         * @var mixed[] Track all Types that were queried as a list
+         * Track all Types that were queried as a list.
+         *
+         * @var mixed[]
          */
         protected $queried_list_types = [];
         /**
@@ -11643,10 +11778,10 @@ namespace WPGraphQL\Utils {
         /**
          * @param \GraphQL\Type\Definition\Type            $type The Type of field
          * @param \GraphQL\Type\Definition\FieldDefinition $field_def The field definition the type is for
-         * @param mixed                                    $parent_type The Parent Type
+         * @param ?\GraphQL\Type\Definition\CompositeType  $parent_type The Parent Type
          * @param bool                                     $is_list_type Whether the field is a list type field
          *
-         * @return  \GraphQL\Type\Definition\Type|String|null
+         * @return \GraphQL\Type\Definition\Type|string|null
          */
         public static function get_wrapped_field_type(\GraphQL\Type\Definition\Type $type, \GraphQL\Type\Definition\FieldDefinition $field_def, $parent_type, bool $is_list_type = false)
         {
@@ -11694,9 +11829,11 @@ namespace WPGraphQL\Utils {
          * Track the nodes that were resolved by ensuring the Node's model
          * matches one of the models asked for in the query
          *
-         * @param mixed $model The Model to be returned by the loader
+         * @template T
          *
-         * @return mixed
+         * @param T $model The Model to be returned by the loader
+         *
+         * @return T
          */
         public function track_nodes($model)
         {
@@ -11704,7 +11841,7 @@ namespace WPGraphQL\Utils {
         /**
          * Returns graphql keys for use in debugging and headers.
          *
-         * @return string[]
+         * @return AnalyzedGraphQLKeys
          */
         public function get_graphql_keys()
         {
@@ -11712,9 +11849,9 @@ namespace WPGraphQL\Utils {
         /**
          * Return headers
          *
-         * @param array<string,mixed> $headers The array of headers being returned
+         * @param array<string,string> $headers The array of headers being returned
          *
-         * @return array<string,mixed>
+         * @return array<string,string>
          */
         public function get_headers(array $headers = []): array
         {
@@ -11722,13 +11859,13 @@ namespace WPGraphQL\Utils {
         /**
          * Outputs Query Analyzer data in the extensions response
          *
-         * @param mixed                    $response
-         * @param \WPGraphQL\WPSchema      $schema         The WPGraphQL Schema
-         * @param string|null              $operation_name The operation name being executed
-         * @param string|null              $request        The GraphQL Request being made
-         * @param array<string,mixed>|null $variables      The variables sent with the request
+         * @param mixed|array<string,mixed>|object $response
+         * @param \WPGraphQL\WPSchema              $schema         The WPGraphQL Schema
+         * @param string|null                      $operation_name The operation name being executed
+         * @param string|null                      $request        The GraphQL Request being made
+         * @param array<string,mixed>|null         $variables      The variables sent with the request
          *
-         * @return array<string,mixed>|object|null
+         * @return mixed|array<string,mixed>|object
          */
         public function show_query_analyzer_in_extensions($response, \WPGraphQL\WPSchema $schema, ?string $operation_name, ?string $request, ?array $variables)
         {
@@ -11782,13 +11919,13 @@ namespace WPGraphQL\Utils {
         /**
          * Filter the results of the GraphQL Response to include the Query Log
          *
-         * @param mixed               $response
-         * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
-         * @param string              $operation_name The operation name being executed
-         * @param string              $request        The GraphQL Request being made
-         * @param array<string,mixed> $variables      The variables sent with the request
+         * @param mixed|array<string,mixed>|object $response
+         * @param \WPGraphQL\WPSchema              $schema The WPGraphQL Schema
+         * @param string                           $operation_name The operation name being executed
+         * @param string                           $request        The GraphQL Request being made
+         * @param array<string,mixed>              $variables      The variables sent with the request
          *
-         * @return mixed[]
+         * @return mixed|array<string,mixed>|object
          */
         public function show_results($response, $schema, $operation_name, $request, $variables)
         {
@@ -11808,6 +11945,37 @@ namespace WPGraphQL\Utils {
      * Sets up trace data to track how long individual fields take to resolve in WPGraphQL
      *
      * @package WPGraphQL\Utils
+     *
+     * phpcs:disable -- PHPStan annotation.
+     * @phpstan-type FieldTrace array{
+     *  path?: array<int,int|string>,
+     *  parentType?: string,
+     *  fieldName?: string,
+     *  returnType?: string,
+     *  startOffset?: float|int,
+     *  startMicrotime?: float,
+     *  duration?: float|int,
+     * }
+     *
+     * @phpstan-type SanitizedFieldTrace array{
+     *  path: array<int,int|string>,
+     *  parentType: string,
+     *  fieldName: string,
+     *  returnType: string,
+     *  startOffset: int|'',
+     *  duration: int|'',
+     * }
+     *
+     * @phpstan-type Trace array{
+     *  version: int,
+     *  startTime: float,
+     *  endTime: float,
+     *  duration: int,
+     *  execution: array{
+     *   resolvers: SanitizedFieldTrace[]
+     *  }
+     * }
+     * phpcs:enable
      */
     class Tracing
     {
@@ -11820,7 +11988,7 @@ namespace WPGraphQL\Utils {
         /**
          * Stores the logs for the trace
          *
-         * @var array<string,mixed>[]
+         * @var SanitizedFieldTrace[]
          */
         public $trace_logs = [];
         /**
@@ -11850,7 +12018,7 @@ namespace WPGraphQL\Utils {
         /**
          * The trace for the current field being resolved
          *
-         * @var array<string,mixed>
+         * @var FieldTrace
          */
         public $field_trace = [];
         /**
@@ -11913,7 +12081,7 @@ namespace WPGraphQL\Utils {
         /**
          * Given a resolver start time, returns the duration of a resolver
          *
-         * @return float|int
+         * @return float
          */
         public function get_field_resolver_duration()
         {
@@ -11921,7 +12089,7 @@ namespace WPGraphQL\Utils {
         /**
          * Get the offset between the start of the request and now
          *
-         * @return float|int
+         * @return float
          */
         public function get_start_offset()
         {
@@ -11931,7 +12099,7 @@ namespace WPGraphQL\Utils {
          *
          * @param array<string,mixed> $trace
          *
-         * @return array<string,mixed>
+         * @return SanitizedFieldTrace
          */
         public function sanitize_resolver_trace(array $trace)
         {
@@ -11939,9 +12107,11 @@ namespace WPGraphQL\Utils {
         /**
          * Given input from a Resolver Path, this sanitizes the input for output in the trace
          *
-         * @param mixed $input The input to sanitize
+         * @param int|string|float|null $input The input to sanitize
          *
-         * @return int|string|null
+         * @return int|string
+         *
+         * @phpstan-return ( $input is int|float|numeric-string ? int : string )
          */
         public static function sanitize_trace_resolver_path($input)
         {
@@ -11951,7 +12121,7 @@ namespace WPGraphQL\Utils {
          *
          * @see https://github.com/apollographql/apollo-tracing
          *
-         * @param mixed|string|float|int $time The timestamp to format
+         * @param string|float|int $time The timestamp to format
          *
          * @return float
          */
@@ -11972,9 +12142,9 @@ namespace WPGraphQL\Utils {
         /**
          * Filter the results of the GraphQL Response to include the Query Log
          *
-         * @param mixed|array<string,mixed>|object $response       The response of the GraphQL Request
+         * @param array<string,mixed>|object|mixed $response The response of the GraphQL Request
          *
-         * @return mixed $response
+         * @return array<string,mixed>|object|mixed
          */
         public function add_tracing_to_response_extensions($response)
         {
@@ -11982,7 +12152,7 @@ namespace WPGraphQL\Utils {
         /**
          * Returns the request duration calculated from the start and end times
          *
-         * @return float|int
+         * @return float
          */
         public function get_request_duration()
         {
@@ -11996,7 +12166,7 @@ namespace WPGraphQL\Utils {
         /**
          * Get the trace to add to the response
          *
-         * @return array<string,mixed>
+         * @return Trace
          */
         public function get_trace(): array
         {
@@ -12017,9 +12187,9 @@ namespace WPGraphQL\Utils {
         /**
          * Maps new input query args and sanitizes the input
          *
-         * @param mixed|mixed[]|string $args The raw query args from the GraphQL query
-         * @param mixed|mixed[]|string $map  The mapping of where each of the args should go
-         * @param string[]             $skip Fields to skipped and not be added to the output array.
+         * @param mixed[]|string $args The raw query args from the GraphQL query
+         * @param mixed[]|string $map  The mapping of where each of the args should go
+         * @param string[]       $skip Fields to skipped and not be added to the output array.
          *
          * @return array<string,mixed>
          * @since  0.5.0
@@ -12031,8 +12201,8 @@ namespace WPGraphQL\Utils {
          * Checks the post_date_gmt or modified_gmt and prepare any post or
          * modified date for single post output.
          *
-         * @param string            $date_gmt GMT publication time.
-         * @param mixed|string|null $date Optional. Local publication time. Default null.
+         * @param string      $date_gmt GMT publication time.
+         * @param string|null $date Optional. Local publication time. Default null.
          *
          * @return string|null ISO8601/RFC3339 formatted datetime.
          * @since 4.7.0
@@ -12090,7 +12260,7 @@ namespace WPGraphQL\Utils {
         /**
          * Helper function that defines the allowed HTML to use on the Settings pages
          *
-         * @return array<string,array<string,mixed>>
+         * @return array<string,array<string,array<string>>>
          */
         public static function get_allowed_wp_kses_html()
         {
@@ -12103,6 +12273,7 @@ namespace WPGraphQL\Utils {
          * @param int|string $id The ID from the input args. Can be either the database ID (as either a string or int) or the global Relay ID.
          *
          * @return int|false
+         * @phpstan-return ( $id is int|numeric-string ? int : (int|false) )
          */
         public static function get_database_id_from_id($id)
         {
@@ -12113,6 +12284,7 @@ namespace WPGraphQL\Utils {
          * @param int|string $id The encoded Node ID.
          *
          * @return ?string
+         * @phpstan-return ( $id is int|numeric-string ? null : ?string )
          */
         public static function get_node_type_from_id($id)
         {
@@ -12659,6 +12831,8 @@ namespace WPGraphQL {
     class WPSchema extends \GraphQL\Type\Schema
     {
         /**
+         * {@inheritDoc}
+         *
          * @var \GraphQL\Type\SchemaConfig
          */
         public $config;
@@ -12666,7 +12840,7 @@ namespace WPGraphQL {
          * Holds the $filterable_config which allows WordPress access to modifying the
          * $config that gets passed down to the Executable Schema
          *
-         * @var \GraphQL\Type\SchemaConfig|null
+         * @var \GraphQL\Type\SchemaConfig
          * @since 0.0.9
          */
         public $filterable_config;
@@ -22155,6 +22329,8 @@ namespace {
      * @param bool                $return_request If true, return the Request object, else return the results of the request execution
      *
      * @return array<string,mixed>|\WPGraphQL\Request
+     * @phpstan-return ( $return_request is true ? \WPGraphQL\Request : array<string,mixed> )
+     *
      * @throws \Exception
      * @since  0.2.0
      */
@@ -22171,6 +22347,9 @@ namespace {
      * @param bool                $return_request If true, return the Request object, else return the results of the request execution
      *
      * @return array<string,mixed>|\WPGraphQL\Request
+     *
+     * @phpstan-return ( $return_request is true ? \WPGraphQL\Request : array<string,mixed> )
+     *
      * @throws \Exception
      * @since  0.0.2
      */
@@ -22178,7 +22357,9 @@ namespace {
     {
     }
     /**
-     * Determine when to register types
+     * Determine when to register types.
+     *
+     * @return 'graphql_register_initial_types'|'graphql_register_types'|'graphql_register_types_late'
      */
     function get_graphql_register_action(): string
     {
@@ -22205,8 +22386,6 @@ namespace {
      *
      * @param string              $type_name The name of the Type to register
      * @param array<string,mixed> $config    The Type config
-     *
-     * @throws \Exception
      */
     function register_graphql_type(string $type_name, array $config): void
     {
@@ -22214,10 +22393,8 @@ namespace {
     /**
      * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
      *
-     * @param string                                                  $type_name The name of the Type to register
-     * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The Type config
-     *
-     * @throws \Exception
+     * @param string              $type_name The name of the Type to register
+     * @param array<string,mixed> $config    The Type config
      */
     function register_graphql_interface_type(string $type_name, $config): void
     {
@@ -22256,6 +22433,20 @@ namespace {
      *
      * @param string              $type_name The name of the Type to register
      * @param array<string,mixed> $config    The Type config
+     *
+     * @phpstan-param array{
+     *   description?: string|callable():string|null,
+     *   values: array<string, array{
+     *     name?: string,
+     *     value?: mixed,
+     *     deprecationReason?: string|callable():string|null,
+     *     description?: string|callable():string|null,
+     *     astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
+     *   }>,
+     *   astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+     *   extensionASTNodes?: \GraphQL\Language\AST\EnumTypeExtensionNode[]|null,
+     *   kind?: 'enum'|null
+     * } $config
      */
     function register_graphql_enum_type(string $type_name, array $config): void
     {
@@ -22368,8 +22559,6 @@ namespace {
      *
      * @param array<string,mixed> $config Array to configure the connection
      *
-     * @throws \Exception
-     *
      * @since 0.1.0
      */
     function register_graphql_connection(array $config): void
@@ -22380,8 +22569,6 @@ namespace {
      *
      * @param string              $mutation_name The name of the Mutation to register
      * @param array<string,mixed> $config        The config for the mutation
-     *
-     * @throws \Exception
      *
      * @since 0.1.0
      */
@@ -22394,7 +22581,14 @@ namespace {
      * @param string              $type_name The name of the Type to register
      * @param array<string,mixed> $config    The config for the scalar type to register
      *
-     * @throws \Exception
+     * @phpstan-param array{
+     *   description?: string|callable():string|null,
+     *   serialize?: callable(mixed): mixed,
+     *   parseValue?: callable(mixed): mixed,
+     *   parseLiteral?: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+     *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeDefinitionNode>|null
+     * } $config
      *
      * @since 0.8.4
      */
