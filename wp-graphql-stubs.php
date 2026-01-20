@@ -1379,11 +1379,11 @@ namespace WPGraphQL\Admin\Settings {
         /**
          * Sanitize callback for Settings API
          *
-         * @param array<string,mixed> $options settings field args
+         * @param mixed $options settings field args (can be array or other types when called via WordPress sanitize_option filter)
          *
-         * @return array<string,mixed>
+         * @return mixed
          */
-        public function sanitize_options(array $options)
+        public function sanitize_options($options)
         {
         }
         /**
