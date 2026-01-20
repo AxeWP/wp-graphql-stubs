@@ -1817,6 +1817,18 @@ namespace WPGraphQL {
         /**
          * Retrieves loader assigned to $key
          *
+         * @param string $key The name of the loader to get
+         *
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+         *
+         * @deprecated Use get_loader instead.
+         */
+        public function getLoader($key)
+        {
+        }
+        /**
+         * Retrieves loader assigned to $key
+         *
          * @template T of key-of<self::DEFAULT_LOADERS>
          *
          * @param T|string $key The name of the loader to get.
@@ -1843,6 +1855,15 @@ namespace WPGraphQL {
         /**
          * Returns the $args for the connection the field is a part of
          *
+         * @deprecated use get_connection_args() instead
+         * @return mixed[]|mixed
+         */
+        public function getConnectionArgs()
+        {
+        }
+        /**
+         * Returns the $args for the connection the field is a part of
+         *
          * @todo These properties and methods are unused. We should consider deprecating/removing them.
          *
          * @return mixed[]|mixed
@@ -1861,35 +1882,130 @@ namespace WPGraphQL {
         {
         }
         /**
-         * @todo remove in v3.0.0
-         * @deprecated use get_connection_args() instead
-         * @codeCoverageIgnore
-         *
-         * @return mixed[]|mixed
-         */
-        public function getConnectionArgs()
-        {
-        }
-        /**
-         * @todo Remove in v3.0.0
-         * @deprecated Use get_loader instead.
-         * @codeCoverageIgnore
-         *
-         * @param string $key The name of the loader to get
-         *
-         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-         */
-        public function getLoader($key)
-        {
-        }
-        /**
-         * @todo Remove in v3.0.0
-         * @deprecated use get_current_connection instead.
-         * @codeCoverageIgnore
-         *
          * @return mixed|string|null
+         * @deprecated use get_current_connection instead.
          */
         public function getCurrentConnection()
+        {
+        }
+        /**
+         * Magic setter to warn about setting dynamic properties on AppContext.
+         *
+         * This maintains backward compatibility while warning developers to use the new set() method.
+         *
+         * @param string $name  The name of the property being set.
+         * @param mixed  $value The value being assigned to the property.
+         * @return void
+         */
+        public function __set($name, $value)
+        {
+        }
+        /**
+         * Sets a value in the context store with namespace isolation.
+         *
+         * It's strongly recommended to use a unique namespace to avoid collisions with other plugins.
+         * A good practice is to use your plugin's text domain or a similar unique identifier.
+         *
+         * Example:
+         * ```php
+         * $context->set( 'my-plugin', 'user-language', 'fr' );
+         * $context->set( 'my-plugin', 'original-locale', get_locale() );
+         * ```
+         *
+         * @param string $namespace The namespace to store the value under (e.g., 'my-plugin').
+         * @param string $key       The key to store the value under within the namespace.
+         * @param mixed  $value     The value to store.
+         * @since 2.3.8
+         */
+        public function set(string $namespace, string $key, $value): void
+        {
+        }
+        /**
+         * Gets a value from the context store.
+         *
+         * Example:
+         * ```php
+         * $language = $context->get( 'my-plugin', 'user-language', 'en' );
+         * $locale = $context->get( 'my-plugin', 'original-locale' );
+         * ```
+         *
+         * @param string $namespace The namespace to retrieve the value from.
+         * @param string $key       The key to retrieve within the namespace.
+         * @param mixed  $default   Optional. The default value to return if the key doesn't exist. Default null.
+         * @return mixed The value if it exists, otherwise the default value.
+         * @since 2.3.8
+         */
+        public function get(string $namespace, string $key, $default = null)
+        {
+        }
+        /**
+         * Checks if a key exists in the context store.
+         *
+         * Example:
+         * ```php
+         * if ( $context->has( 'my-plugin', 'user-language' ) ) {
+         *     $language = $context->get( 'my-plugin', 'user-language' );
+         * }
+         * ```
+         *
+         * @param string $namespace The namespace to check.
+         * @param string $key       The key to check within the namespace.
+         * @return bool True if the key exists, false otherwise.
+         * @since 2.3.8
+         */
+        public function has(string $namespace, string $key): bool
+        {
+        }
+        /**
+         * Removes a specific key from the context store.
+         *
+         * Example:
+         * ```php
+         * $context->remove( 'my-plugin', 'temporary-data' );
+         * ```
+         *
+         * @param string $namespace The namespace containing the key.
+         * @param string $key       The key to remove.
+         * @since 2.3.8
+         */
+        public function remove(string $namespace, string $key): void
+        {
+        }
+        /**
+         * Clears all data in a specific namespace.
+         *
+         * This removes all keys associated with the given namespace.
+         *
+         * Example:
+         * ```php
+         * // Clear all data for 'my-plugin' namespace
+         * $context->clear( 'my-plugin' );
+         * ```
+         *
+         * @param string $namespace The namespace to clear.
+         * @since 2.3.8
+         */
+        public function clear(string $namespace): void
+        {
+        }
+        /**
+         * Gets all data stored in a specific namespace.
+         *
+         * Returns an associative array of all key-value pairs in the namespace.
+         *
+         * Example:
+         * ```php
+         * $all_data = $context->all( 'my-plugin' );
+         * foreach ( $all_data as $key => $value ) {
+         *     // Process each key-value pair
+         * }
+         * ```
+         *
+         * @param string $namespace The namespace to retrieve data from.
+         * @return array<string,mixed> An array of all key-value pairs in the namespace, or empty array if namespace doesn't exist.
+         * @since 2.3.8
+         */
+        public function all(string $namespace): array
         {
         }
     }
@@ -5256,6 +5372,563 @@ namespace WPGraphQL {
          * @todo remove in 3.0.0
          */
         public function send_password_reset_email_user(): void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Experimental {
+    /**
+     * Class - Admin
+     */
+    class Admin
+    {
+        /**
+         * The name of the option group
+         *
+         * @var string
+         */
+        public static $option_group = 'graphql_experiments_settings';
+        /**
+         * Initialize Admin functionality for Experiments
+         */
+        public function init(): void
+        {
+        }
+        /**
+         * Handle option updates and display activation/deactivation messages.
+         *
+         * This method is called when the experiments settings option is updated
+         * and detects changes in experiment activation status to display appropriate admin notices.
+         *
+         * @param string $option_name The name of the option being updated.
+         * @param mixed  $old_value The old option value.
+         * @param mixed  $new_value The new option value.
+         */
+        public function handle_option_update($option_name, $old_value, $new_value): void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Experimental\Experiment {
+    /**
+     * Class - Abstract Experiment
+     */
+    abstract class AbstractExperiment
+    {
+        /**
+         * The experiment unique slug.
+         *
+         * @var ?string
+         */
+        protected static $slug;
+        /**
+         * The experiment's configuration.
+         *
+         * @var ?array{title:string,description:string,deprecationMessage?:?string}
+         */
+        protected $config;
+        /**
+         * Whether the experiment is active.
+         *
+         * @var ?bool
+         */
+        protected $is_active;
+        /**
+         * Defines the experiment slug.
+         */
+        abstract protected static function slug(): string;
+        /**
+         * Defines the experiment configuration.
+         *
+         * @return array{title:string,description:string,deprecationMessage?:?string}
+         */
+        abstract protected function config(): array;
+        /**
+         * Initializes the experiment.
+         *
+         * I.e where you put your hooks.
+         */
+        abstract protected function init(): void;
+        /**
+         * Loads the experiment.
+         *
+         * @uses AbstractExperiment::init() to initialize the experiment.
+         */
+        public function load(): void
+        {
+        }
+        /**
+         * Gets the experiment's configuration array.
+         *
+         * @return array{title:string,description:string,deprecationMessage?:?string}
+         */
+        public function get_config(): array
+        {
+        }
+        /**
+         * Gets the experiment's dependencies.
+         *
+         * Override this method to specify dependencies for your experiment.
+         *
+         * @return array{required?:array<string>,optional?:array<string>} Array of dependencies.
+         *         - 'required': Array of experiment slugs that must be active
+         *         - 'optional': Array of experiment slugs that are recommended but not required
+         *
+         * @since 2.3.8
+         */
+        public function get_dependencies(): array
+        {
+        }
+        /**
+         * Gets the path to the experiment's README.md file.
+         *
+         * @return string|null The absolute path to the README.md file, or null if it doesn't exist.
+         *
+         * @since 2.3.8
+         */
+        public function get_readme_path(): ?string
+        {
+        }
+        /**
+         * Gets a link to view the experiment's README.
+         *
+         * @return string|null A markdown/HTML formatted link to the README, or null if README doesn't exist.
+         *
+         * @since 2.3.8
+         */
+        public function get_readme_link(): ?string
+        {
+        }
+        /**
+         * Gets the activation message for this experiment.
+         *
+         * Override this method to provide a custom activation message.
+         * This message will be displayed as an admin notice when the experiment is activated.
+         *
+         * @return string|null The activation message, or null for no message.
+         *
+         * @since 2.3.8
+         */
+        public function get_activation_message(): ?string
+        {
+        }
+        /**
+         * Gets the deactivation message for this experiment.
+         *
+         * Override this method to provide a custom deactivation message.
+         * This message will be displayed as an admin notice when the experiment is deactivated.
+         *
+         * @return string|null The deactivation message, or null for no message.
+         *
+         * @since 2.3.8
+         */
+        public function get_deactivation_message(): ?string
+        {
+        }
+        /**
+         * Returns the experiment's slug.
+         *
+         * This is static so it can be accessed outside of the class instantiation.
+         *
+         * @throws \Exception If the experiment is missing a slug.
+         */
+        public static function get_slug(): string
+        {
+        }
+        /**
+         * Whether the experiment is active.
+         */
+        public function is_active(): bool
+        {
+        }
+        /**
+         * Gets the deprecation message, if it exists.
+         */
+        public function get_deprecation_message(): ?string
+        {
+        }
+        /**
+         * Checks whether the experiment has been deprecated.
+         */
+        public function is_deprecated(): bool
+        {
+        }
+        /**
+         * Prepares the configuration.
+         *
+         * @return array{title:string,description:string,deprecationMessage?:?string}
+         *
+         * @throws \Exception If the experiment is missing a slug.
+         */
+        protected function prepare_config(): array
+        {
+        }
+        /**
+         * Validates the $config array, throwing an exception if it's invalid.
+         *
+         * @param array<string,mixed> $config The experiment configuration.
+         *
+         * @throws \Exception If the config is invalid.
+         */
+        protected function validate_config(array $config): void
+        {
+        }
+        /**
+         * Clear the cached active state (useful for testing).
+         */
+        public function clear_active_cache(): void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Experimental\Experiment\TestDependantExperiment {
+    /**
+     * TestDependantExperiment - A demonstration experiment that depends on TestExperiment
+     *
+     * This experiment:
+     * - Depends on TestExperiment (required dependency)
+     * - Adds a `testDependantExperiment` field to RootQuery
+     * - Shows how dependent experiments can use functionality from their dependencies
+     * - Demonstrates the dependency system in action
+     *
+     * Example GraphQL query:
+     * ```graphql
+     * query {
+     *   testDependantExperiment
+     * }
+     * ```
+     *
+     * This will return a string that includes data from the TestExperiment dependency.
+     *
+     * @see TestExperiment The experiment this depends on
+     * @see docs/experiments-creating.md For more examples of creating experiments
+     */
+    class TestDependantExperiment extends \WPGraphQL\Experimental\Experiment\AbstractExperiment
+    {
+        /**
+         * Returns the experiment's slug.
+         */
+        protected static function slug(): string
+        {
+        }
+        /**
+         * Gets the experiment's dependencies.
+         *
+         * This experiment demonstrates both required and optional dependencies:
+         * - Required: TestExperiment (provides base functionality)
+         * - Optional: None in this example, but could depend on other experiments
+         *
+         * @return array{required?:array<string>,optional?:array<string>}
+         */
+        public function get_dependencies(): array
+        {
+        }
+        /**
+         * Prepares the experiment's configuration array.
+         *
+         * @return array{title:string,description:string}
+         */
+        protected function config(): array
+        {
+        }
+        /**
+         * Gets the activation message for this experiment.
+         *
+         * @return string The activation message.
+         */
+        public function get_activation_message(): string
+        {
+        }
+        /**
+         * Gets the deactivation message for this experiment.
+         *
+         * @return string The deactivation message.
+         */
+        public function get_deactivation_message(): string
+        {
+        }
+        /**
+         * Initializes the experiment.
+         *
+         * This method is called when the experiment is active and all dependencies are met.
+         */
+        protected function init(): void
+        {
+        }
+        /**
+         * Registers the testDependantExperiment field to the RootQuery type.
+         */
+        public function register_test_dependant_field(): void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Experimental\Experiment\TestExperiment {
+    /**
+     * Class - TestExperiment
+     *
+     * A simple example experiment that adds a `RootQuery.testExperiment` field.
+     *
+     * When enabled, you can query:
+     * ```graphql
+     * query {
+     *   testExperiment
+     * }
+     * ```
+     *
+     * This will return: "This is a test field for the Test Experiment."
+     */
+    class TestExperiment extends \WPGraphQL\Experimental\Experiment\AbstractExperiment
+    {
+        /**
+         * {@inheritDoc}
+         */
+        protected static function slug(): string
+        {
+        }
+        /**
+         * {@inheritDoc}
+         */
+        protected function config(): array
+        {
+        }
+        /**
+         * Gets the activation message for this experiment.
+         *
+         * @return string The activation message.
+         */
+        public function get_activation_message(): string
+        {
+        }
+        /**
+         * Gets the deactivation message for this experiment.
+         *
+         * @return string The deactivation message.
+         */
+        public function get_deactivation_message(): string
+        {
+        }
+        /**
+         * Initializes the experiment.
+         *
+         * I.e where you put your hooks.
+         */
+        protected function init(): void
+        {
+        }
+        /**
+         * Registers the field for the experiment.
+         */
+        public function register_field(): void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment {
+    /**
+     * TestOptionalDependencyExperiment - Demonstrates optional experiment dependencies
+     *
+     * This experiment:
+     * - Works independently (no required dependencies)
+     * - Has optional dependencies that enhance its functionality
+     * - Shows how to check for and use optional dependencies
+     * - Demonstrates graceful degradation when optional deps are missing
+     *
+     * Example GraphQL query:
+     * ```graphql
+     * query {
+     *   testOptionalDependency
+     * }
+     * ```
+     *
+     * This will return different results based on which optional dependencies are active.
+     *
+     * @see TestExperiment An optional dependency that enhances functionality
+     * @see docs/experiments-creating.md For more examples of creating experiments
+     */
+    class TestOptionalDependencyExperiment extends \WPGraphQL\Experimental\Experiment\AbstractExperiment
+    {
+        /**
+         * Returns the experiment's slug.
+         */
+        protected static function slug(): string
+        {
+        }
+        /**
+         * Gets the experiment's dependencies.
+         *
+         * This experiment demonstrates optional dependencies:
+         * - Required: None (works independently)
+         * - Optional: TestExperiment (enhances functionality if available)
+         *
+         * @return array{required?:array<string>,optional?:array<string>}
+         */
+        public function get_dependencies(): array
+        {
+        }
+        /**
+         * Prepares the experiment's configuration array.
+         *
+         * @return array{title:string,description:string}
+         */
+        protected function config(): array
+        {
+        }
+        /**
+         * Gets the activation message for this experiment.
+         *
+         * @return string The activation message.
+         */
+        public function get_activation_message(): string
+        {
+        }
+        /**
+         * Gets the deactivation message for this experiment.
+         *
+         * @return string The deactivation message.
+         */
+        public function get_deactivation_message(): string
+        {
+        }
+        /**
+         * Initializes the experiment.
+         *
+         * This method is called when the experiment is active.
+         */
+        protected function init(): void
+        {
+        }
+        /**
+         * Registers the testOptionalDependency field to the RootQuery type.
+         */
+        public function register_optional_dependency_field(): void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Experimental {
+    /**
+     * Class - ExperimentRegistry
+     */
+    final class ExperimentRegistry
+    {
+        /**
+         * Initializes the Experimental Functionality for WPGraphQL
+         */
+        public function init(): void
+        {
+        }
+        /**
+         * Whether the current user can manage experimental features.
+         *
+         * @uses 'graphql_experimental_features_cap' filter to determine the capability required.
+         */
+        public static function can_manage_experiments(): bool
+        {
+        }
+        /**
+         * The capability required to turn experimental features on and off.
+         *
+         * Defaults to `manage_options`.
+         */
+        public static function capability(): string
+        {
+        }
+        /**
+         * Checks whether the experiment is enabled.
+         *
+         * @return array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>
+         */
+        public static function get_experiment_registry(): array
+        {
+        }
+        /**
+         * Gets the list of all experiments.
+         *
+         * @return array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>
+         */
+        public static function get_experiments(): array
+        {
+        }
+        /**
+         * Get the list of active experiments.
+         *
+         * @return array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>
+         */
+        public static function get_active_experiments(): array
+        {
+        }
+        /**
+         * Get all registered experiment classes (before instantiation).
+         *
+         * @return array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>
+         */
+        public static function get_registered_experiments(): array
+        {
+        }
+        /**
+         * Returns whether the experiment is active.
+         *
+         * @param string $experiment_name The name of the experiment.
+         */
+        public static function is_experiment_active(string $experiment_name): bool
+        {
+        }
+        /**
+         * Reload experiments (useful for testing).
+         */
+        public function reload_experiments(): void
+        {
+        }
+        /**
+         * Reset the experiment registry (useful for testing).
+         *
+         * This clears all static properties to ensure a clean slate between tests.
+         */
+        public static function reset(): void
+        {
+        }
+    }
+    /**
+     * Class - Experimental
+     */
+    final class Experimental
+    {
+        /**
+         * Initializes Experimental Functionality for WPGraphQL
+         */
+        public function init(): void
+        {
+        }
+    }
+    /**
+     * Class Extensions
+     *
+     * Handles adding active experiments to GraphQL response extensions.
+     *
+     * @package WPGraphQL\Experimental
+     * @since 2.3.8
+     */
+    class Extensions
+    {
+        /**
+         * Initialize the extensions functionality.
+         */
+        public function init(): void
+        {
+        }
+        /**
+         * Add active experiments to GraphQL response extensions.
+         *
+         * @param mixed|array<string,mixed>|object $response       The response of the GraphQL Request being executed
+         * @param \WPGraphQL\WPSchema              $schema         The WPGraphQL Schema
+         * @param string|null                      $operation_name The operation name being executed
+         * @param string|null                      $request        The GraphQL Request being made
+         * @param array<string,mixed>|null         $variables      The variables sent with the request
+         *
+         * @return mixed|array<string,mixed>|object
+         */
+        public function add_experiments_to_response_extensions($response, $schema, ?string $operation_name, ?string $request, ?array $variables)
         {
         }
     }
@@ -12388,6 +13061,12 @@ namespace {
          * @since  0.0.1
          */
         public function __wakeup()
+        {
+        }
+        /**
+         * Setup Experiments.
+         */
+        public function setup_experiments(): void
         {
         }
         /**
