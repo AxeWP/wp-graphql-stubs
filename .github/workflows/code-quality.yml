@@ -18,15 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
+        php: ["7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"]
       fail-fast: false
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
         with:
-            show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
-            persist-credentials: false
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
 
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
@@ -38,7 +38,6 @@ jobs:
       - name: Validate Composer configuration
         run: |
           composer validate
-
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1

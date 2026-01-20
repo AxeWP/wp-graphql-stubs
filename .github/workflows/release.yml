@@ -6,22 +6,22 @@ on:
   workflow_dispatch:
     inputs:
       should_rerelease:
-        description: 'Repack the latest version of the package'
+        description: "Repack the latest version of the package"
         required: false
         default: false
         type: boolean
       dry_run:
-        description: 'Dry run: Run the script without pushing changes'
+        description: "Dry run: Run the script without pushing changes"
         required: false
         default: false
         type: boolean
       from_version:
-        description: 'The version to start from'
+        description: "The version to start from"
         required: false
-        default: '1.0.0'
+        default: "1.0.0"
         type: string
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: "0 */12 * * *"
 
 jobs:
   release:
@@ -60,4 +60,3 @@ jobs:
           fi
 
           bash -x ./release-latest-versions.sh $SHOULD_RERELEASE $DRY_RUN --from-version=${{ inputs.from_version }}
-

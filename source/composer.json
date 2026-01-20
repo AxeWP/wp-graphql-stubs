@@ -1,31 +1,31 @@
 {
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://wpackagist.org"
-    }
-  ],
-  "require": {
-    "php": "~7.3 || ~8.0",
-    "ext-gettext": "*",
-    "ext-hash": "*",
-    "ext-json": "*",
-    "ext-mbstring": "*",
-    "ext-openssl": "*",
-    "ext-sodium": "*",
-    "wpackagist-plugin/wp-graphql": "2.3.3"
-  },
-  "config": {
-    "allow-plugins": {
-      "composer/installers": true
-    }
-  },
-  "minimum-stability": "stable",
-  "extra": {
-    "installer-paths": {
-      "{$name}/": [
-        "type:wordpress-plugin"
-      ]
-    }
-  }
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://wpackagist.org"
+		}
+	],
+	"require": {
+		"php": "~7.3 || ~8.0",
+		"ext-gettext": "*",
+		"ext-hash": "*",
+		"ext-json": "*",
+		"ext-mbstring": "*",
+		"ext-openssl": "*",
+		"ext-sodium": "*",
+		"wpackagist-plugin/wp-graphql": "2.3.3"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"installer-paths": {
+			"{$name}/": [
+				"type:wordpress-plugin"
+			]
+		}
+	}
 }

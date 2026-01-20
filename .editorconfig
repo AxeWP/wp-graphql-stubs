@@ -2,10 +2,23 @@ root = true
 
 [*]
 charset = utf-8
-indent_size = 4
-indent_style = space
+indent_style = tab
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.yml]
+[*.json]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+[*.txt]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+insert_final_newline = false
+quote_type = single
+indent_style = space
 indent_size = 2
