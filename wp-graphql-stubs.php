@@ -8409,6 +8409,13 @@ namespace WPGraphQL {
          */
         protected $query_analyzer;
         /**
+         * Authentication error stored during before_execute().
+         * If set, the request should return this error instead of executing the query.
+         *
+         * @var \WP_Error|bool|null
+         */
+        protected $authentication_error = null;
+        /**
          * Constructor
          *
          * @param array<string,mixed> $data The request data (for Non-HTTP requests).
@@ -8449,16 +8456,22 @@ namespace WPGraphQL {
         {
         }
         /**
-         * Checks authentication errors.
+         * Checks authentication errors via the graphql_authentication_errors filter.
          *
-         * False will mean there are no detected errors and
-         * execution will continue.
+         * As of 2.6.0, all CSRF protection and nonce validation for HTTP requests is
+         * handled by Router::validate_http_request_authentication() BEFORE any GraphQL
+         * hooks fire. This method now only provides:
+         * - Plugin integration via the graphql_authentication_errors filter
          *
-         * Anything else (true, WP_Error, thrown exception, etc) will prevent execution of the GraphQL
-         * request.
+         * False means no errors and execution continues.
+         * True or WP_Error prevents execution of the GraphQL request.
          *
-         * @return bool
-         * @throws \Exception
+         * @since 0.0.5
+         * @since 2.6.0 CSRF protection and nonce validation moved to Router.
+         *
+         * @return bool|\WP_Error False if no errors, true or WP_Error if there are errors.
+         *
+         * @see Router::validate_http_request_authentication()
          */
         protected function has_authentication_errors()
         {
@@ -8706,6 +8719,26 @@ namespace WPGraphQL {
          * @return bool
          */
         public static function is_graphql_request()
+        {
+        }
+        /**
+         * Validates HTTP request authentication BEFORE any GraphQL processing begins.
+         *
+         * This method provides CSRF protection for cookie-authenticated requests.
+         * It runs before `graphql_process_http_request` and other hooks fire, ensuring
+         * plugins cannot inadvertently expose sensitive data based on a user identity
+         * that hasn't been validated yet.
+         *
+         * For cookie-authenticated requests:
+         * - No nonce provided: User is downgraded to guest (CSRF protection)
+         * - Invalid nonce: Returns WP_Error (caller should return error response)
+         * - Valid nonce: Returns null (authentication preserved)
+         *
+         * @since 2.6.0
+         *
+         * @return \WP_Error|null WP_Error if invalid nonce, null otherwise.
+         */
+        public static function validate_http_request_authentication(): ?\WP_Error
         {
         }
     }
@@ -23407,6 +23440,41 @@ namespace {
      * @since 0.4.1
      */
     function is_graphql_http_request(): bool
+    {
+    }
+    /**
+     * Generate a WPGraphQL nonce for cookie-based authentication.
+     *
+     * This nonce is required for authenticated GraphQL HTTP requests that use
+     * WordPress cookie authentication. It provides CSRF protection by proving
+     * the request originated from a legitimate WordPress-generated page.
+     *
+     * Example usage in JavaScript:
+     * ```javascript
+     * fetch('/graphql', {
+     *   headers: {
+     *     'Content-Type': 'application/json',
+     *     'X-WP-Nonce': wpGraphQLSettings.nonce
+     *   },
+     *   body: JSON.stringify({ query: '{ viewer { name } }' })
+     * });
+     * ```
+     *
+     * Example usage in PHP for localizing to JavaScript:
+     * ```php
+     * wp_localize_script( 'my-script', 'wpGraphQLSettings', [
+     *   'nonce'    => graphql_get_nonce(),
+     *   'endpoint' => graphql_get_endpoint(),
+     * ] );
+     * ```
+     *
+     * @since 2.6.0
+     *
+     * @return string The WPGraphQL nonce string.
+     *
+     * @see https://github.com/wp-graphql/wp-graphql/issues/3447
+     */
+    function graphql_get_nonce(): string
     {
     }
     /**
