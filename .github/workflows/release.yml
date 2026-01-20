@@ -27,10 +27,24 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
         with:
           fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
+        with:
+          php-version: 7.4
+          tools: composer:v2, wp-cli
+          coverage: none
+
+      - name: Install WPGraphQL dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          composer-options: "--no-progress"
+          dependency-versions: "highest"
+          working-directory: ./source
 
       - name: Release Latest Versions
         run: |
