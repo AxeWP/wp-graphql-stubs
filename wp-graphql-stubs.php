@@ -36,6 +36,554 @@ namespace {
         }
     }
 }
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class Comments
+     *
+     * This class organizes the registration of connections to Comments
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class Comments
+    {
+        /**
+         * Register connections to Comments.
+         *
+         * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
+         *
+         * @return void
+         * @throws \Exception
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given an array of $args, this returns the connection config, merging the provided args
+         * with the defaults
+         *
+         * @param array<string,mixed> $args
+         *
+         * @return array<string,mixed>
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+        /**
+         * This returns the connection args for the Comment connection
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.13.0
+     * @codeCoverageIgnore
+     */
+    class Comments extends \WPGraphQL\Type\Connection\Comments
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Union {
+    /**
+     * Class MenuItemObjectUnion
+     *
+     * @todo Remove in 3.0.0
+     * @deprecated 0.10.3
+     * @codeCoverageIgnore
+     */
+    class MenuItemObjectUnion
+    {
+        /**
+         * Registers the Type
+         *
+         * @param ?\WPGraphQL\Registry\TypeRegistry $type_registry
+         *
+         * @return void
+         * @throws \Exception
+         */
+        public static function register_type(?\WPGraphQL\Registry\TypeRegistry $type_registry = null)
+        {
+        }
+        /**
+         * Returns a list of possible types for the union
+         *
+         * @return string[]
+         */
+        public static function get_possible_types()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class MenuItems
+     *
+     * This class organizes registration of connections to MenuItems
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class MenuItems
+    {
+        /**
+         * Register connections to MenuItems
+         *
+         * @return void
+         * @throws \Exception
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given an array of $args, returns the args for the connection with the provided args merged
+         *
+         * @param array<string,mixed> $args
+         *
+         * @return array<string,mixed>
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.13.0
+     * @codeCoverageIgnore
+     */
+    class MenuItems extends \WPGraphQL\Type\Connection\MenuItems
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\ObjectType {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.12.0
+     * @codeCoverageIgnore
+     */
+    class PostObject
+    {
+        /**
+         * @todo remove in 3.0.0
+         *
+         * @param \WP_Post_Type                    $post_type_object Post type.
+         * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
+         *
+         * @return void
+         * @throws \Exception
+         * @deprecated 1.12.0
+         */
+        public static function register_post_object_types(\WP_Post_Type $post_type_object, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         *
+         * @param \WP_Post_Type                    $post_type_object Post type.
+         * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
+         *
+         * @deprecated 1.12.0
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        public static function get_fields($post_type_object, $type_registry)
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Union {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.14.1
+     * @codeCoverageIgnore
+     */
+    class PostObjectUnion
+    {
+        /**
+         * Registers the Type
+         *
+         * @param ?\WPGraphQL\Registry\TypeRegistry $type_registry
+         *
+         * @throws \Exception
+         */
+        public static function register_type(?\WPGraphQL\Registry\TypeRegistry $type_registry = null): void
+        {
+        }
+        /**
+         * Returns a list of possible types for the union
+         *
+         * @return string[]
+         */
+        public static function get_possible_types()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class PostObjects
+     *
+     * This class organizes the registration of connections to PostObjects
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class PostObjects
+    {
+        /**
+         * Registers the various connections from other Types to PostObjects
+         *
+         * @return void
+         * @throws \Exception
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given the Post Type Object and an array of args, this returns an array of args for use in
+         * registering a connection.
+         *
+         * @param mixed|\WP_Post_Type|\WP_Taxonomy $graphql_object The post type object for the post_type having a
+         * connection registered to it
+         * @param array<string,mixed>              $args           The custom args to modify the connection registration
+         *
+         * @return array<string,mixed>
+         */
+        public static function get_connection_config($graphql_object, $args = [])
+        {
+        }
+        /**
+         * Given an optional array of args, this returns the args to be used in the connection
+         *
+         * @param array<string,array<string,mixed>> $args             The args to modify the defaults
+         * @param mixed|\WP_Post_Type|\WP_Taxonomy  $post_type_object The post type the connection is going to
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        public static function get_connection_args($args = [], $post_type_object = null)
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.13.0
+     * @codeCoverageIgnore
+     */
+    class PostObjects extends \WPGraphQL\Type\Connection\PostObjects
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($graphql_object, $args = [])
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args($args = [], $post_type_object = null)
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    class Taxonomies
+    {
+        /**
+         * Registers connections to the Taxonomy type
+         *
+         * @return void
+         */
+        public static function register_connections()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.13.0
+     * @codeCoverageIgnore
+     */
+    class Taxonomies extends \WPGraphQL\Type\Connection\Taxonomies
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\ObjectType {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.12.0
+     * @codeCoverageIgnore
+     */
+    class TermObject
+    {
+        /**
+         * Register the Type for each kind of Taxonomy
+         *
+         * @param \WP_Taxonomy $tax_object The taxonomy being registered
+         *
+         * @return void
+         * @throws \Exception
+         * @deprecated 1.12.0
+         */
+        public static function register_taxonomy_object_type(\WP_Taxonomy $tax_object)
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Union {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.14.1
+     * @codeCoverageIgnore
+     */
+    class TermObjectUnion
+    {
+        /**
+         * Registers the Type
+         *
+         * @param ?\WPGraphQL\Registry\TypeRegistry $type_registry
+         *
+         * @throws \Exception
+         */
+        public static function register_type(?\WPGraphQL\Registry\TypeRegistry $type_registry = null): void
+        {
+        }
+        /**
+         * Returns a list of possible types for the union
+         *
+         * @return array<string,string>
+         */
+        public static function get_possible_types()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class TermObjects
+     *
+     * This class organizes the registration of connections to TermObjects
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class TermObjects
+    {
+        /**
+         * Register connections to TermObjects
+         *
+         * @return void
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Given the Taxonomy Object and an array of args, this returns an array of args for use in
+         * registering a connection.
+         *
+         * @param \WP_Taxonomy        $tax_object        The taxonomy object for the taxonomy having a connection registered to it
+         * @param array<string,mixed> $args              The custom args to modify the connection registration
+         *
+         * @return array<string,mixed>
+         */
+        public static function get_connection_config($tax_object, $args = [])
+        {
+        }
+        /**
+         * Given an optional array of args, this returns the args to be used in the connection
+         *
+         * @param array<string,array<string,mixed>> $args The args to modify the defaults
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        public static function get_connection_args($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.13.0
+     * @codeCoverageIgnore
+     */
+    class TermObjects extends \WPGraphQL\Type\Connection\TermObjects
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_config($tax_object, $args = [])
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args($args = [])
+        {
+        }
+    }
+}
+namespace WPGraphQL {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 0.6.0.
+     * @codeCoverageIgnore
+     */
+    class Types
+    {
+        /**
+         * @deprecated since v0.6.0. Use Utils:map_input instead
+         *
+         * @param mixed[] $args The raw query args from the GraphQL query.
+         * @param mixed[] $map  The mapping of where each of the args should go.
+         *
+         * @return array<string,mixed>
+         */
+        public static function map_input($args, $map)
+        {
+        }
+        /**
+         * @deprecated since v0.6.0 use Utils::prepare_date_response(); instead
+         * @param string      $date_gmt GMT publication time.
+         * @param string|null $date     Optional. Local publication time. Default null.
+         * @return string|null ISO8601/RFC3339 formatted datetime.
+         */
+        public static function prepare_date_response($date_gmt, $date = null)
+        {
+        }
+    }
+}
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Class Users
+     *
+     * This class organizes the registration of connections to Users
+     *
+     * @package WPGraphQL\Type\Connection
+     */
+    class Users
+    {
+        /**
+         * Register connections to Users
+         *
+         * @return void
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * Returns the connection args for use in the connection
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Connection {
+    /**
+     * @todo Remove in 3.0.0
+     * @deprecated 1.13.0
+     * @codeCoverageIgnore
+     */
+    class Users extends \WPGraphQL\Type\Connection\Users
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function register_connections()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated 1.13.0
+         */
+        public static function get_connection_args()
+        {
+        }
+    }
+}
 namespace WPGraphQL\PHPCS\Sniffs\Commenting {
     class ValidSinceTagSniff implements \PHP_CodeSniffer\Sniffs\Sniff
     {
@@ -1269,18 +1817,6 @@ namespace WPGraphQL {
         /**
          * Retrieves loader assigned to $key
          *
-         * @param string $key The name of the loader to get
-         *
-         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-         *
-         * @deprecated Use get_loader instead.
-         */
-        public function getLoader($key)
-        {
-        }
-        /**
-         * Retrieves loader assigned to $key
-         *
          * @template T of key-of<self::DEFAULT_LOADERS>
          *
          * @param T|string $key The name of the loader to get.
@@ -1307,15 +1843,6 @@ namespace WPGraphQL {
         /**
          * Returns the $args for the connection the field is a part of
          *
-         * @deprecated use get_connection_args() instead
-         * @return mixed[]|mixed
-         */
-        public function getConnectionArgs()
-        {
-        }
-        /**
-         * Returns the $args for the connection the field is a part of
-         *
          * @todo These properties and methods are unused. We should consider deprecating/removing them.
          *
          * @return mixed[]|mixed
@@ -1334,371 +1861,35 @@ namespace WPGraphQL {
         {
         }
         /**
-         * @return mixed|string|null
+         * @todo remove in v3.0.0
+         * @deprecated use get_connection_args() instead
+         * @codeCoverageIgnore
+         *
+         * @return mixed[]|mixed
+         */
+        public function getConnectionArgs()
+        {
+        }
+        /**
+         * @todo Remove in v3.0.0
+         * @deprecated Use get_loader instead.
+         * @codeCoverageIgnore
+         *
+         * @param string $key The name of the loader to get
+         *
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+         */
+        public function getLoader($key)
+        {
+        }
+        /**
+         * @todo Remove in v3.0.0
          * @deprecated use get_current_connection instead.
+         * @codeCoverageIgnore
+         *
+         * @return mixed|string|null
          */
         public function getCurrentConnection()
-        {
-        }
-    }
-}
-namespace WPGraphQL\Type\Connection {
-    /**
-     * Class Comments
-     *
-     * This class organizes the registration of connections to Comments
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class Comments
-    {
-        /**
-         * Register connections to Comments.
-         *
-         * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
-         *
-         * @return void
-         * @throws \Exception
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given an array of $args, this returns the connection config, merging the provided args
-         * with the defaults
-         *
-         * @param array<string,mixed> $args
-         *
-         * @return array<string,mixed>
-         */
-        public static function get_connection_config($args = [])
-        {
-        }
-        /**
-         * This returns the connection args for the Comment connection
-         *
-         * @return array<string,array<string,mixed>>
-         */
-        public static function get_connection_args()
-        {
-        }
-    }
-}
-namespace WPGraphQL\Connection {
-    /**
-     * Deprecated class for backwards compatibility.
-     */
-    class Comments extends \WPGraphQL\Type\Connection\Comments
-    {
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_config($args = [])
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_args()
-        {
-        }
-    }
-}
-namespace WPGraphQL\Type\Connection {
-    /**
-     * Class MenuItems
-     *
-     * This class organizes registration of connections to MenuItems
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class MenuItems
-    {
-        /**
-         * Register connections to MenuItems
-         *
-         * @return void
-         * @throws \Exception
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given an array of $args, returns the args for the connection with the provided args merged
-         *
-         * @param array<string,mixed> $args
-         *
-         * @return array<string,mixed>
-         */
-        public static function get_connection_config($args = [])
-        {
-        }
-    }
-}
-namespace WPGraphQL\Connection {
-    /**
-     * Deprecated class for backwards compatibility.
-     */
-    class MenuItems extends \WPGraphQL\Type\Connection\MenuItems
-    {
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_config($args = [])
-        {
-        }
-    }
-}
-namespace WPGraphQL\Type\Connection {
-    /**
-     * Class PostObjects
-     *
-     * This class organizes the registration of connections to PostObjects
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class PostObjects
-    {
-        /**
-         * Registers the various connections from other Types to PostObjects
-         *
-         * @return void
-         * @throws \Exception
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given the Post Type Object and an array of args, this returns an array of args for use in
-         * registering a connection.
-         *
-         * @param mixed|\WP_Post_Type|\WP_Taxonomy $graphql_object The post type object for the post_type having a
-         * connection registered to it
-         * @param array<string,mixed>              $args           The custom args to modify the connection registration
-         *
-         * @return array<string,mixed>
-         */
-        public static function get_connection_config($graphql_object, $args = [])
-        {
-        }
-        /**
-         * Given an optional array of args, this returns the args to be used in the connection
-         *
-         * @param array<string,array<string,mixed>> $args             The args to modify the defaults
-         * @param mixed|\WP_Post_Type|\WP_Taxonomy  $post_type_object The post type the connection is going to
-         *
-         * @return array<string,array<string,mixed>>
-         */
-        public static function get_connection_args($args = [], $post_type_object = null)
-        {
-        }
-    }
-}
-namespace WPGraphQL\Connection {
-    /**
-     * Deprecated class for backwards compatibility.
-     */
-    class PostObjects extends \WPGraphQL\Type\Connection\PostObjects
-    {
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_config($graphql_object, $args = [])
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_args($args = [], $post_type_object = null)
-        {
-        }
-    }
-}
-namespace WPGraphQL\Type\Connection {
-    class Taxonomies
-    {
-        /**
-         * Registers connections to the Taxonomy type
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-    }
-}
-namespace WPGraphQL\Connection {
-    /**
-     * Deprecated class for backwards compatibility.
-     */
-    class Taxonomies extends \WPGraphQL\Type\Connection\Taxonomies
-    {
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function register_connections()
-        {
-        }
-    }
-}
-namespace WPGraphQL\Type\Connection {
-    /**
-     * Class TermObjects
-     *
-     * This class organizes the registration of connections to TermObjects
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class TermObjects
-    {
-        /**
-         * Register connections to TermObjects
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Given the Taxonomy Object and an array of args, this returns an array of args for use in
-         * registering a connection.
-         *
-         * @param \WP_Taxonomy        $tax_object        The taxonomy object for the taxonomy having a connection registered to it
-         * @param array<string,mixed> $args              The custom args to modify the connection registration
-         *
-         * @return array<string,mixed>
-         */
-        public static function get_connection_config($tax_object, $args = [])
-        {
-        }
-        /**
-         * Given an optional array of args, this returns the args to be used in the connection
-         *
-         * @param array<string,array<string,mixed>> $args The args to modify the defaults
-         *
-         * @return array<string,array<string,mixed>>
-         */
-        public static function get_connection_args($args = [])
-        {
-        }
-    }
-}
-namespace WPGraphQL\Connection {
-    /**
-     * Deprecated class for backwards compatibility.
-     */
-    class TermObjects extends \WPGraphQL\Type\Connection\TermObjects
-    {
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_config($tax_object, $args = [])
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_args($args = [])
-        {
-        }
-    }
-}
-namespace WPGraphQL\Type\Connection {
-    /**
-     * Class Users
-     *
-     * This class organizes the registration of connections to Users
-     *
-     * @package WPGraphQL\Type\Connection
-     */
-    class Users
-    {
-        /**
-         * Register connections to Users
-         *
-         * @return void
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * Returns the connection args for use in the connection
-         *
-         * @return array<string,array<string,mixed>>
-         */
-        public static function get_connection_args()
-        {
-        }
-    }
-}
-namespace WPGraphQL\Connection {
-    /**
-     * Deprecated class for backwards compatibility.
-     */
-    class Users extends \WPGraphQL\Type\Connection\Users
-    {
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function register_connections()
-        {
-        }
-        /**
-         * {@inheritDoc}
-         *
-         * @deprecated 1.13.0
-         */
-        public static function get_connection_args()
         {
         }
     }
@@ -2620,38 +2811,31 @@ namespace WPGraphQL\Data\Connection {
          * These methods are deprecated and will be removed in a future release.
          */
         /**
-         * Returns the $args passed to the connection
-         *
-         * @deprecated Deprecated since v1.11.0 in favor of $this->get_args();
+         * @todo remove in 3.0.0
+         * @deprecated 1.11.0 in favor of $this->get_args();
+         * @codeCoverageIgnore
          *
          * @return array<string,mixed>
-         *
-         * @codeCoverageIgnore
          */
         public function getArgs(): array
         {
         }
         /**
+         * @todo remove in 3.0.0
+         * @deprecated 0.3.0
+         * @codeCoverageIgnore
+         *
          * @param string $key   The key of the query arg to set
          * @param mixed  $value The value of the query arg to set
          *
          * @return static
-         *
-         * @deprecated 0.3.0
-         *
-         * @codeCoverageIgnore
          */
         public function setQueryArg($key, $value)
         {
         }
         /**
-         * Get_offset
-         *
-         * This returns the offset to be used in the $query_args based on the $args passed to the
-         * GraphQL query.
-         *
+         * @todo remove in 3.0.0
          * @deprecated 1.9.0
-         *
          * @codeCoverageIgnore
          *
          * @return int|mixed
@@ -2660,9 +2844,9 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Returns the source of the connection.
-         *
+         * @todo remove in 3.0.0
          * @deprecated 1.24.0 in favor of $this->get_source().
+         * @codeCoverageIgnore
          *
          * @return mixed
          */
@@ -2670,33 +2854,33 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
-         * Returns the AppContext of the connection.
-         *
+         * @todo remove in 3.0.0
          * @deprecated 1.24.0 in favor of $this->get_context().
+         * @codeCoverageIgnore
          */
         public function getContext(): \WPGraphQL\AppContext
         {
         }
         /**
-         * Returns the ResolveInfo of the connection.
-         *
+         * @todo remove in 3.0.0
          * @deprecated 1.24.0 in favor of $this->get_info().
+         * @codeCoverageIgnore
          */
         public function getInfo(): \GraphQL\Type\Definition\ResolveInfo
         {
         }
         /**
-         * Returns whether the connection should execute.
-         *
+         * @todo remove in 3.0.0
          * @deprecated 1.24.0 in favor of $this->get_should_execute().
+         * @codeCoverageIgnore
          */
         public function getShouldExecute(): bool
         {
         }
         /**
-         * Returns the loader.
-         *
+         * @todo remove in 3.0.0
          * @deprecated 1.24.0 in favor of $this->get_loader().
+         * @codeCoverageIgnore
          *
          * @return \WPGraphQL\Data\Loader\AbstractDataLoader
          */
@@ -3691,14 +3875,6 @@ namespace WPGraphQL\Data\Cursor {
         {
         }
         /**
-         * @deprecated 1.9.0
-         *
-         * @return ?\WP_Post
-         */
-        public function get_cursor_post()
-        {
-        }
-        /**
          * {@inheritDoc}
          */
         public function to_sql()
@@ -3708,6 +3884,16 @@ namespace WPGraphQL\Data\Cursor {
          * {@inheritDoc}
          */
         public function get_where()
+        {
+        }
+        /**
+         * @todo Remove in 3.0.0
+         * @deprecated 1.9.0
+         * @codeCoverageIgnore
+         *
+         * @return ?\WP_Post
+         */
+        public function get_cursor_post()
         {
         }
     }
@@ -3730,32 +3916,11 @@ namespace WPGraphQL\Data\Cursor {
          */
         protected $id_key = 't.term_id';
         /**
-         * Deprecated in favor of get_query_var()
-         *
-         * @param string $name The name of the query var to get
-         *
-         * @deprecated 1.9.0
-         *
-         * @return mixed|null
-         */
-        public function get_query_arg(string $name)
-        {
-        }
-        /**
          * {@inheritDoc}
          *
          * @return ?\WP_Term ;
          */
         public function get_cursor_node()
-        {
-        }
-        /**
-         * Deprecated in favor of get_cursor_node().
-         *
-         * @return ?\WP_Term
-         * @deprecated 1.9.0
-         */
-        public function get_cursor_term()
         {
         }
         /**
@@ -3770,6 +3935,27 @@ namespace WPGraphQL\Data\Cursor {
          * {@inheritDoc}
          */
         public function get_where()
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated 1.9.0
+         * @codeCoverageIgnore
+         *
+         * @param string $name The name of the query var to get
+         * @return mixed|null
+         */
+        public function get_query_arg(string $name)
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated 1.9.0
+         * @codeCoverageIgnore
+         *
+         * @return ?\WP_Term
+         */
+        public function get_cursor_term()
         {
         }
     }
@@ -3817,15 +4003,6 @@ namespace WPGraphQL\Data\Cursor {
         {
         }
         /**
-         * Deprecated in favor of get_cursor_node().
-         *
-         * @return ?\WP_User
-         * @deprecated 1.9.0
-         */
-        public function get_cursor_user()
-        {
-        }
-        /**
          * {@inheritDoc}
          */
         public function to_sql()
@@ -3835,6 +4012,16 @@ namespace WPGraphQL\Data\Cursor {
          * {@inheritDoc}
          */
         public function get_where()
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated 1.9.0
+         * @codeCoverageIgnore
+         *
+         * @return ?\WP_User
+         */
+        public function get_cursor_user()
         {
         }
     }
@@ -3861,23 +4048,6 @@ namespace WPGraphQL\Data {
          * @since  0.0.4
          */
         protected static $node_definition;
-        /**
-         * Retrieves a WP_Comment object for the id that gets passed
-         *
-         * @param int                   $id      ID of the comment we want to get the object for.
-         * @param \WPGraphQL\AppContext $context The context of the request.
-         *
-         * @return \GraphQL\Deferred object
-         * @throws \GraphQL\Error\UserError Throws UserError.
-         * @throws \Exception Throws UserError.
-         *
-         * @since 0.0.5
-         *
-         * @deprecated Use the Loader passed in $context instead
-         */
-        public static function resolve_comment($id, $context)
-        {
-        }
         /**
          * Retrieves a WP_Comment object for the ID that gets passed
          *
@@ -3920,35 +4090,6 @@ namespace WPGraphQL\Data {
         {
         }
         /**
-         * Returns the post object for the ID and post type passed
-         *
-         * @param int                   $id      ID of the post you are trying to retrieve
-         * @param \WPGraphQL\AppContext $context The context of the GraphQL Request
-         *
-         * @return \GraphQL\Deferred
-         *
-         * @throws \GraphQL\Error\UserError
-         * @throws \Exception
-         *
-         * @since      0.0.5
-         * @deprecated Use the Loader passed in $context instead
-         */
-        public static function resolve_post_object(int $id, \WPGraphQL\AppContext $context)
-        {
-        }
-        /**
-         * @param int                   $id      The ID of the menu item to load
-         * @param \WPGraphQL\AppContext $context The context of the GraphQL request
-         *
-         * @return \GraphQL\Deferred|null
-         * @throws \Exception
-         *
-         * @deprecated Use the Loader passed in $context instead
-         */
-        public static function resolve_menu_item(int $id, \WPGraphQL\AppContext $context)
-        {
-        }
-        /**
          * Wrapper for PostObjectsConnectionResolver
          *
          * @param mixed                                $source    The object the connection is coming from
@@ -3974,21 +4115,6 @@ namespace WPGraphQL\Data {
          * @since  0.0.5
          */
         public static function resolve_taxonomy($taxonomy)
-        {
-        }
-        /**
-         * Get the term object for a term
-         *
-         * @param int                   $id      ID of the term you are trying to retrieve the object for
-         * @param \WPGraphQL\AppContext $context The context of the GraphQL Request
-         *
-         * @return \GraphQL\Deferred
-         * @throws \Exception
-         * @since      0.0.5
-         *
-         * @deprecated Use the Loader passed in $context instead
-         */
-        public static function resolve_term_object($id, \WPGraphQL\AppContext $context)
         {
         }
         /**
@@ -4032,21 +4158,6 @@ namespace WPGraphQL\Data {
          * @since  0.0.5
          */
         public static function resolve_themes_connection($source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
-        {
-        }
-        /**
-         * Gets the user object for the user ID specified
-         *
-         * @param int                   $id      ID of the user you want the object for
-         * @param \WPGraphQL\AppContext $context The AppContext
-         *
-         * @return \GraphQL\Deferred
-         * @throws \Exception
-         *
-         * @since      0.0.5
-         * @deprecated Use the Loader passed in $context instead
-         */
-        public static function resolve_user($id, \WPGraphQL\AppContext $context)
         {
         }
         /**
@@ -4203,6 +4314,79 @@ namespace WPGraphQL\Data {
         public static function resolve_resource_by_uri($uri, $context, $info)
         {
         }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated Use the Loader passed in $context instead
+         * @codeCoverageIgnore
+         *
+         * @param int                   $id      ID of the comment we want to get the object for.
+         * @param \WPGraphQL\AppContext $context The context of the request.
+         *
+         * @return \GraphQL\Deferred object
+         * @throws \GraphQL\Error\UserError Throws UserError.
+         * @throws \Exception Throws UserError.
+         */
+        public static function resolve_comment($id, $context)
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated Use the Loader passed in $context instead
+         * @codeCoverageIgnore
+         *
+         * @param int                   $id      ID of the post you are trying to retrieve
+         * @param \WPGraphQL\AppContext $context The context of the GraphQL Request
+         *
+         * @return \GraphQL\Deferred
+         *
+         * @throws \GraphQL\Error\UserError
+         * @throws \Exception
+         */
+        public static function resolve_post_object(int $id, \WPGraphQL\AppContext $context)
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated Use the Loader passed in $context instead
+         * @codeCoverageIgnore
+         *
+         * @param int                   $id      The ID of the menu item to load
+         * @param \WPGraphQL\AppContext $context The context of the GraphQL request
+         *
+         * @return \GraphQL\Deferred|null
+         * @throws \Exception
+         */
+        public static function resolve_menu_item(int $id, \WPGraphQL\AppContext $context)
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated Use the Loader passed in $context instead
+         * @codeCoverageIgnore
+         *
+         * @param int                   $id      ID of the term you are trying to retrieve the object for
+         * @param \WPGraphQL\AppContext $context The context of the GraphQL Request
+         *
+         * @return \GraphQL\Deferred
+         * @throws \Exception
+         */
+        public static function resolve_term_object($id, \WPGraphQL\AppContext $context)
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated Use the Loader passed in $context instead
+         * @codeCoverageIgnore
+         *
+         * @param int                   $id      ID of the user you want the object for
+         * @param \WPGraphQL\AppContext $context The AppContext
+         *
+         * @return \GraphQL\Deferred
+         * @throws \Exception
+         */
+        public static function resolve_user($id, \WPGraphQL\AppContext $context)
+        {
+        }
     }
 }
 namespace WPGraphQL\Data\Loader {
@@ -4296,34 +4480,8 @@ namespace WPGraphQL\Data\Loader {
          * method chaining.
          *
          * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-         * @deprecated in favor of clear_all
-         */
-        public function clearAll()
-        {
-        }
-        /**
-         * Clears the entire cache. To be used when some event results in unknown
-         * invalidations across this particular `DataLoader`. Returns itself for
-         * method chaining.
-         *
-         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
          */
         public function clear_all()
-        {
-        }
-        /**
-         * Loads multiple keys. Returns generator where each entry directly corresponds to entry in
-         * $keys. If second argument $asArray is set to true, returns array instead of generator
-         *
-         * @param int[]|string[] $keys
-         * @param bool           $asArray
-         *
-         * @return \Generator|array<int|string,mixed>
-         * @throws \Exception
-         *
-         * @deprecated Use load_many instead
-         */
-        public function loadMany(array $keys, $asArray = false)
         {
         }
         /**
@@ -4350,15 +4508,6 @@ namespace WPGraphQL\Data\Loader {
          * @return int|string
          */
         protected function key_to_scalar($key)
-        {
-        }
-        /**
-         * @param int|string|mixed $key
-         *
-         * @return int|string
-         * @deprecated Use key_to_scalar instead
-         */
-        protected function keyToScalar($key)
         {
         }
         /**
@@ -4419,6 +4568,41 @@ namespace WPGraphQL\Data\Loader {
          */
         abstract protected function loadKeys(array $keys);
         // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- @todo deprecate for `::load_keys()`
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated Use load_many instead
+         * @codeCoverageIgnore
+         *
+         * @param int[]|string[] $keys
+         * @param bool           $asArray
+         *
+         * @return \Generator|array<int|string,mixed>
+         * @throws \Exception
+         */
+        public function loadMany(array $keys, $asArray = false)
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated in favor of clear_all
+         * @codeCoverageIgnore
+         *
+         * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+         */
+        public function clearAll()
+        {
+        }
+        /**
+         * @todo remove in 3.0.0
+         * @deprecated Use key_to_scalar instead
+         * @codeCoverageIgnore
+         *
+         * @param int|string|mixed $key
+         * @return int|string
+         */
+        protected function keyToScalar($key)
+        {
+        }
     }
     /**
      * Class CommentAuthorLoader
@@ -5038,6 +5222,40 @@ namespace WPGraphQL\Data {
          * @throws \Exception
          */
         public static function update_additional_user_object_data($user_id, $input, $mutation_name, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
+        {
+        }
+    }
+}
+namespace WPGraphQL {
+    /**
+     * Class - Deprecated
+     */
+    final class Deprecated
+    {
+        /**
+         * The class constructor.
+         */
+        public function __construct()
+        {
+        }
+        /**
+         * Register the deprecated functionality.
+         */
+        public function register(): void
+        {
+        }
+        /**
+         * Registers deprecated graphql types.
+         */
+        public function register_deprecated_types(): void
+        {
+        }
+        /**
+         * SendPasswordResetEmail.user output field\
+         *
+         * @todo remove in 3.0.0
+         */
+        public function send_password_reset_email_user(): void
         {
         }
     }
@@ -7626,10 +7844,10 @@ namespace WPGraphQL {
      * @package WPGraphQL
      * @since   0.0.1
      *
-     * phpcs:disable -- PHPStan annotation. 
+     * phpcs:disable -- PHPStan annotation.
      * @phpstan-import-type SerializableError from \GraphQL\Executor\ExecutionResult
      * @phpstan-import-type SerializableResult from \GraphQL\Executor\ExecutionResult
-     * 
+     *
      * @phpstan-type WPGraphQLResult = SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
      * phpcs:enable
      */
@@ -7715,19 +7933,6 @@ namespace WPGraphQL {
          * @return bool
          */
         public static function is_graphql_http_request()
-        {
-        }
-        /**
-         * DEPRECATED: Returns whether a request is a GraphQL Request. Deprecated
-         * because it's name is a bit misleading. This will only return if the request
-         * is a GraphQL request coming from the HTTP endpoint. Internal GraphQL requests
-         * won't be able to use this to properly determine if the request is a GraphQL request
-         * or not.
-         *
-         * @return bool
-         * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
-         */
-        public static function is_graphql_request()
         {
         }
         /**
@@ -7820,6 +8025,16 @@ namespace WPGraphQL {
         protected static function prepare_headers($response, $_deprecated, string $query, string $operation_name, $variables, $user = null)
         {
         }
+        /**
+         * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
+         * @todo remove in v3.0
+         * @codeCoverageIgnore
+         *
+         * @return bool
+         */
+        public static function is_graphql_request()
+        {
+        }
     }
 }
 namespace GraphQL\Validator\Rules {
@@ -7898,11 +8113,11 @@ namespace GraphQL\Validator\Rules {
          *
          * @phpstan-param ASTAndDefs|null $astAndDefs
          *
-         * @phpstan-return ASTAndDefs
-         *
          * @throws \Exception
          * @throws \ReflectionException
          * @throws InvariantViolation
+         *
+         * @phpstan-return ASTAndDefs
          */
         protected function collectFieldASTsAndDefs(\GraphQL\Validator\QueryValidationContext $context, ?\GraphQL\Type\Definition\Type $parentType, \GraphQL\Language\AST\SelectionSetNode $selectionSet, ?\ArrayObject $visitedFragmentNames = null, ?\ArrayObject $astAndDefs = null): \ArrayObject
         {
@@ -7974,10 +8189,6 @@ namespace WPGraphQL\Server\ValidationRules {
         }
         /**
          * {@inheritDoc}
-         *
-         * @param \GraphQL\Validator\QueryValidationContext $context
-         *
-         * @return array<string,array<string,callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null)>|(callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null))>
          */
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -8033,10 +8244,6 @@ namespace WPGraphQL\Server\ValidationRules {
         }
         /**
          * {@inheritDoc}
-         *
-         * @param \GraphQL\Validator\QueryValidationContext $context
-         *
-         * @return array<string,array<string,callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null)>|(callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null))>
          */
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -9335,41 +9542,6 @@ namespace WPGraphQL\Type\ObjectType {
         }
     }
     /**
-     * WPObject - PostObject
-     *
-     * @package WPGraphQL\Type
-     * @deprecated 1.12.0
-     */
-    class PostObject
-    {
-        /**
-         * Registers a post_type WPObject type to the schema.
-         *
-         * @param \WP_Post_Type                    $post_type_object Post type.
-         * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
-         *
-         * @return void
-         * @throws \Exception
-         * @deprecated 1.12.0
-         */
-        public static function register_post_object_types(\WP_Post_Type $post_type_object, \WPGraphQL\Registry\TypeRegistry $type_registry)
-        {
-        }
-        /**
-         * Registers common post type fields on schema type corresponding to provided post type object.
-         *
-         * @param \WP_Post_Type                    $post_type_object Post type.
-         * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
-         *
-         * @deprecated 1.12.0
-         *
-         * @return array<string,array<string,mixed>>
-         */
-        public static function get_fields($post_type_object, $type_registry)
-        {
-        }
-    }
-    /**
      * Class PostTypeLabelDetails
      *
      * @package WPGraphQL\Type\Object
@@ -9497,27 +9669,6 @@ namespace WPGraphQL\Type\ObjectType {
         }
     }
     /**
-     * Class TermObject
-     *
-     * @package WPGraphQL\Type\Object
-     * @deprecated 1.12.0
-     */
-    class TermObject
-    {
-        /**
-         * Register the Type for each kind of Taxonomy
-         *
-         * @param \WP_Taxonomy $tax_object The taxonomy being registered
-         *
-         * @return void
-         * @throws \Exception
-         * @deprecated 1.12.0
-         */
-        public static function register_taxonomy_object_type(\WP_Taxonomy $tax_object)
-        {
-        }
-    }
-    /**
      * Class Theme
      *
      * @package WPGraphQL\Type\Object
@@ -9557,90 +9708,6 @@ namespace WPGraphQL\Type\ObjectType {
          * @return void
          */
         public static function register_type()
-        {
-        }
-    }
-}
-namespace WPGraphQL\Type\Union {
-    /**
-     * Class MenuItemObjectUnion
-     *
-     * @package WPGraphQL\Type\Union
-     * @deprecated
-     */
-    class MenuItemObjectUnion
-    {
-        /**
-         * Registers the Type
-         *
-         * @param \WPGraphQL\Registry\TypeRegistry $type_registry
-         *
-         * @return void
-         * @throws \Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry)
-        {
-        }
-        /**
-         * Returns a list of possible types for the union
-         *
-         * @return string[]
-         */
-        public static function get_possible_types()
-        {
-        }
-    }
-    /**
-     * Class PostObjectUnion
-     *
-     * @package WPGraphQL\Type\Union
-     * @deprecated use ContentNode interface instead
-     */
-    class PostObjectUnion
-    {
-        /**
-         * Registers the Type
-         *
-         * @param \WPGraphQL\Registry\TypeRegistry $type_registry
-         *
-         * @throws \Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry): void
-        {
-        }
-        /**
-         * Returns a list of possible types for the union
-         *
-         * @return string[]
-         */
-        public static function get_possible_types()
-        {
-        }
-    }
-    /**
-     * Class TermObjectUnion
-     *
-     * @package WPGraphQL\Type\Union
-     * @deprecated use TermNode interface instead
-     */
-    class TermObjectUnion
-    {
-        /**
-         * Registers the Type
-         *
-         * @param \WPGraphQL\Registry\TypeRegistry $type_registry
-         *
-         * @throws \Exception
-         */
-        public static function register_type(\WPGraphQL\Registry\TypeRegistry $type_registry): void
-        {
-        }
-        /**
-         * Returns a list of possible types for the union
-         *
-         * @return array<string,string>
-         */
-        public static function get_possible_types()
         {
         }
     }
@@ -9933,7 +10000,7 @@ namespace GraphQL\Type\Definition {
         /**
          * Parses an externally provided value (query variable) to use as an input.
          *
-         * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+         * Should throw an exception with a client-friendly message on invalid values, @see ClientAware.
          *
          * @param mixed $value
          *
@@ -9945,7 +10012,7 @@ namespace GraphQL\Type\Definition {
         /**
          * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
          *
-         * Should throw an exception with a client friendly message on invalid value nodes, @see ClientAware.
+         * Should throw an exception with a client-friendly message on invalid value nodes, @see ClientAware.
          *
          * @param ValueNode&Node $valueNode
          * @param array<string, mixed>|null $variables
@@ -10013,46 +10080,48 @@ namespace GraphQL\Type\Definition {
         /** @var array<string, Type&NamedType>|null */
         protected static ?array $builtInTypes;
         /**
-         * @api
+         * Returns the registered or default standard Int type.
          *
-         * @throws InvariantViolation
+         * @api
          */
         public static function int(): \GraphQL\Type\Definition\ScalarType
         {
         }
         /**
-         * @api
+         * Returns the registered or default standard Float type.
          *
-         * @throws InvariantViolation
+         * @api
          */
         public static function float(): \GraphQL\Type\Definition\ScalarType
         {
         }
         /**
-         * @api
+         * Returns the registered or default standard String type.
          *
-         * @throws InvariantViolation
+         * @api
          */
         public static function string(): \GraphQL\Type\Definition\ScalarType
         {
         }
         /**
-         * @api
+         * Returns the registered or default standard Boolean type.
          *
-         * @throws InvariantViolation
+         * @api
          */
         public static function boolean(): \GraphQL\Type\Definition\ScalarType
         {
         }
         /**
-         * @api
+         * Returns the registered or default standard ID type.
          *
-         * @throws InvariantViolation
+         * @api
          */
         public static function id(): \GraphQL\Type\Definition\ScalarType
         {
         }
         /**
+         * Wraps the given type in a list type.
+         *
          * @template T of Type
          *
          * @param T|callable():T $type
@@ -10065,7 +10134,9 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * @param (NullableType&Type)|callable():(NullableType&Type) $type
+         * Wraps the given type in a non-null type.
+         *
+         * @param NonNull|(NullableType&Type)|callable():(NullableType&Type) $type
          *
          * @api
          */
@@ -10075,8 +10146,6 @@ namespace GraphQL\Type\Definition {
         /**
          * Returns all builtin in types including base scalar and introspection types.
          *
-         * @throws InvariantViolation
-         *
          * @return array<string, Type&NamedType>
          */
         public static function builtInTypes(): array
@@ -10085,14 +10154,14 @@ namespace GraphQL\Type\Definition {
         /**
          * Returns all builtin scalar types.
          *
-         * @throws InvariantViolation
-         *
          * @return array<string, ScalarType>
          */
         public static function getStandardTypes(): array
         {
         }
         /**
+         * Allows partially or completely overriding the standard types.
+         *
          * @param array<ScalarType> $types
          *
          * @throws InvariantViolation
@@ -10101,6 +10170,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * Determines if the given type is an input type.
+         *
          * @param mixed $type
          *
          * @api
@@ -10109,7 +10180,11 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * Returns the underlying named type of the given type.
+         *
          * @return (Type&NamedType)|null
+         *
+         * @phpstan-return ($type is null ? null : Type&NamedType)
          *
          * @api
          */
@@ -10117,6 +10192,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * Determines if the given type is an output type.
+         *
          * @param mixed $type
          *
          * @api
@@ -10125,6 +10202,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * Determines if the given type is a leaf type.
+         *
          * @param mixed $type
          *
          * @api
@@ -10133,6 +10212,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * Determines if the given type is a composite type.
+         *
          * @param mixed $type
          *
          * @api
@@ -10141,6 +10222,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * Determines if the given type is an abstract type.
+         *
          * @param mixed $type
          *
          * @api
@@ -10149,6 +10232,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * Unwraps a potentially non-null type to return the underlying nullable type.
+         *
          * @return Type&NullableType
          *
          * @api
@@ -10165,9 +10250,7 @@ namespace GraphQL\Type\Definition {
         {
         }
     }
-    /**
-     * @see NamedType
-     */
+    /** @see NamedType */
     trait NamedTypeImplementation
     {
         public string $name;
@@ -10217,9 +10300,9 @@ namespace GraphQL\Type\Definition {
         /** @phpstan-var EnumTypeConfig */
         public array $config;
         /**
-         * @throws InvariantViolation
-         *
          * @phpstan-param EnumTypeConfig $config
+         *
+         * @throws InvariantViolation
          */
         public function __construct(array $config)
         {
@@ -10252,6 +10335,7 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
+         * @throws \JsonException
          * @throws Error
          * @throws InvariantViolation
          */
@@ -10336,11 +10420,13 @@ namespace GraphQL\Type\Definition {
      * @phpstan-type EagerFieldConfig InputObjectField|(Type&InputType)|UnnamedInputObjectFieldConfig
      * @phpstan-type LazyFieldConfig callable(): EagerFieldConfig
      * @phpstan-type FieldConfig EagerFieldConfig|LazyFieldConfig
+     * @phpstan-type ParseValueFn callable(array<string, mixed>): mixed
      * @phpstan-type InputObjectConfig array{
      *   name?: string|null,
      *   description?: string|null,
+     *   isOneOf?: bool|null,
      *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
-     *   parseValue?: callable(array<string, mixed>): mixed,
+     *   parseValue?: ParseValueFn|null,
      *   astNode?: InputObjectTypeDefinitionNode|null,
      *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
      * }
@@ -10348,16 +10434,16 @@ namespace GraphQL\Type\Definition {
     class InputObjectType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\InputType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
     {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
+        public bool $isOneOf;
         public ?\GraphQL\Language\AST\InputObjectTypeDefinitionNode $astNode;
         /** @var array<InputObjectTypeExtensionNode> */
         public array $extensionASTNodes;
         /** @phpstan-var InputObjectConfig */
         public array $config;
         /**
-         * @throws InvariantViolation
-         *
          * @phpstan-param InputObjectConfig $config
          *
+         * @throws InvariantViolation
          * @throws InvariantViolation
          */
         public function __construct(array $config)
@@ -10373,6 +10459,10 @@ namespace GraphQL\Type\Definition {
         }
         /** @throws InvariantViolation */
         public function hasField(string $name): bool
+        {
+        }
+        /** Returns true if this is a oneOf input object type. */
+        public function isOneOf(): bool
         {
         }
         /**
@@ -10400,7 +10490,7 @@ namespace GraphQL\Type\Definition {
         /**
          * Parses an externally provided value (query variable) to use as an input.
          *
-         * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+         * Should throw an exception with a client-friendly message on invalid values, @see ClientAware.
          *
          * @param array<string, mixed> $value
          *
@@ -10410,7 +10500,7 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Validates type config and throws if one of type options is invalid.
+         * Validates type config and throws if one of the type options is invalid.
          * Note: this method is shallow, it won't validate object fields and their arguments.
          *
          * @throws Error
@@ -10754,9 +10844,9 @@ namespace GraphQL\Type\Definition {
         /** @phpstan-var InterfaceConfig */
         public array $config;
         /**
-         * @throws InvariantViolation
-         *
          * @phpstan-param InterfaceConfig $config
+         *
+         * @throws InvariantViolation
          */
         public function __construct(array $config)
         {
@@ -10990,17 +11080,15 @@ namespace GraphQL\Type\Definition {
      * Example:
      *
      *     $AddressType = new ObjectType([
-     *       'name' => 'Address',
-     *       'fields' => [
-     *         'street' => [ 'type' => GraphQL\Type\Definition\Type::string() ],
-     *         'number' => [ 'type' => GraphQL\Type\Definition\Type::int() ],
-     *         'formatted' => [
-     *           'type' => GraphQL\Type\Definition\Type::string(),
-     *           'resolve' => function($obj) {
-     *             return $obj->number . ' ' . $obj->street;
-     *           }
-     *         ]
-     *       ]
+     *         'name' => 'Address',
+     *         'fields' => [
+     *             'street' => GraphQL\Type\Definition\Type::string(),
+     *             'number' => GraphQL\Type\Definition\Type::int(),
+     *             'formatted' => [
+     *                 'type' => GraphQL\Type\Definition\Type::string(),
+     *                 'resolve' => fn (AddressModel $address): string => "{$address->number} {$address->street}",
+     *             ],
+     *         ],
      *     ]);
      *
      * When two types need to refer to each other, or a type needs to refer to
@@ -11011,13 +11099,11 @@ namespace GraphQL\Type\Definition {
      *
      *     $PersonType = null;
      *     $PersonType = new ObjectType([
-     *       'name' => 'Person',
-     *       'fields' => function() use (&$PersonType) {
-     *          return [
-     *              'name' => ['type' => GraphQL\Type\Definition\Type::string() ],
-     *              'bestFriend' => [ 'type' => $PersonType ],
-     *          ];
-     *        }
+     *         'name' => 'Person',
+     *         'fields' => fn (): array => [
+     *             'name' => GraphQL\Type\Definition\Type::string(),
+     *             'bestFriend' => $PersonType,
+     *         ],
      *     ]);
      *
      * @phpstan-import-type FieldResolver from Executor
@@ -11059,9 +11145,9 @@ namespace GraphQL\Type\Definition {
         /** @phpstan-var ObjectConfig */
         public array $config;
         /**
-         * @throws InvariantViolation
-         *
          * @phpstan-param ObjectConfig $config
+         *
+         * @throws InvariantViolation
          */
         public function __construct(array $config)
         {
@@ -11084,7 +11170,7 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Validates type config and throws if one of type options is invalid.
+         * Validates type config and throws if one of the type options is invalid.
          * Note: this method is shallow, it won't validate object fields and their arguments.
          *
          * @throws Error
@@ -11218,9 +11304,9 @@ namespace GraphQL\Type\Definition {
         /** @phpstan-var ScalarConfig */
         public array $config;
         /**
-         * @throws InvariantViolation
-         *
          * @phpstan-param ScalarConfig $config
+         *
+         * @throws InvariantViolation
          */
         public function __construct(array $config = [])
         {
@@ -11359,9 +11445,9 @@ namespace GraphQL\Type\Definition {
         /** @phpstan-var UnionConfig */
         public array $config;
         /**
-         * @throws InvariantViolation
-         *
          * @phpstan-param UnionConfig $config
+         *
+         * @throws InvariantViolation
          */
         public function __construct(array $config)
         {
@@ -11422,39 +11508,6 @@ namespace WPGraphQL\Type {
          * @since 0.0.30
          */
         public function __construct(array $config, \WPGraphQL\Registry\TypeRegistry $type_registry)
-        {
-        }
-    }
-}
-namespace WPGraphQL {
-    /**
-     * This class was used to access Type definitions pre v0.4.0, but is no longer used.
-     * See upgrade guide vor v0.4.0 (https://github.com/wp-graphql/wp-graphql/releases/tag/v0.4.0) for
-     * information on updating to use non-static TypeRegistry methods to get_type(), etc.
-     *
-     * @deprecated since v0.6.0. Old static methods can now be done by accessing the
-     *             TypeRegistry class from within the `graphql_register_types` hook
-     */
-    class Types
-    {
-        /**
-         * @deprecated since v0.6.0. Use Utils:map_input instead
-         *
-         * @param mixed[] $args The raw query args from the GraphQL query.
-         * @param mixed[] $map  The mapping of where each of the args should go.
-         *
-         * @return array<string,mixed>
-         */
-        public static function map_input($args, $map)
-        {
-        }
-        /**
-         * @deprecated since v0.6.0 use Utils::prepare_date_response(); instead
-         * @param string      $date_gmt GMT publication time.
-         * @param string|null $date     Optional. Local publication time. Default null.
-         * @return string|null ISO8601/RFC3339 formatted datetime.
-         */
-        public static function prepare_date_response($date_gmt, $date = null)
         {
         }
     }
@@ -12043,10 +12096,8 @@ namespace WPGraphQL\Utils {
         }
         /**
          * Sets the timestamp and microtime for the start of the request
-         *
-         * @return float
          */
-        public function init_trace()
+        public function init_trace(): void
         {
         }
         /**
@@ -15683,10 +15734,10 @@ namespace GraphQL\Executor {
          *
          * @phpstan-param Fields $fields
          *
-         * @phpstan-return Fields
-         *
          * @throws \Exception
          * @throws Error
+         *
+         * @phpstan-return Fields
          */
         protected function collectFields(\GraphQL\Type\Definition\ObjectType $runtimeType, \GraphQL\Language\AST\SelectionSetNode $selectionSet, \ArrayObject $fields, \ArrayObject $visitedFragmentNames): \ArrayObject
         {
@@ -15743,11 +15794,10 @@ namespace GraphQL\Executor {
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $contextValue
+         * @param \ArrayObject<int, FieldNode> $fieldNodes
          *
          * @phpstan-param Path                $path
          * @phpstan-param Path                $unaliasedPath
-         *
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
          *
          * @throws Error
          * @throws InvariantViolation
@@ -15794,11 +15844,10 @@ namespace GraphQL\Executor {
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $contextValue
+         * @param mixed $result
          *
          * @phpstan-param Path                $path
          * @phpstan-param Path                $unaliasedPath
-         *
-         * @param mixed $result
          *
          * @throws Error
          *
@@ -15997,10 +16046,10 @@ namespace GraphQL\Executor {
          *
          * @param \ArrayObject<int, FieldNode> $fieldNodes
          *
-         * @phpstan-return Fields
-         *
          * @throws \Exception
          * @throws Error
+         *
+         * @phpstan-return Fields
          */
         protected function collectSubFields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes): \ArrayObject
         {
@@ -16342,10 +16391,10 @@ namespace GraphQL\Language\AST {
          *
          * @phpstan-param TCloneable $value
          *
-         * @phpstan-return TCloneable
-         *
          * @throws \JsonException
          * @throws InvariantViolation
+         *
+         * @phpstan-return TCloneable
          */
         protected static function cloneValue($value)
         {
@@ -16922,7 +16971,7 @@ namespace GraphQL\Language\AST {
         /**
          * Remove a portion of the NodeList and replace it with something else.
          *
-         * @param T|array<T>|null $replacement
+         * @param T|iterable<T>|null $replacement
          *
          * @phpstan-return NodeList<T> the NodeList with the extracted elements
          */
@@ -17277,71 +17326,71 @@ namespace GraphQL\Language {
      *   future.)
      * Those magic functions allow partial parsing:
      *
-     * @method static NameNode name(Source|string $source, bool[] $options = [])
-     * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
-     * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
-     * @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
-     * @method static string operationType(Source|string $source, bool[] $options = [])
-     * @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, bool[] $options = [])
-     * @method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
-     * @method static VariableNode variable(Source|string $source, bool[] $options = [])
-     * @method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
-     * @method static mixed selection(Source|string $source, bool[] $options = [])
-     * @method static FieldNode field(Source|string $source, bool[] $options = [])
-     * @method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
-     * @method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
-     * @method static ArgumentNode argument(Source|string $source, bool[] $options = [])
-     * @method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
-     * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
-     * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
-     * @method static NameNode fragmentName(Source|string $source, bool[] $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, bool[] $options = [])
-     * @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, bool[] $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
-     * @method static ListValueNode array(Source|string $source, bool[] $options = [])
-     * @method static ListValueNode constArray(Source|string $source, bool[] $options = [])
-     * @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
-     * @method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
-     * @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
-     * @method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
-     * @method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
-     * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
-     * @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
-     * @method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
-     * @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
-     * @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
-     * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
-     * @method static StringValueNode|null description(Source|string $source, bool[] $options = [])
-     * @method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
-     * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
-     * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
-     * @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
-     * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
-     * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
-     * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
-     * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
-     * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
-     * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
-     * @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
-     * @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
-     * @method static SchemaExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
-     * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
-     * @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
-     * @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
-     * @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
-     * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
-     * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
-     * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
-     * @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
-     * @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
+     * @method static NameNode name(Source|string $source, ParserOptions $options = [])
+     * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, ParserOptions $options = [])
+     * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static OperationDefinitionNode operationDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static string operationType(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, ParserOptions $options = [])
+     * @method static VariableDefinitionNode variableDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static VariableNode variable(Source|string $source, ParserOptions $options = [])
+     * @method static SelectionSetNode selectionSet(Source|string $source, ParserOptions $options = [])
+     * @method static mixed selection(Source|string $source, ParserOptions $options = [])
+     * @method static FieldNode field(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<ArgumentNode> arguments(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<ArgumentNode> constArguments(Source|string $source, ParserOptions $options = [])
+     * @method static ArgumentNode argument(Source|string $source, ParserOptions $options = [])
+     * @method static ArgumentNode constArgument(Source|string $source, ParserOptions $options = [])
+     * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, ParserOptions $options = [])
+     * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static NameNode fragmentName(Source|string $source, ParserOptions $options = [])
+     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, ParserOptions $options = [])
+     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, ParserOptions $options = [])
+     * @method static StringValueNode stringLiteral(Source|string $source, ParserOptions $options = [])
+     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, ParserOptions $options = [])
+     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, ParserOptions $options = [])
+     * @method static ListValueNode array(Source|string $source, ParserOptions $options = [])
+     * @method static ListValueNode constArray(Source|string $source, ParserOptions $options = [])
+     * @method static ObjectValueNode object(Source|string $source, ParserOptions $options = [])
+     * @method static ObjectValueNode constObject(Source|string $source, ParserOptions $options = [])
+     * @method static ObjectFieldNode objectField(Source|string $source, ParserOptions $options = [])
+     * @method static ObjectFieldNode constObjectField(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<DirectiveNode> directives(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, ParserOptions $options = [])
+     * @method static DirectiveNode directive(Source|string $source, ParserOptions $options = [])
+     * @method static DirectiveNode constDirective(Source|string $source, ParserOptions $options = [])
+     * @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, ParserOptions $options = [])
+     * @method static NamedTypeNode namedType(Source|string $source, ParserOptions $options = [])
+     * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static StringValueNode|null description(Source|string $source, ParserOptions $options = [])
+     * @method static SchemaDefinitionNode schemaDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static FieldDefinitionNode fieldDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, ParserOptions $options = [])
+     * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static TypeExtensionNode typeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static SchemaExtensionNode schemaTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static NodeList<NameNode> directiveLocations(Source|string $source, ParserOptions $options = [])
+     * @method static NameNode directiveLocation(Source|string $source, ParserOptions $options = [])
      *
      * @see \GraphQL\Tests\Language\ParserTest
      */
@@ -17455,24 +17504,15 @@ namespace GraphQL\Language {
          *
          * Handles both executable definitions and schema definitions.
          *
+         * @throws \JsonException
+         *
          * @api
          */
         public static function doPrint(\GraphQL\Language\AST\Node $ast): string
         {
         }
-        protected function __construct()
-        {
-        }
-        /**
-         * Recursively traverse an AST depth-first and produce a pretty string.
-         *
-         * @throws \JsonException
-         */
-        public function printAST(\GraphQL\Language\AST\Node $node): string
-        {
-        }
         /** @throws \JsonException */
-        protected function p(?\GraphQL\Language\AST\Node $node): string
+        protected static function p(?\GraphQL\Language\AST\Node $node): string
         {
         }
         /**
@@ -17482,7 +17522,7 @@ namespace GraphQL\Language {
          *
          * @throws \JsonException
          */
-        protected function printList(\GraphQL\Language\AST\NodeList $list, string $separator = ''): string
+        protected static function printList(\GraphQL\Language\AST\NodeList $list, string $separator = ''): string
         {
         }
         /**
@@ -17494,25 +17534,25 @@ namespace GraphQL\Language {
          *
          * @throws \JsonException
          */
-        protected function printListBlock(\GraphQL\Language\AST\NodeList $list): string
+        protected static function printListBlock(\GraphQL\Language\AST\NodeList $list): string
         {
         }
         /** @throws \JsonException */
-        protected function addDescription(?\GraphQL\Language\AST\StringValueNode $description, string $body): string
+        protected static function addDescription(?\GraphQL\Language\AST\StringValueNode $description, string $body): string
         {
         }
         /**
          * If maybeString is not null or empty, then wrap with start and end, otherwise
          * print an empty string.
          */
-        protected function wrap(string $start, ?string $maybeString, string $end = ''): string
+        protected static function wrap(string $start, ?string $maybeString, string $end = ''): string
         {
         }
-        protected function indent(string $string): string
+        protected static function indent(string $string): string
         {
         }
         /** @param array<string|null> $parts */
-        protected function join(array $parts, string $separator = ''): string
+        protected static function join(array $parts, string $separator = ''): string
         {
         }
     }
@@ -17646,10 +17686,10 @@ namespace GraphQL\Language {
      * visit function.
      *
      *   $editedAST = Visitor::visit($ast, [
-     *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
+     *       'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
      *           // ...
      *       },
-     *       'leave' => function ($node, $key, $parent, $path, $ancestors) {
+     *       'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
      *           // ...
      *       }
      *   ]);
@@ -17662,8 +17702,8 @@ namespace GraphQL\Language {
      * 1. Named visitors triggered when entering a node a specific kind.
      *
      *     Visitor::visit($ast, [
-     *       'Kind' => function ($node) {
-     *         // enter the "Kind" node
+     *       NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+     *         // enter the "ObjectTypeDefinition" node
      *       }
      *     ]);
      *
@@ -17671,12 +17711,12 @@ namespace GraphQL\Language {
      *    a specific kind.
      *
      *     Visitor::visit($ast, [
-     *       'Kind' => [
-     *         'enter' => function ($node) {
-     *           // enter the "Kind" node
+     *       NodeKind::OBJECT_TYPE_DEFINITION => [
+     *         'enter' => function (ObjectTypeDefinitionNode $node) {
+     *           // enter the "ObjectTypeDefinition" node
      *         }
-     *         'leave' => function ($node) {
-     *           // leave the "Kind" node
+     *         'leave' => function (ObjectTypeDefinitionNode $node) {
+     *           // leave the "ObjectTypeDefinition" node
      *         }
      *       ]
      *     ]);
@@ -17684,10 +17724,10 @@ namespace GraphQL\Language {
      * 3. Generic visitors that trigger upon entering and leaving any node.
      *
      *     Visitor::visit($ast, [
-     *       'enter' => function ($node) {
+     *       'enter' => function (Node $node) {
      *         // enter any node
      *       },
-     *       'leave' => function ($node) {
+     *       'leave' => function (Node $node) {
      *         // leave any node
      *       }
      *     ]);
@@ -17696,18 +17736,18 @@ namespace GraphQL\Language {
      *
      *     Visitor::visit($ast, [
      *       'enter' => [
-     *         'Kind' => function($node) {
-     *           // enter the "Kind" node
+     *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+     *           // enter the "ObjectTypeDefinition" node
      *         }
      *       },
      *       'leave' => [
-     *         'Kind' => function ($node) {
-     *           // leave the "Kind" node
+     *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+     *           // leave the "ObjectTypeDefinition" node
      *         }
      *       ]
      *     ]);
      *
-     * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+     * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|NodeList<Node>|null|false|void)
      * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
      *
      * @see \GraphQL\Tests\Language\VisitorTest
@@ -17786,7 +17826,7 @@ namespace GraphQL\Language {
         /**
          * @phpstan-param VisitorArray $visitor
          *
-         * @return (callable(Node $node, string $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|void|false|null))|null
+         * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|Node|NodeList<Node>|void|false|null))|null
          */
         protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
         {
@@ -18319,6 +18359,10 @@ namespace GraphQL\Type\Definition {
         public function parseValue($value): bool
         {
         }
+        /**
+         * @throws \JsonException
+         * @throws Error
+         */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): bool
         {
         }
@@ -18357,6 +18401,7 @@ namespace GraphQL\Type\Definition {
         public const SKIP_NAME = 'skip';
         public const DEPRECATED_NAME = 'deprecated';
         public const REASON_ARGUMENT_NAME = 'reason';
+        public const ONE_OF_NAME = 'oneOf';
         /**
          * Lazily initialized.
          *
@@ -18385,27 +18430,22 @@ namespace GraphQL\Type\Definition {
         public function __construct(array $config)
         {
         }
-        /**
-         * @throws InvariantViolation
-         *
-         * @return array<string, Directive>
-         */
+        /** @return array<string, Directive> */
         public static function getInternalDirectives(): array
         {
         }
-        /** @throws InvariantViolation */
         public static function includeDirective(): \GraphQL\Type\Definition\Directive
         {
         }
-        /** @throws InvariantViolation */
         public static function skipDirective(): \GraphQL\Type\Definition\Directive
         {
         }
-        /** @throws InvariantViolation */
         public static function deprecatedDirective(): \GraphQL\Type\Definition\Directive
         {
         }
-        /** @throws InvariantViolation */
+        public static function oneOfDirective(): \GraphQL\Type\Definition\Directive
+        {
+        }
         public static function isSpecifiedDirective(\GraphQL\Type\Definition\Directive $directive): bool
         {
         }
@@ -18582,6 +18622,10 @@ values as specified by
         public function parseValue($value): float
         {
         }
+        /**
+         * @throws \JsonException
+         * @throws Error
+         */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null)
         {
         }
@@ -18602,6 +18646,10 @@ When expected as an input type, any string (such as `"4"`) or integer
         public function parseValue($value): string
         {
         }
+        /**
+         * @throws \JsonException
+         * @throws Error
+         */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): string
         {
         }
@@ -18681,6 +18729,10 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         public function parseValue($value): int
         {
         }
+        /**
+         * @throws \JsonException
+         * @throws Error
+         */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): int
         {
         }
@@ -18939,14 +18991,12 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         /**
          * @param \ArrayObject<int, FieldNode> $fieldNodes
          * @param list<string|int> $path
-         *
-         * @phpstan-param Path $path
-         *
          * @param array<string, FragmentDefinitionNode> $fragments
          * @param mixed|null $rootValue
          * @param array<string, mixed> $variableValues
          * @param list<string|int> $unaliasedPath
          *
+         * @phpstan-param Path $path
          * @phpstan-param Path $unaliasedPath
          */
         public function __construct(\GraphQL\Type\Definition\FieldDefinition $fieldDefinition, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ObjectType $parentType, array $path, \GraphQL\Type\Schema $schema, array $fragments, $rootValue, \GraphQL\Language\AST\OperationDefinitionNode $operation, array $variableValues, array $unaliasedPath = [])
@@ -19144,6 +19194,10 @@ represent free-form human-readable text.';
         public function parseValue($value): string
         {
         }
+        /**
+         * @throws \JsonException
+         * @throws Error
+         */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): string
         {
         }
@@ -19184,14 +19238,18 @@ namespace GraphQL\Type {
      * @phpstan-type IntrospectionOptions array{
      *     descriptions?: bool,
      *     directiveIsRepeatable?: bool,
+     *     typeIsOneOf?: bool,
      * }
      *
      * Available options:
      * - descriptions
-     *   Whether to include descriptions in the introspection result.
+     *   Include descriptions in the introspection result?
      *   Default: true
      * - directiveIsRepeatable
-     *   Whether to include `isRepeatable` flag on directives.
+     *   Include field `isRepeatable` for directives?
+     *   Default: false
+     * - typeIsOneOf
+     *   Include field `isOneOf` for types?
      *   Default: false
      *
      * @see \GraphQL\Tests\Type\IntrospectionTest
@@ -19246,55 +19304,40 @@ namespace GraphQL\Type {
         public static function isIntrospectionType(\GraphQL\Type\Definition\NamedType $type): bool
         {
         }
-        /**
-         * @throws InvariantViolation
-         *
-         * @return array<string, Type&NamedType>
-         */
+        /** @return array<string, Type&NamedType> */
         public static function getTypes(): array
         {
         }
-        /** @throws InvariantViolation */
         public static function _schema(): \GraphQL\Type\Definition\ObjectType
         {
         }
-        /** @throws InvariantViolation */
         public static function _type(): \GraphQL\Type\Definition\ObjectType
         {
         }
-        /** @throws InvariantViolation */
         public static function _typeKind(): \GraphQL\Type\Definition\EnumType
         {
         }
-        /** @throws InvariantViolation */
         public static function _field(): \GraphQL\Type\Definition\ObjectType
         {
         }
-        /** @throws InvariantViolation */
         public static function _inputValue(): \GraphQL\Type\Definition\ObjectType
         {
         }
-        /** @throws InvariantViolation */
         public static function _enumValue(): \GraphQL\Type\Definition\ObjectType
         {
         }
-        /** @throws InvariantViolation */
         public static function _directive(): \GraphQL\Type\Definition\ObjectType
         {
         }
-        /** @throws InvariantViolation */
         public static function _directiveLocation(): \GraphQL\Type\Definition\EnumType
         {
         }
-        /** @throws InvariantViolation */
         public static function schemaMetaFieldDef(): \GraphQL\Type\Definition\FieldDefinition
         {
         }
-        /** @throws InvariantViolation */
         public static function typeMetaFieldDef(): \GraphQL\Type\Definition\FieldDefinition
         {
         }
-        /** @throws InvariantViolation */
         public static function typeNameMetaFieldDef(): \GraphQL\Type\Definition\FieldDefinition
         {
         }
@@ -20180,12 +20223,10 @@ namespace GraphQL\Utils {
          * document.
          *
          * @param DocumentNode|Source|string $source
+         * @param array<string, bool> $options
          *
          * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
          * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
-         *
-         * @param array<string, bool> $options
-         *
          * @phpstan-param BuildSchemaOptions $options
          *
          * @api
@@ -20207,11 +20248,10 @@ namespace GraphQL\Utils {
          * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
          * has no resolve methods, so execution will use default resolvers.
          *
-         * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
-         * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
-         *
          * @param array<string, bool> $options
          *
+         * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+         * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
          * @phpstan-param BuildSchemaOptions $options
          *
          * @api
@@ -21041,9 +21081,9 @@ namespace GraphQL\Utils {
          *
          * @phpstan-param InputPath|null $path
          *
-         * @phpstan-return CoercedValue|CoercedErrors
-         *
          * @throws InvariantViolation
+         *
+         * @phpstan-return CoercedValue|CoercedErrors
          */
         public static function coerceInputValue($value, \GraphQL\Type\Definition\InputType $type, ?array $path = null): array
         {
@@ -21210,9 +21250,9 @@ namespace GraphQL\Validator {
         {
         }
         /**
-         * @phpstan-return array<int, VariableUsage>
-         *
          * @throws \Exception
+         *
+         * @phpstan-return array<int, VariableUsage>
          */
         public function getRecursiveVariableUsages(\GraphQL\Language\AST\OperationDefinitionNode $operation): array
         {
@@ -21386,9 +21426,9 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @phpstan-return VisitorArray
-         *
          * @throws InvariantViolation
+         *
+         * @phpstan-return VisitorArray
          */
         public function getASTVisitor(\GraphQL\Validator\ValidationContext $context): array
         {
@@ -21408,9 +21448,9 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @phpstan-return VisitorArray
-         *
          * @throws InvariantViolation
+         *
+         * @phpstan-return VisitorArray
          */
         public function getASTVisitor(\GraphQL\Validator\ValidationContext $context): array
         {
@@ -21419,7 +21459,7 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @param array<Node|NodeList> $ancestors
+         * @param array<Node|NodeList<Node>> $ancestors
          *
          * @throws \Exception
          */
@@ -21553,6 +21593,23 @@ namespace GraphQL\Validator\Rules {
         }
     }
     /**
+     * OneOf Input Objects validation rule.
+     *
+     * Validates that OneOf Input Objects have exactly one non-null field provided.
+     */
+    class OneOfInputObjectsRule extends \GraphQL\Validator\Rules\ValidationRule
+    {
+        public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
+        {
+        }
+        public static function oneOfInputObjectExpectedExactlyOneFieldMessage(string $typeName, ?int $providedCount = null): string
+        {
+        }
+        public static function oneOfInputObjectFieldValueMustNotBeNullMessage(string $typeName, string $fieldName): string
+        {
+        }
+    }
+    /**
      * ReasonOrReasons is recursive, but PHPStan does not support that.
      *
      * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
@@ -21584,9 +21641,9 @@ namespace GraphQL\Validator\Rules {
          * via spreading in fragments. Called when visiting each SelectionSet in the
          * GraphQL Document.
          *
-         * @phpstan-return array<int, Conflict>
-         *
          * @throws \Exception
+         *
+         * @phpstan-return array<int, Conflict>
          */
         protected function findConflictsWithinSelectionSet(\GraphQL\Validator\QueryValidationContext $context, ?\GraphQL\Type\Definition\Type $parentType, \GraphQL\Language\AST\SelectionSetNode $selectionSet): array
         {
@@ -21688,9 +21745,9 @@ namespace GraphQL\Validator\Rules {
          * @param array{Type|null, FieldNode, FieldDefinition|null} $field1
          * @param array{Type|null, FieldNode, FieldDefinition|null} $field2
          *
-         * @phpstan-return Conflict|null
-         *
          * @throws \Exception
+         *
+         * @phpstan-return Conflict|null
          */
         protected function findConflict(\GraphQL\Validator\QueryValidationContext $context, bool $parentFieldsAreMutuallyExclusive, string $responseName, array $field1, array $field2): ?array
         {
@@ -21698,10 +21755,13 @@ namespace GraphQL\Validator\Rules {
         /**
          * @param NodeList<ArgumentNode> $arguments1 keep
          * @param NodeList<ArgumentNode> $arguments2 keep
+         *
+         * @throws \JsonException
          */
         protected function sameArguments(\GraphQL\Language\AST\NodeList $arguments1, \GraphQL\Language\AST\NodeList $arguments2): bool
         {
         }
+        /** @throws \JsonException */
         protected function sameValue(\GraphQL\Language\AST\Node $value1, \GraphQL\Language\AST\Node $value2): bool
         {
         }
@@ -21760,9 +21820,9 @@ namespace GraphQL\Validator\Rules {
          * Given a reference to a fragment, return the represented collection of fields
          * as well as a list of nested fragment names referenced via fragment spreads.
          *
-         * @phpstan-return array{FieldMap, array<int, string>}
-         *
          * @throws \Exception
+         *
+         * @phpstan-return array{FieldMap, array<int, string>}
          */
         protected function getReferencedFieldsAndFragmentNames(\GraphQL\Validator\QueryValidationContext $context, \GraphQL\Language\AST\FragmentDefinitionNode $fragment): array
         {
@@ -21877,13 +21937,13 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @phpstan-return VisitorArray
-         *
          * @throws \Exception
          * @throws \InvalidArgumentException
          * @throws \ReflectionException
          * @throws Error
          * @throws InvariantViolation
+         *
+         * @phpstan-return VisitorArray
          */
         public function getASTVisitor(\GraphQL\Validator\ValidationContext $context): array
         {
@@ -22207,7 +22267,11 @@ namespace GraphQL\Validator\Rules {
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
         }
-        /** @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node */
+        /**
+         * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+         *
+         * @throws \JsonException
+         */
         protected function isValidValueNode(\GraphQL\Validator\QueryValidationContext $context, \GraphQL\Language\AST\ValueNode $node): void
         {
         }
