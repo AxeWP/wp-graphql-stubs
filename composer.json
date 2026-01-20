@@ -20,6 +20,7 @@
 		"phpstan/phpstan": "^2.1.5"
 	},
 	"suggest": {
+		"axepress/wp-graphql-cs": "Coding standards for WPGraphQL projects",
 		"szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
 	},
 	"minimum-stability": "stable",
