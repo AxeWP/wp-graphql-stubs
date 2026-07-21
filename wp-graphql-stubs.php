@@ -1137,6 +1137,17 @@ namespace WPGraphQL\Admin\Settings {
         {
         }
         /**
+         * Fire the settings registry initialization (registration-only work).
+         *
+         * Admin UI scaffolding (add_settings_section / add_settings_field) still
+         * runs from `initialize_settings_page` on `admin_init`.
+         *
+         * @return void
+         */
+        public function init_registry()
+        {
+        }
+        /**
          * Return the environment. Default to production.
          *
          * @return string The environment set using WP_ENVIRONMENT_TYPE.
@@ -1211,6 +1222,15 @@ namespace WPGraphQL\Admin\Settings {
          */
         protected $settings_fields = [];
         /**
+         * Whether init_registry() has been run for this instance.
+         *
+         * Used to make registry initialization idempotent within a single request
+         * regardless of whether it is reached via the `init` hook or `admin_init`.
+         *
+         * @var bool
+         */
+        protected $registry_initialized = false;
+        /**
          * Returns the settings sections.
          *
          * @return array<string,array<string,mixed>>
@@ -1267,6 +1287,22 @@ namespace WPGraphQL\Admin\Settings {
          * @return \WPGraphQL\Admin\Settings\SettingsRegistry
          */
         public function register_field(string $section, array $field)
+        {
+        }
+        /**
+         * Initialize the settings registry on every request.
+         *
+         * Fires the `graphql_init_settings` action so registered settings are
+         * available outside admin contexts (e.g. during a /graphql request),
+         * and ensures each section's option exists in the wp_options table.
+         *
+         * Idempotent: guarded by `did_action('graphql_init_settings')` so the
+         * action can't fire twice when both `init` and `admin_init` paths run
+         * during the same request.
+         *
+         * @return void
+         */
+        public function init_registry()
         {
         }
         /**
