@@ -2194,6 +2194,26 @@ namespace WPGraphQL\Data {
         {
         }
         /**
+         * When a searched query is paginated backward (`last`), the rest of the ordering is
+         * inverted (e.g. post_date ASC instead of DESC), but WP_Query never inverts the search
+         * relevance expression it prepends via parse_search_order(). Invert it here so the SQL
+         * window reads the tail of the relevance-ordered result set.
+         *
+         * The multi-term expression is a CASE that sorts ascending by default; the single-term
+         * expression is a boolean LIKE sorted DESC. Inverting means appending DESC to the former
+         * and swapping DESC for ASC on the latter.
+         *
+         * @since 2.17.0
+         *
+         * @param string    $search_orderby The ORDER BY clause for search relevance.
+         * @param \WP_Query $query          The WP_Query instance (passed by reference).
+         *
+         * @return string
+         */
+        public function graphql_wp_query_cursor_pagination_search_orderby(string $search_orderby, \WP_Query $query)
+        {
+        }
+        /**
          * This filters the WPQuery 'where' $args, enforcing the query to return results before or
          * after the referenced cursor
          *
@@ -3495,6 +3515,21 @@ namespace WPGraphQL\Data\Connection {
          * @return string[]|null
          */
         public function sanitize_post_stati($stati)
+        {
+        }
+        /**
+         * Determines whether the current user can query posts of the given status for the given post type.
+         *
+         * Published content, and any status whose `public` flag is true, are queryable by everyone,
+         * the same way they are exposed on the WordPress front-end and the REST API (e.g. custom
+         * statuses registered with `'public' => true`). The `private` status requires the post type's
+         * `read_private_posts` capability. All other statuses (draft, pending, future, trash, and
+         * custom non-public statuses) require the post type's `edit_posts` capability.
+         *
+         * @param string             $status           The post status to check.
+         * @param \WP_Post_Type|null $post_type_object The post type object the status is being queried for.
+         */
+        protected function can_query_post_status(string $status, $post_type_object): bool
         {
         }
         /**
@@ -5263,6 +5298,21 @@ namespace WPGraphQL\Data {
          * @param string $node_type The node type to check.
          */
         protected function is_valid_node_type(string $node_type): bool
+        {
+        }
+        /**
+         * Determines whether the parsed request is for the site's home page.
+         *
+         * After parse_request() strips the home path, a request for the home page has an
+         * empty `$wp->request`. This is how the home URL is recognized when WordPress is
+         * installed in a subdirectory and the full home URL (e.g. `/blog/`) is requested,
+         * rather than relying on a literal '/' uri (#3775).
+         *
+         * We require that permalink parsing actually ran (`did_permalink`) so plain
+         * permalink installs keep relying on the literal '/' check, and we bail if any
+         * query var that identifies a specific node or archive is present.
+         */
+        protected function is_home_request(): bool
         {
         }
         /**
@@ -12508,6 +12558,7 @@ namespace GraphQL\Type\Definition {
      * @phpstan-type ScalarConfig array{
      *   name?: string|null,
      *   description?: string|null,
+     *   specifiedByURL?: string|null,
      *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
      *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeExtensionNode>|null
      * }
@@ -12516,6 +12567,7 @@ namespace GraphQL\Type\Definition {
     {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
         public ?\GraphQL\Language\AST\ScalarTypeDefinitionNode $astNode;
+        public ?string $specifiedByURL;
         /** @var array<\GraphQL\Language\AST\ScalarTypeExtensionNode> */
         public array $extensionASTNodes;
         /** @phpstan-var ScalarConfig */
@@ -12546,6 +12598,7 @@ namespace GraphQL\Type\Definition {
      *   serialize?: callable(mixed): mixed,
      *   parseValue: callable(mixed): mixed,
      *   parseLiteral: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+     *   specifiedByURL?: string|null,
      *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
      *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeExtensionNode>|null
      * }
@@ -12555,6 +12608,7 @@ namespace GraphQL\Type\Definition {
      *   serialize: callable(mixed): mixed,
      *   parseValue?: callable(mixed): mixed,
      *   parseLiteral?: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+     *   specifiedByURL?: string|null,
      *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
      *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeExtensionNode>|null
      * }
@@ -19816,10 +19870,12 @@ namespace GraphQL\Type\Definition {
     {
         public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
         public const INCLUDE_NAME = 'include';
-        public const IF_ARGUMENT_NAME = 'if';
         public const SKIP_NAME = 'skip';
+        public const IF_ARGUMENT_NAME = 'if';
         public const DEPRECATED_NAME = 'deprecated';
         public const REASON_ARGUMENT_NAME = 'reason';
+        public const SPECIFIED_BY_NAME = 'specifiedBy';
+        public const URL_ARGUMENT_NAME = 'url';
         public const ONE_OF_NAME = 'oneOf';
         /**
          * Lazily initialized.
@@ -19871,6 +19927,9 @@ namespace GraphQL\Type\Definition {
         {
         }
         public static function oneOfDirective(): \GraphQL\Type\Definition\Directive
+        {
+        }
+        public static function specifiedByDirective(): \GraphQL\Type\Definition\Directive
         {
         }
         public static function isBuiltInDirective(self $directive): bool
@@ -20672,6 +20731,7 @@ namespace GraphQL\Type {
      *     descriptions?: bool,
      *     directiveIsRepeatable?: bool,
      *     schemaDescription?: bool,
+     *     specifiedByURL?: bool,
      *     typeIsOneOf?: bool,
      * }
      *
@@ -20681,6 +20741,12 @@ namespace GraphQL\Type {
      *   Default: true
      * - directiveIsRepeatable
      *   Include field `isRepeatable` for directives?
+     *   Default: false
+     * - schemaDescription
+     *   Include `description` on the schema?
+     *   Default: false
+     * - specifiedByURL
+     *   Include field `specifiedByURL` for scalar types?
      *   Default: false
      * - typeIsOneOf
      *   Include field `isOneOf` for types?
@@ -22212,6 +22278,8 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printScalar(\GraphQL\Type\Definition\ScalarType $type, array $options): string
         {
@@ -22249,6 +22317,14 @@ namespace GraphQL\Utils {
          * @throws \GraphQL\Error\SerializationError
          */
         protected static function printDeprecated($deprecation): string
+        {
+        }
+        /**
+         * @throws \JsonException
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
+         */
+        protected static function printSpecifiedBy(\GraphQL\Type\Definition\ScalarType $type): string
         {
         }
         protected static function printImplementedInterfaces(\GraphQL\Type\Definition\ImplementingType $type): string
