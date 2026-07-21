@@ -7237,6 +7237,7 @@ namespace WPGraphQL\Model {
     /**
      * Class User - Models the data for the User object type
      *
+     * @property ?string       $adminColor
      * @property string[]|null $capabilities
      * @property ?string       $capKey
      * @property ?int          $databaseId
@@ -7246,6 +7247,9 @@ namespace WPGraphQL\Model {
      * @property string[]      $enqueuedStylesheetsQueue
      * @property string[]|null $extraCapabilities
      * @property ?string       $firstName
+     * @property bool          $hasCommentShortcutsEnabled
+     * @property bool          $hasRichEditingEnabled
+     * @property bool          $hasSyntaxHighlightingEnabled
      * @property ?string       $id
      * @property ?string       $lastName
      * @property ?string       $locale
