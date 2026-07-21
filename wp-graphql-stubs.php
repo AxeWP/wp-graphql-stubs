@@ -609,60 +609,6 @@ namespace {
         }
     }
 }
-namespace WPGraphQL\PHPCS\Sniffs\Commenting {
-    class ValidSinceTagSniff implements \PHP_CodeSniffer\Sniffs\Sniff
-    {
-        public function __construct()
-        {
-        }
-        /**
-         * Returns an array of tokens this test wants to listen for.
-         *
-         * @return array<int|string>
-         */
-        public function register()
-        {
-        }
-        /**
-         * Processes this test when one of its tokens is encountered.
-         *
-         * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
-         * @param int  $stackPtr  The position of the current token in the stack.
-         *
-         * @return void
-         */
-        public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
-        {
-        }
-    }
-}
-namespace WPGraphQL\PHPCS\Sniffs\Functions {
-    class VersionParameterSniff implements \PHP_CodeSniffer\Sniffs\Sniff
-    {
-        public function __construct()
-        {
-        }
-        /**
-         * Returns an array of tokens this test wants to listen for.
-         *
-         * @return array<int|string>
-         */
-        public function register()
-        {
-        }
-        /**
-         * Processes this test when one of its tokens is encountered.
-         *
-         * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
-         * @param int  $stackPtr  The position of the current token in the stack.
-         *
-         * @return void
-         */
-        public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
-        {
-        }
-    }
-}
 namespace WPGraphQL\Admin {
     /**
      * Class Admin
@@ -13225,6 +13171,23 @@ namespace WPGraphQL\Utils {
         public function get_query_log()
         {
         }
+        /**
+         * Normalize one row from `$wpdb->queries` into the query log shape.
+         *
+         * WordPress core stores `[ sql, time, stack ]` (numeric keys). Database layers such as
+         * HyperDB may use associative keys (e.g. `query`, `elapsed`, `debug`). Defaults cover both;
+         * use the `graphql_query_log_entry` filter for other shapes.
+         *
+         * @since 2.12.0
+         *
+         * @param mixed $query Raw row from `$wpdb->queries`.
+         * @param int   $index Zero-based position in the saved query list.
+         *
+         * @return array{sql: string, time: float, stack: string}
+         */
+        protected function normalize_query_log_entry($query, $index)
+        {
+        }
     }
     /**
      * Class Tracing
@@ -23111,6 +23074,24 @@ namespace GraphQL\Validator\Rules {
          * @throws \Exception
          */
         protected function collectConflictsWithin(\GraphQL\Validator\QueryValidationContext $context, array &$conflicts, array $fieldMap): void
+        {
+        }
+        /**
+         * @phpstan-param array<int, FieldInfo> $fields
+         *
+         * @throws \JsonException
+         *
+         * @phpstan-return array<int, FieldInfo>
+         */
+        protected function deduplicateFields(array $fields): array
+        {
+        }
+        /**
+         * @phpstan-param FieldInfo $field
+         *
+         * @throws \JsonException
+         */
+        protected function fieldFingerprint(array $field): string
         {
         }
         /**
