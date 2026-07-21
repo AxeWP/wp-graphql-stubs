@@ -8226,6 +8226,12 @@ namespace WPGraphQL\Registry {
          */
         protected $excluded_connections = null;
         /**
+         * Flag to prevent infinite recursion when checking field type compatibility during interface field overrides.
+         *
+         * @var bool
+         */
+        protected $checking_compatibility = false;
+        /**
          * TypeRegistry constructor.
          */
         public function __construct()
