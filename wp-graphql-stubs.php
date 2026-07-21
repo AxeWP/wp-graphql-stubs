@@ -601,7 +601,7 @@ namespace WPGraphQL\PHPCS\Sniffs\Commenting {
         /**
          * Processes this test when one of its tokens is encountered.
          *
-         * @param File $phpcsFile The file being scanned.
+         * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
          * @param int  $stackPtr  The position of the current token in the stack.
          *
          * @return void
@@ -628,7 +628,7 @@ namespace WPGraphQL\PHPCS\Sniffs\Functions {
         /**
          * Processes this test when one of its tokens is encountered.
          *
-         * @param File $phpcsFile The file being scanned.
+         * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
          * @param int  $stackPtr  The position of the current token in the stack.
          *
          * @return void
@@ -9164,7 +9164,7 @@ namespace WPGraphQL {
 }
 namespace GraphQL\Validator\Rules {
     /**
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      */
     abstract class ValidationRule
     {
@@ -9192,14 +9192,14 @@ namespace GraphQL\Validator\Rules {
     /**
      * @see Visitor, FieldDefinition
      *
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      *
-     * @phpstan-type ASTAndDefs \ArrayObject<string, \ArrayObject<int, array{FieldNode, FieldDefinition|null}>>
+     * @phpstan-type ASTAndDefs \ArrayObject<string, \ArrayObject<int, array{\GraphQL\Language\AST\FieldNode, \GraphQL\Type\Definition\FieldDefinition|null}>>
      */
     abstract class QuerySecurityRule extends \GraphQL\Validator\Rules\ValidationRule
     {
         public const DISABLED = 0;
-        /** @var array<string, FragmentDefinitionNode> */
+        /** @var array<string, \GraphQL\Language\AST\FragmentDefinitionNode> */
         protected array $fragments = [];
         /** @throws \InvalidArgumentException */
         protected function checkIfGreaterOrEqualToZero(string $name, int $value): void
@@ -9208,7 +9208,7 @@ namespace GraphQL\Validator\Rules {
         protected function getFragment(\GraphQL\Language\AST\FragmentSpreadNode $fragmentSpread): ?\GraphQL\Language\AST\FragmentDefinitionNode
         {
         }
-        /** @return array<string, FragmentDefinitionNode> */
+        /** @return array<string, \GraphQL\Language\AST\FragmentDefinitionNode> */
         protected function getFragments(): array
         {
         }
@@ -9240,7 +9240,7 @@ namespace GraphQL\Validator\Rules {
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @phpstan-return ASTAndDefs
          */
@@ -9441,9 +9441,9 @@ namespace GraphQL\Server {
          * (or promise when promise adapter is different from SyncPromiseAdapter).
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return ExecutionResult|Promise
+         * @return \GraphQL\Executor\ExecutionResult|\GraphQL\Executor\Promise\Promise
          *
          * @api
          */
@@ -9457,9 +9457,9 @@ namespace GraphQL\Server {
          * @param array<OperationParams> $operations
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<int, ExecutionResult>|Promise
+         * @return array<int, \GraphQL\Executor\ExecutionResult>|\GraphQL\Executor\Promise\Promise
          *
          * @api
          */
@@ -9468,7 +9468,7 @@ namespace GraphQL\Server {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function promiseToExecuteOperation(\GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter, \GraphQL\Server\ServerConfig $config, \GraphQL\Server\OperationParams $op, bool $isBatch = false): \GraphQL\Executor\Promise\Promise
         {
@@ -9496,7 +9496,7 @@ namespace GraphQL\Server {
         /**
          * Send response using standard PHP `header()` and `echo`.
          *
-         * @param Promise|ExecutionResult|array<ExecutionResult> $result
+         * @param \GraphQL\Executor\Promise\Promise|\GraphQL\Executor\ExecutionResult|array<\GraphQL\Executor\ExecutionResult> $result
          *
          * @api
          *
@@ -9552,13 +9552,13 @@ namespace GraphQL\Server {
         /**
          * Converts query execution result to PSR-7 response.
          *
-         * @param Promise|ExecutionResult|array<ExecutionResult> $result
+         * @param \GraphQL\Executor\Promise\Promise|\GraphQL\Executor\ExecutionResult|array<\GraphQL\Executor\ExecutionResult> $result
          *
          * @throws \InvalidArgumentException
          * @throws \JsonException
          * @throws \RuntimeException
          *
-         * @return Promise|ResponseInterface
+         * @return \GraphQL\Executor\Promise\Promise|\Psr\Http\Message\ResponseInterface
          *
          * @api
          */
@@ -9566,7 +9566,7 @@ namespace GraphQL\Server {
         {
         }
         /**
-         * @param ExecutionResult|array<ExecutionResult> $result
+         * @param \GraphQL\Executor\ExecutionResult|array<\GraphQL\Executor\ExecutionResult> $result
          *
          * @throws \InvalidArgumentException
          * @throws \JsonException
@@ -11117,7 +11117,7 @@ namespace GraphQL\Type\Definition {
          *
          * @param mixed $value
          *
-         * @throws SerializationError
+         * @throws \GraphQL\Error\SerializationError
          *
          * @return mixed
          */
@@ -11129,7 +11129,7 @@ namespace GraphQL\Type\Definition {
          *
          * @param mixed $value
          *
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @return mixed
          */
@@ -11139,10 +11139,10 @@ namespace GraphQL\Type\Definition {
          *
          * Should throw an exception with a client-friendly message on invalid value nodes, @see ClientAware.
          *
-         * @param ValueNode&Node $valueNode
+         * @param \GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node $valueNode
          * @param array<string, mixed>|null $variables
          *
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @return mixed
          */
@@ -11172,20 +11172,20 @@ namespace GraphQL\Type\Definition {
      *
      * @property string $name
      * @property string|null $description
-     * @property (Node&TypeDefinitionNode)|null $astNode
-     * @property array<Node&TypeExtensionNode> $extensionASTNodes
+     * @property (\GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode)|null $astNode
+     * @property array<\GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeExtensionNode> $extensionASTNodes
      */
     interface NamedType
     {
-        /** @throws Error */
+        /** @throws \GraphQL\Error\Error */
         public function assertValid(): void;
         /** Is this type a built-in type? */
         public function isBuiltInType(): bool;
         public function name(): string;
         public function description(): ?string;
-        /** @return (Node&TypeDefinitionNode)|null */
+        /** @return (\GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode)|null */
         public function astNode(): ?\GraphQL\Language\AST\Node;
-        /** @return array<Node&TypeExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeExtensionNode> */
         public function extensionASTNodes(): array;
     }
     /**
@@ -11289,7 +11289,7 @@ namespace GraphQL\Type\Definition {
          *
          * @param array<ScalarType> $types
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function overrideStandardTypes(array $types): void
         {
@@ -11383,7 +11383,7 @@ namespace GraphQL\Type\Definition {
         public function toString(): string
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function inferName(): string
         {
         }
@@ -11405,39 +11405,39 @@ namespace GraphQL\Type\Definition {
      *   value?: mixed,
      *   deprecationReason?: string|null,
      *   description?: string|null,
-     *   astNode?: EnumValueDefinitionNode|null
+     *   astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
      * }
      * @phpstan-type EnumValues iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>
      * @phpstan-type EnumTypeConfig array{
      *   name?: string|null,
      *   description?: string|null,
      *   values: EnumValues|callable(): EnumValues,
-     *   astNode?: EnumTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<EnumTypeExtensionNode>|null
+     *   astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null
      * }
      */
     class EnumType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\InputType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\LeafType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
     {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
         public ?\GraphQL\Language\AST\EnumTypeDefinitionNode $astNode;
-        /** @var array<EnumTypeExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\EnumTypeExtensionNode> */
         public array $extensionASTNodes;
         /** @phpstan-var EnumTypeConfig */
         public array $config;
         /**
          * @phpstan-param EnumTypeConfig $config
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(array $config)
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getValue(string $name): ?\GraphQL\Type\Definition\EnumValueDefinition
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, EnumValueDefinition>
          */
@@ -11446,42 +11446,42 @@ namespace GraphQL\Type\Definition {
         }
         /**
          * @throws \InvalidArgumentException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         public function serialize($value)
         {
         }
         /**
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function parseValue($value)
         {
         }
         /**
          * @throws \JsonException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null)
         {
         }
         /**
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(): void
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function didYouMean(string $unknownValue): ?string
         {
         }
         public function astNode(): ?\GraphQL\Language\AST\EnumTypeDefinitionNode
         {
         }
-        /** @return array<EnumTypeExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\EnumTypeExtensionNode> */
         public function extensionASTNodes(): array
         {
         }
@@ -11552,8 +11552,8 @@ namespace GraphQL\Type\Definition {
      *   isOneOf?: bool|null,
      *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
      *   parseValue?: ParseValueFn|null,
-     *   astNode?: InputObjectTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
+     *   astNode?: \GraphQL\Language\AST\InputObjectTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null
      * }
      */
     class InputObjectType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\InputType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
@@ -11561,28 +11561,28 @@ namespace GraphQL\Type\Definition {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
         public bool $isOneOf;
         public ?\GraphQL\Language\AST\InputObjectTypeDefinitionNode $astNode;
-        /** @var array<InputObjectTypeExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\InputObjectTypeExtensionNode> */
         public array $extensionASTNodes;
         /** @phpstan-var InputObjectConfig */
         public array $config;
         /**
          * @phpstan-param InputObjectConfig $config
          *
-         * @throws InvariantViolation
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(array $config)
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getField(string $name): \GraphQL\Type\Definition\InputObjectField
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function findField(string $name): ?\GraphQL\Type\Definition\InputObjectField
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function hasField(string $name): bool
         {
         }
@@ -11591,14 +11591,14 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, InputObjectField>
          */
         public function getFields(): array
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function initializeFields(): void
         {
         }
@@ -11607,7 +11607,7 @@ namespace GraphQL\Type\Definition {
          *
          * @phpstan-param FieldConfig $field
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function initializeField($nameOrIndex, $field): void
         {
@@ -11628,8 +11628,8 @@ namespace GraphQL\Type\Definition {
          * Validates type config and throws if one of the type options is invalid.
          * Note: this method is shallow, it won't validate object fields and their arguments.
          *
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(): void
         {
@@ -11637,7 +11637,7 @@ namespace GraphQL\Type\Definition {
         public function astNode(): ?\GraphQL\Language\AST\InputObjectTypeDefinitionNode
         {
         }
-        /** @return array<InputObjectTypeExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\InputObjectTypeExtensionNode> */
         public function extensionASTNodes(): array
         {
         }
@@ -11814,7 +11814,7 @@ namespace WPGraphQL\Type {
 }
 namespace GraphQL\Type\Definition {
     /**
-     * @phpstan-type ResolveTypeReturn ObjectType|string|callable(): (ObjectType|string|null)|Deferred|null
+     * @phpstan-type ResolveTypeReturn ObjectType|string|callable(): (ObjectType|string|null)|\GraphQL\Deferred|null
      * @phpstan-type ResolveType callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): ResolveTypeReturn
      * @phpstan-type ResolveValue callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): mixed
      */
@@ -11839,7 +11839,7 @@ namespace GraphQL\Type\Definition {
          * @param mixed $objectValue The resolved value for the object type
          * @param mixed $context The context that was passed to GraphQL::execute()
          *
-         * @return ObjectType|string|callable|Deferred|null
+         * @return ObjectType|string|callable|\GraphQL\Deferred|null
          *
          * @phpstan-return ResolveTypeReturn
          */
@@ -11856,18 +11856,18 @@ namespace GraphQL\Type\Definition {
     }
     interface HasFieldsType
     {
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getField(string $name): \GraphQL\Type\Definition\FieldDefinition;
         public function hasField(string $name): bool;
         public function findField(string $name): ?\GraphQL\Type\Definition\FieldDefinition;
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, FieldDefinition>
          */
         public function getFields(): array;
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, FieldDefinition>
          */
@@ -11875,7 +11875,7 @@ namespace GraphQL\Type\Definition {
         /**
          * Get all field names, including only visible fields.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, string>
          */
@@ -11903,24 +11903,24 @@ namespace GraphQL\Type\Definition {
          * @var array<string, FieldDefinition|UnresolvedFieldDefinition>
          */
         private array $fields;
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         private function initializeFields(): void
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getField(string $name): \GraphQL\Type\Definition\FieldDefinition
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function findField(string $name): ?\GraphQL\Type\Definition\FieldDefinition
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function hasField(string $name): bool
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, FieldDefinition>
          */
@@ -11931,7 +11931,7 @@ namespace GraphQL\Type\Definition {
         public function getVisibleFields(): array
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getFieldNames(): array
         {
         }
@@ -11957,7 +11957,7 @@ namespace GraphQL\Type\Definition {
         private function initializeInterfaces(): void
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function assertValidInterfaces(): void
         {
         }
@@ -11975,8 +11975,8 @@ namespace GraphQL\Type\Definition {
      *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
      *   resolveType?: ResolveType|null,
      *   resolveValue?: ResolveValue|null,
-     *   astNode?: InterfaceTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<InterfaceTypeExtensionNode>|null
+     *   astNode?: \GraphQL\Language\AST\InterfaceTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\InterfaceTypeExtensionNode>|null
      * }
      */
     class InterfaceType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\AbstractType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\HasFieldsType, \GraphQL\Type\Definition\NamedType, \GraphQL\Type\Definition\ImplementingType
@@ -11985,14 +11985,14 @@ namespace GraphQL\Type\Definition {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
         use \GraphQL\Type\Definition\ImplementingTypeImplementation;
         public ?\GraphQL\Language\AST\InterfaceTypeDefinitionNode $astNode;
-        /** @var array<InterfaceTypeExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\InterfaceTypeExtensionNode> */
         public array $extensionASTNodes;
         /** @phpstan-var InterfaceConfig */
         public array $config;
         /**
          * @phpstan-param InterfaceConfig $config
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(array $config)
         {
@@ -12000,7 +12000,7 @@ namespace GraphQL\Type\Definition {
         /**
          * @param mixed $type
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function assertInterfaceType($type): self
         {
@@ -12012,8 +12012,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(): void
         {
@@ -12021,7 +12021,7 @@ namespace GraphQL\Type\Definition {
         public function astNode(): ?\GraphQL\Language\AST\InterfaceTypeDefinitionNode
         {
         }
-        /** @return array<InterfaceTypeExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\InterfaceTypeExtensionNode> */
         public function extensionASTNodes(): array
         {
         }
@@ -12255,8 +12255,8 @@ namespace GraphQL\Type\Definition {
      *         ],
      *     ]);
      *
-     * @phpstan-import-type FieldResolver from Executor
-     * @phpstan-import-type ArgsMapper from Executor
+     * @phpstan-import-type FieldResolver from \GraphQL\Executor\Executor
+     * @phpstan-import-type ArgsMapper from \GraphQL\Executor\Executor
      *
      * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
      * @phpstan-type ObjectConfig array{
@@ -12266,9 +12266,9 @@ namespace GraphQL\Type\Definition {
      *   argsMapper?: ArgsMapper|null,
      *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
      *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
-     *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
-     *   astNode?: ObjectTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<ObjectTypeExtensionNode>|null
+     *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|\GraphQL\Deferred|null))|null,
+     *   astNode?: \GraphQL\Language\AST\ObjectTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\ObjectTypeExtensionNode>|null
      * }
      */
     class ObjectType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\HasFieldsType, \GraphQL\Type\Definition\NamedType, \GraphQL\Type\Definition\ImplementingType
@@ -12277,7 +12277,7 @@ namespace GraphQL\Type\Definition {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
         use \GraphQL\Type\Definition\ImplementingTypeImplementation;
         public ?\GraphQL\Language\AST\ObjectTypeDefinitionNode $astNode;
-        /** @var array<ObjectTypeExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\ObjectTypeExtensionNode> */
         public array $extensionASTNodes;
         /**
          * @var callable|null
@@ -12296,7 +12296,7 @@ namespace GraphQL\Type\Definition {
         /**
          * @phpstan-param ObjectConfig $config
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(array $config)
         {
@@ -12304,7 +12304,7 @@ namespace GraphQL\Type\Definition {
         /**
          * @param mixed $type
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function assertObjectType($type): self
         {
@@ -12313,7 +12313,7 @@ namespace GraphQL\Type\Definition {
          * @param mixed $objectValue The resolved value for the object type
          * @param mixed $context The context that was passed to GraphQL::execute()
          *
-         * @return bool|Deferred|null
+         * @return bool|\GraphQL\Deferred|null
          */
         public function isTypeOf($objectValue, $context, \GraphQL\Type\Definition\ResolveInfo $info)
         {
@@ -12322,8 +12322,8 @@ namespace GraphQL\Type\Definition {
          * Validates type config and throws if one of the type options is invalid.
          * Note: this method is shallow, it won't validate object fields and their arguments.
          *
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(): void
         {
@@ -12331,7 +12331,7 @@ namespace GraphQL\Type\Definition {
         public function astNode(): ?\GraphQL\Language\AST\ObjectTypeDefinitionNode
         {
         }
-        /** @return array<ObjectTypeExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\ObjectTypeExtensionNode> */
         public function extensionASTNodes(): array
         {
         }
@@ -12440,22 +12440,22 @@ namespace GraphQL\Type\Definition {
      * @phpstan-type ScalarConfig array{
      *   name?: string|null,
      *   description?: string|null,
-     *   astNode?: ScalarTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
+     *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeExtensionNode>|null
      * }
      */
     abstract class ScalarType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\InputType, \GraphQL\Type\Definition\LeafType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
     {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
         public ?\GraphQL\Language\AST\ScalarTypeDefinitionNode $astNode;
-        /** @var array<ScalarTypeExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\ScalarTypeExtensionNode> */
         public array $extensionASTNodes;
         /** @phpstan-var ScalarConfig */
         public array $config;
         /**
          * @phpstan-param ScalarConfig $config
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(array $config = [])
         {
@@ -12466,7 +12466,7 @@ namespace GraphQL\Type\Definition {
         public function astNode(): ?\GraphQL\Language\AST\ScalarTypeDefinitionNode
         {
         }
-        /** @return array<ScalarTypeExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\ScalarTypeExtensionNode> */
         public function extensionASTNodes(): array
         {
         }
@@ -12477,18 +12477,18 @@ namespace GraphQL\Type\Definition {
      *   description?: string|null,
      *   serialize?: callable(mixed): mixed,
      *   parseValue: callable(mixed): mixed,
-     *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
-     *   astNode?: ScalarTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
+     *   parseLiteral: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+     *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeExtensionNode>|null
      * }
      * @phpstan-type OutputCustomScalarConfig array{
      *   name?: string|null,
      *   description?: string|null,
      *   serialize: callable(mixed): mixed,
      *   parseValue?: callable(mixed): mixed,
-     *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
-     *   astNode?: ScalarTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
+     *   parseLiteral?: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+     *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeExtensionNode>|null
      * }
      * @phpstan-type CustomScalarConfig InputCustomScalarConfig|OutputCustomScalarConfig
      */
@@ -12516,8 +12516,8 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(): void
         {
@@ -12583,32 +12583,32 @@ namespace GraphQL\Type\Definition {
      *   types: iterable<ObjectTypeReference>|callable(): iterable<ObjectTypeReference>,
      *   resolveType?: ResolveType|null,
      *   resolveValue?: ResolveValue|null,
-     *   astNode?: UnionTypeDefinitionNode|null,
-     *   extensionASTNodes?: array<UnionTypeExtensionNode>|null
+     *   astNode?: \GraphQL\Language\AST\UnionTypeDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\UnionTypeExtensionNode>|null
      * }
      */
     class UnionType extends \GraphQL\Type\Definition\Type implements \GraphQL\Type\Definition\AbstractType, \GraphQL\Type\Definition\OutputType, \GraphQL\Type\Definition\CompositeType, \GraphQL\Type\Definition\NullableType, \GraphQL\Type\Definition\NamedType
     {
         use \GraphQL\Type\Definition\NamedTypeImplementation;
         public ?\GraphQL\Language\AST\UnionTypeDefinitionNode $astNode;
-        /** @var array<UnionTypeExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\UnionTypeExtensionNode> */
         public array $extensionASTNodes;
         /** @phpstan-var UnionConfig */
         public array $config;
         /**
          * @phpstan-param UnionConfig $config
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(array $config)
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function isPossibleType(\GraphQL\Type\Definition\Type $type): bool
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, ObjectType>
          */
@@ -12627,7 +12627,7 @@ namespace GraphQL\Type\Definition {
         public function astNode(): ?\GraphQL\Language\AST\UnionTypeDefinitionNode
         {
         }
-        /** @return array<UnionTypeExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\UnionTypeExtensionNode> */
         public function extensionASTNodes(): array
         {
         }
@@ -13836,21 +13836,21 @@ namespace GraphQL\Type {
      *     $schema = new GraphQL\Type\Schema($config);
      *
      * @phpstan-import-type SchemaConfigOptions from SchemaConfig
-     * @phpstan-import-type OperationType from OperationDefinitionNode
+     * @phpstan-import-type OperationType from \GraphQL\Language\AST\OperationDefinitionNode
      *
      * @see \GraphQL\Tests\Type\SchemaTest
      */
     class Schema
     {
         public ?\GraphQL\Language\AST\SchemaDefinitionNode $astNode;
-        /** @var array<SchemaExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\SchemaExtensionNode> */
         public array $extensionASTNodes = [];
         /**
          * @param SchemaConfig|array<string, mixed> $config
          *
          * @phpstan-param SchemaConfig|SchemaConfigOptions $config
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @api
          */
@@ -13862,9 +13862,9 @@ namespace GraphQL\Type {
          *
          * This operation requires a full schema scan. Do not use in production environment.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<string, Type&NamedType> Keys represent type names, values are instances of corresponding type definitions
+         * @return array<string, \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> Keys represent type names, values are instances of corresponding type definitions
          *
          * @api
          */
@@ -13874,9 +13874,9 @@ namespace GraphQL\Type {
         /**
          * Returns a list of directives supported by this schema.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<Directive>
+         * @return array<\GraphQL\Type\Definition\Directive>
          *
          * @api
          */
@@ -13925,23 +13925,23 @@ namespace GraphQL\Type {
         /**
          * Returns a type by name.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return (Type&NamedType)|null
+         * @return (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|null
          *
          * @api
          */
         public function getType(string $name): ?\GraphQL\Type\Definition\Type
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function hasType(string $name): bool
         {
         }
         /**
-         * @template T of Type
+         * @template T of \GraphQL\Type\Definition\Type
          *
-         * @param Type|callable $type
+         * @param \GraphQL\Type\Definition\Type|callable $type
          *
          * @phpstan-param T|callable():T $type
          *
@@ -13956,11 +13956,11 @@ namespace GraphQL\Type {
          *
          * This operation requires full schema scan. Do not use in production environment.
          *
-         * @param AbstractType&Type $abstractType
+         * @param \GraphQL\Type\Definition\AbstractType&\GraphQL\Type\Definition\Type $abstractType
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<ObjectType>
+         * @return array<\GraphQL\Type\Definition\ObjectType>
          *
          * @api
          */
@@ -13974,7 +13974,7 @@ namespace GraphQL\Type {
          *
          * @api
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function getImplementations(\GraphQL\Type\Definition\InterfaceType $abstractType): \GraphQL\Utils\InterfaceImplementations
         {
@@ -13982,12 +13982,12 @@ namespace GraphQL\Type {
         /**
          * Returns true if the given type is a sub type of the given abstract type.
          *
-         * @param AbstractType&Type $abstractType
-         * @param ImplementingType&Type $maybeSubType
+         * @param \GraphQL\Type\Definition\AbstractType&\GraphQL\Type\Definition\Type $abstractType
+         * @param \GraphQL\Type\Definition\ImplementingType&\GraphQL\Type\Definition\Type $maybeSubType
          *
          * @api
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function isSubType(\GraphQL\Type\Definition\AbstractType $abstractType, \GraphQL\Type\Definition\ImplementingType $maybeSubType): bool
         {
@@ -13997,7 +13997,7 @@ namespace GraphQL\Type {
          *
          * @api
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function getDirective(string $name): ?\GraphQL\Type\Definition\Directive
         {
@@ -14007,8 +14007,8 @@ namespace GraphQL\Type {
          *
          * This operation requires a full schema scan. Do not use in production environment.
          *
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @api
          */
@@ -14020,9 +14020,9 @@ namespace GraphQL\Type {
          *
          * This operation requires a full schema scan. Do not use in production environment.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<int, Error>
+         * @return array<int, \GraphQL\Error\Error>
          *
          * @api
          */
@@ -14749,7 +14749,7 @@ namespace GraphQLRelay\Connection {
     class Connection
     {
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected static $pageInfoType;
         /**
@@ -14790,7 +14790,7 @@ namespace GraphQLRelay\Connection {
          * Returns a GraphQLObjectType for a connection with the given name,
          * and whose nodes are of the specified type.
          *
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         public static function createConnectionType(array $config)
         {
@@ -14800,7 +14800,7 @@ namespace GraphQLRelay\Connection {
          * and whose nodes are of the specified type.
          *
          * @param array $config
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         public static function createEdgeType(array $config)
         {
@@ -14808,7 +14808,7 @@ namespace GraphQLRelay\Connection {
         /**
          * The common page info type used by all connections.
          *
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         public static function pageInfoType()
         {
@@ -14996,7 +14996,7 @@ namespace GraphQLRelay {
          * and whose nodes are of the specified type.
          *
          * @param array $config
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         public static function connectionType(array $config)
         {
@@ -15006,7 +15006,7 @@ namespace GraphQLRelay {
          * and whose nodes are of the specified type.
          *
          * @param array $config
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         public static function edgeType(array $config)
         {
@@ -15241,11 +15241,11 @@ namespace GraphQLRelay\Tests\Connection {
          */
         protected $userConnection;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $queryType;
         /**
-         * @var Schema
+         * @var \GraphQL\Type\Schema
          */
         protected $schema;
         public function setup(): void
@@ -15283,31 +15283,31 @@ namespace GraphQLRelay\Tests\Connection {
          */
         protected $allUsers;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $userType;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $friendEdge;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $friendConnection;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $userEdge;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $userConnection;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $queryType;
         /**
-         * @var Schema
+         * @var \GraphQL\Type\Schema
          */
         protected $schema;
         public function setup(): void
@@ -15334,31 +15334,31 @@ namespace GraphQLRelay\Tests\Mutation {
     class MutationTest extends \PHPUnit\Framework\TestCase
     {
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $simpleMutation;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $simpleMutationWithDescription;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $simpleMutationWithDeprecationReason;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $simpleMutationWithThunkFields;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $mutation;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected $edgeMutation;
         /**
-         * @var Schema
+         * @var \GraphQL\Type\Schema
          */
         protected $schema;
         public function setup(): void
@@ -15409,11 +15409,11 @@ namespace GraphQLRelay\Tests\Node {
          */
         protected static $nodeDefinition;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected static $userType;
         /**
-         * @var ObjectType
+         * @var \GraphQL\Type\Definition\ObjectType
          */
         protected static $photoType;
         public function testGetsCorrectIDForUsers()
@@ -15449,7 +15449,7 @@ namespace GraphQLRelay\Tests\Node {
         /**
          * Returns test schema
          *
-         * @return Schema
+         * @return \GraphQL\Type\Schema
          */
         protected function getSchema()
         {
@@ -15457,7 +15457,7 @@ namespace GraphQLRelay\Tests\Node {
         /**
          * Returns test query type
          *
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         protected function getQueryType()
         {
@@ -15707,7 +15707,7 @@ namespace GraphQLRelay\tests {
          *     name: String
          *   }
          *
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         protected static function getShipType()
         {
@@ -15722,7 +15722,7 @@ namespace GraphQLRelay\tests {
          *     ships: ShipConnection
          *   }
          *
-         * @return ObjectType
+         * @return \GraphQL\Type\Definition\ObjectType
          */
         protected static function getFactionType()
         {
@@ -15769,7 +15769,7 @@ namespace GraphQLRelay\tests {
         /**
          * Returns the complete schema for StarWars tests
          *
-         * @return Schema
+         * @return \GraphQL\Type\Schema
          */
         public static function getSchema()
         {
@@ -15856,7 +15856,7 @@ namespace GraphQL\Executor\Promise\Adapter {
          * @param (callable(mixed): mixed)|null $onFulfilled
          * @param (callable(\Throwable): mixed)|null $onRejected
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
         {
@@ -15966,13 +15966,13 @@ namespace GraphQL\Error {
         /**
          * An array of GraphQL AST Nodes corresponding to this error.
          *
-         * @var array<Node>|null
+         * @var array<\GraphQL\Language\AST\Node>|null
          */
         public ?array $nodes;
         /** @var array<string, mixed>|null */
         protected ?array $extensions;
         /**
-         * @param iterable<array-key, Node|null>|Node|null $nodes
+         * @param iterable<array-key, \GraphQL\Language\AST\Node|null>|\GraphQL\Language\AST\Node|null $nodes
          * @param array<int, int>|null $positions
          * @param list<int|string>|null $path
          * @param array<string, mixed>|null $extensions
@@ -15987,7 +15987,7 @@ namespace GraphQL\Error {
          * document responsible for the original Error.
          *
          * @param mixed $error
-         * @param iterable<Node>|Node|null $nodes
+         * @param iterable<\GraphQL\Language\AST\Node>|\GraphQL\Language\AST\Node|null $nodes
          * @param list<int|string>|null $path
          * @param list<int|string>|null $unaliasedPath
          */
@@ -16018,14 +16018,14 @@ namespace GraphQL\Error {
          * point out to field mentioned in multiple fragments. Errors during execution include a
          * single location, the field which produced the error.
          *
-         * @return array<int, SourceLocation>
+         * @return array<int, \GraphQL\Language\SourceLocation>
          *
          * @api
          */
         public function getLocations(): array
         {
         }
-        /** @return array<Node>|null */
+        /** @return array<\GraphQL\Language\AST\Node>|null */
         public function getNodes(): ?array
         {
         }
@@ -16114,8 +16114,8 @@ namespace GraphQL\Error {
      *
      * @see ExecutionResult
      *
-     * @phpstan-import-type SerializableError from ExecutionResult
-     * @phpstan-import-type ErrorFormatter from ExecutionResult
+     * @phpstan-import-type SerializableError from \GraphQL\Executor\ExecutionResult
+     * @phpstan-import-type ErrorFormatter from \GraphQL\Executor\ExecutionResult
      *
      * @see \GraphQL\Tests\Error\FormattedErrorTest
      */
@@ -16304,7 +16304,7 @@ namespace GraphQL\Executor {
     class ExecutionContext
     {
         public \GraphQL\Type\Schema $schema;
-        /** @var array<string, FragmentDefinitionNode> */
+        /** @var array<string, \GraphQL\Language\AST\FragmentDefinitionNode> */
         public array $fragments;
         /** @var mixed */
         public $rootValue;
@@ -16325,15 +16325,15 @@ namespace GraphQL\Executor {
          * @phpstan-var ArgsMapper
          */
         public $argsMapper;
-        /** @var list<Error> */
+        /** @var list<\GraphQL\Error\Error> */
         public array $errors;
         public \GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter;
         /**
-         * @param array<string, FragmentDefinitionNode> $fragments
+         * @param array<string, \GraphQL\Language\AST\FragmentDefinitionNode> $fragments
          * @param mixed $rootValue
          * @param mixed $contextValue
          * @param array<string, mixed> $variableValues
-         * @param list<Error> $errors
+         * @param list<\GraphQL\Error\Error> $errors
          *
          * @phpstan-param FieldResolver $fieldResolver
          */
@@ -16365,7 +16365,7 @@ namespace GraphQL\Executor {
      *     extensions?: array<string, mixed>
      * }
      * @phpstan-type ErrorFormatter callable(\Throwable): SerializableError
-     * @phpstan-type ErrorsHandler callable(list<Error> $errors, ErrorFormatter $formatter): SerializableErrors
+     * @phpstan-type ErrorsHandler callable(list<\GraphQL\Error\Error> $errors, ErrorFormatter $formatter): SerializableErrors
      *
      * @see \GraphQL\Tests\Executor\ExecutionResultTest
      */
@@ -16387,7 +16387,7 @@ namespace GraphQL\Executor {
          *
          * @api
          *
-         * @var list<Error>
+         * @var list<\GraphQL\Error\Error>
          */
         public array $errors = [];
         /**
@@ -16400,7 +16400,7 @@ namespace GraphQL\Executor {
         public ?array $extensions = null;
         /**
          * @param array<string, mixed>|null $data
-         * @param list<Error> $errors
+         * @param list<\GraphQL\Error\Error> $errors
          * @param array<string, mixed> $extensions
          */
         public function __construct(?array $data = null, array $errors = [], array $extensions = [])
@@ -16467,9 +16467,9 @@ namespace GraphQL\Executor {
     /**
      * Implements the "Evaluating requests" section of the GraphQL specification.
      *
-     * @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode, mixed): mixed
-     * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
-     * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
+     * @phpstan-type ArgsMapper callable(array<string, mixed>, \GraphQL\Type\Definition\FieldDefinition, \GraphQL\Language\AST\FieldNode, mixed): mixed
+     * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, \GraphQL\Type\Definition\ResolveInfo): mixed
+     * @phpstan-type ImplementationFactory callable(\GraphQL\Executor\Promise\PromiseAdapter, \GraphQL\Type\Schema, \GraphQL\Language\AST\DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
      *
      * @see \GraphQL\Tests\Executor\ExecutorTest
      */
@@ -16528,7 +16528,7 @@ namespace GraphQL\Executor {
          *
          * @api
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function execute(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue = null, $contextValue = null, ?array $variableValues = null, ?string $operationName = null, ?callable $fieldResolver = null): \GraphQL\Executor\ExecutionResult
         {
@@ -16653,32 +16653,32 @@ namespace GraphQL\Executor\Promise\Adapter {
         public function isThenable($value): bool
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function create(callable $resolver): \GraphQL\Executor\Promise\Promise
         {
         }
         /**
          * @throws \Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function createRejected(\Throwable $reason): \GraphQL\Executor\Promise\Promise
         {
         }
         /**
          * @throws \Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function all(iterable $promisesOrValues): \GraphQL\Executor\Promise\Promise
         {
@@ -16689,27 +16689,27 @@ namespace GraphQL\Executor\Promise\Adapter {
         public function isThenable($value): bool
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function create(callable $resolver): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function createRejected(\Throwable $reason): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function all(iterable $promisesOrValues): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -16723,38 +16723,38 @@ namespace GraphQL\Executor\Promise\Adapter {
         public function isThenable($value): bool
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function create(callable $resolver): \GraphQL\Executor\Promise\Promise
         {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise
         {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function createRejected(\Throwable $reason): \GraphQL\Executor\Promise\Promise
         {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function all(iterable $promisesOrValues): \GraphQL\Executor\Promise\Promise
         {
@@ -16762,7 +16762,7 @@ namespace GraphQL\Executor\Promise\Adapter {
         /**
          * Synchronously wait when promise completes.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return mixed
          */
@@ -16839,12 +16839,12 @@ namespace GraphQL\Executor\Promise {
      */
     class Promise
     {
-        /** @var SyncPromise|ReactPromise<mixed>|AmpPromise<mixed> */
+        /** @var \GraphQL\Executor\Promise\Adapter\SyncPromise|\React\Promise\PromiseInterface<mixed>|\Amp\Promise<mixed> */
         public $adoptedPromise;
         /**
          * @param mixed $adoptedPromise
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct($adoptedPromise, \GraphQL\Executor\Promise\PromiseAdapter $adapter)
         {
@@ -16866,10 +16866,10 @@ namespace GraphQL\Executor {
     }
     /**
      * @phpstan-import-type FieldResolver from Executor
-     * @phpstan-import-type Path from ResolveInfo
+     * @phpstan-import-type Path from \GraphQL\Type\Definition\ResolveInfo
      * @phpstan-import-type ArgsMapper from Executor
      *
-     * @phpstan-type Fields \ArrayObject<string, \ArrayObject<int, FieldNode>>
+     * @phpstan-type Fields \ArrayObject<string, \ArrayObject<int, \GraphQL\Language\AST\FieldNode>>
      */
     class ReferenceExecutor implements \GraphQL\Executor\ExecutorImplementation
     {
@@ -16877,12 +16877,12 @@ namespace GraphQL\Executor {
         protected \GraphQL\Executor\ExecutionContext $exeContext;
         /**
          * @var \SplObjectStorage<
-         *     ObjectType,
+         *     \GraphQL\Type\Definition\ObjectType,
          *     \SplObjectStorage<
-         *         \ArrayObject<int, FieldNode>,
+         *         \ArrayObject<int, \GraphQL\Language\AST\FieldNode>,
          *         \ArrayObject<
          *             string,
-         *             \ArrayObject<int, FieldNode>
+         *             \ArrayObject<int, \GraphQL\Language\AST\FieldNode>
          *         >
          *     >
          * >
@@ -16890,8 +16890,8 @@ namespace GraphQL\Executor {
         protected \SplObjectStorage $subFieldCache;
         /**
          * @var \SplObjectStorage<
-         *     FieldDefinition,
-         *     \SplObjectStorage<FieldNode, mixed>
+         *     \GraphQL\Type\Definition\FieldDefinition,
+         *     \SplObjectStorage<\GraphQL\Language\AST\FieldNode, mixed>
          * >
          */
         protected \SplObjectStorage $fieldArgsCache;
@@ -16926,14 +16926,14 @@ namespace GraphQL\Executor {
          *
          * @throws \Exception
          *
-         * @return ExecutionContext|list<Error>
+         * @return ExecutionContext|list<\GraphQL\Error\Error>
          */
         protected static function buildExecutionContext(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentNode, $rootValue, $contextValue, array $rawVariableValues, ?string $operationName, callable $fieldResolver, callable $argsMapper, \GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter)
         {
         }
         /**
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public function doExecute(): \GraphQL\Executor\Promise\Promise
         {
@@ -16941,7 +16941,7 @@ namespace GraphQL\Executor {
         /**
          * @param mixed $data
          *
-         * @return ExecutionResult|Promise
+         * @return ExecutionResult|\GraphQL\Executor\Promise\Promise
          */
         protected function buildResponse($data)
         {
@@ -16953,7 +16953,7 @@ namespace GraphQL\Executor {
          *
          * @throws \Exception
          *
-         * @return array<mixed>|Promise|\stdClass|null
+         * @return array<mixed>|\GraphQL\Executor\Promise\Promise|\stdClass|null
          */
         protected function executeOperation(\GraphQL\Language\AST\OperationDefinitionNode $operation, $rootValue)
         {
@@ -16966,7 +16966,7 @@ namespace GraphQL\Executor {
          * Extracts the root type of the operation from the schema.
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         protected function getOperationRootType(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\OperationDefinitionNode $operation): \GraphQL\Type\Definition\ObjectType
         {
@@ -16984,7 +16984,7 @@ namespace GraphQL\Executor {
          * @phpstan-param Fields $fields
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @phpstan-return Fields
          */
@@ -16995,10 +16995,10 @@ namespace GraphQL\Executor {
          * Determines if a field should be included based on the @include and @skip
          * directives, where @skip has higher precedence than @include.
          *
-         * @param FragmentSpreadNode|FieldNode|InlineFragmentNode $node
+         * @param \GraphQL\Language\AST\FragmentSpreadNode|\GraphQL\Language\AST\FieldNode|\GraphQL\Language\AST\InlineFragmentNode $node
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         protected function shouldIncludeNode(\GraphQL\Language\AST\SelectionNode $node): bool
         {
@@ -17010,7 +17010,7 @@ namespace GraphQL\Executor {
         /**
          * Determines if a fragment is applicable to the given type.
          *
-         * @param FragmentDefinitionNode|InlineFragmentNode $fragment
+         * @param \GraphQL\Language\AST\FragmentDefinitionNode|\GraphQL\Language\AST\InlineFragmentNode $fragment
          *
          * @throws \Exception
          */
@@ -17027,7 +17027,7 @@ namespace GraphQL\Executor {
          *
          * @phpstan-param Fields $fields
          *
-         * @return array<mixed>|Promise|\stdClass
+         * @return array<mixed>|\GraphQL\Executor\Promise\Promise|\stdClass
          */
         protected function executeFieldsSerially(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, array $unaliasedPath, \ArrayObject $fields, $contextValue)
         {
@@ -17043,13 +17043,13 @@ namespace GraphQL\Executor {
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $contextValue
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          *
          * @phpstan-param Path                $path
          * @phpstan-param Path                $unaliasedPath
          *
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<mixed>|\Throwable|mixed|null
          */
@@ -17066,7 +17066,7 @@ namespace GraphQL\Executor {
          * added to the query type, but that would require mutating type
          * definitions, which would cause issues.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function getFieldDef(\GraphQL\Type\Schema $schema, \GraphQL\Type\Definition\ObjectType $parentType, string $fieldName): ?\GraphQL\Type\Definition\FieldDefinition
         {
@@ -17080,7 +17080,7 @@ namespace GraphQL\Executor {
          *
          * @phpstan-param FieldResolver $resolveFn
          *
-         * @return \Throwable|Promise|mixed
+         * @return \Throwable|\GraphQL\Executor\Promise\Promise|mixed
          */
         protected function resolveFieldValueOrError(\GraphQL\Type\Definition\FieldDefinition $fieldDef, \GraphQL\Language\AST\FieldNode $fieldNode, callable $resolveFn, callable $argsMapper, $rootValue, \GraphQL\Type\Definition\ResolveInfo $info, $contextValue)
         {
@@ -17089,7 +17089,7 @@ namespace GraphQL\Executor {
          * This is a small wrapper around completeValue which detects and logs errors
          * in the execution context.
          *
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $contextValue
@@ -17098,20 +17098,20 @@ namespace GraphQL\Executor {
          * @phpstan-param Path                $path
          * @phpstan-param Path                $unaliasedPath
          *
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
-         * @return array<mixed>|Promise|\stdClass|null
+         * @return array<mixed>|\GraphQL\Executor\Promise\Promise|\stdClass|null
          */
         protected function completeValueCatchingError(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, array $unaliasedPath, $result, $contextValue)
         {
         }
         /**
          * @param mixed $rawError
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          *
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         protected function handleFieldError($rawError, \ArrayObject $fieldNodes, array $path, array $unaliasedPath, \GraphQL\Type\Definition\Type $returnType): void
         {
@@ -17137,16 +17137,16 @@ namespace GraphQL\Executor {
          * Otherwise, the field type expects a sub-selection set, and will complete the
          * value by evaluating all sub-selections.
          *
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $result
          * @param mixed $contextValue
          *
          * @throws \Throwable
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
-         * @return array<mixed>|mixed|Promise|null
+         * @return array<mixed>|mixed|\GraphQL\Executor\Promise\Promise|null
          */
         protected function completeValue(\GraphQL\Type\Definition\Type $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, array $unaliasedPath, $result, $contextValue)
         {
@@ -17172,9 +17172,9 @@ namespace GraphQL\Executor {
          * return a Promise.
          *
          * @param array<mixed> $values
-         * @param Promise|mixed|null $initialValue
+         * @param \GraphQL\Executor\Promise\Promise|mixed|null $initialValue
          *
-         * @return Promise|mixed|null
+         * @return \GraphQL\Executor\Promise\Promise|mixed|null
          */
         protected function promiseReduce(array $values, callable $callback, $initialValue)
         {
@@ -17182,16 +17182,16 @@ namespace GraphQL\Executor {
         /**
          * Complete a list value by completing each item in the list with the inner type.
          *
-         * @param ListOfType<Type&OutputType> $returnType
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \GraphQL\Type\Definition\ListOfType<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\OutputType> $returnType
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param iterable<mixed> $results
          * @param mixed $contextValue
          *
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
-         * @return array<mixed>|Promise|\stdClass
+         * @return array<mixed>|\GraphQL\Executor\Promise\Promise|\stdClass
          */
         protected function completeListValue(\GraphQL\Type\Definition\ListOfType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, array $unaliasedPath, iterable $results, $contextValue)
         {
@@ -17212,18 +17212,18 @@ namespace GraphQL\Executor {
          * Complete a value of an abstract type by determining the runtime object type
          * of that value, then complete the value for that type.
          *
-         * @param AbstractType&Type $returnType
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \GraphQL\Type\Definition\AbstractType&\GraphQL\Type\Definition\Type $returnType
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $result
          * @param mixed $contextValue
          *
          * @throws \Exception
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<mixed>|Promise|\stdClass
+         * @return array<mixed>|\GraphQL\Executor\Promise\Promise|\stdClass
          */
         protected function completeAbstractValue(\GraphQL\Type\Definition\AbstractType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, array $unaliasedPath, $result, $contextValue)
         {
@@ -17240,11 +17240,11 @@ namespace GraphQL\Executor {
          *
          * @param mixed|null $value
          * @param mixed|null $contextValue
-         * @param AbstractType&Type $abstractType
+         * @param \GraphQL\Type\Definition\AbstractType&\GraphQL\Type\Definition\Type $abstractType
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return Promise|Type|string|null
+         * @return \GraphQL\Executor\Promise\Promise|\GraphQL\Type\Definition\Type|string|null
          */
         protected function defaultTypeResolver($value, $contextValue, \GraphQL\Type\Definition\ResolveInfo $info, \GraphQL\Type\Definition\AbstractType $abstractType)
         {
@@ -17252,38 +17252,38 @@ namespace GraphQL\Executor {
         /**
          * Complete an Object value by executing all sub-selections.
          *
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $result
          * @param mixed $contextValue
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
-         * @return array<mixed>|Promise|\stdClass
+         * @return array<mixed>|\GraphQL\Executor\Promise\Promise|\stdClass
          */
         protected function completeObjectValue(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, \GraphQL\Type\Definition\ResolveInfo $info, array $path, array $unaliasedPath, $result, $contextValue)
         {
         }
         /**
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param mixed $result
          */
         protected function invalidReturnTypeError(\GraphQL\Type\Definition\ObjectType $returnType, $result, \ArrayObject $fieldNodes): \GraphQL\Error\Error
         {
         }
         /**
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
          * @param list<string|int> $unaliasedPath
          * @param mixed $result
          * @param mixed $contextValue
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
-         * @return array<mixed>|Promise|\stdClass
+         * @return array<mixed>|\GraphQL\Executor\Promise\Promise|\stdClass
          */
         protected function collectAndExecuteSubfields(\GraphQL\Type\Definition\ObjectType $returnType, \ArrayObject $fieldNodes, array $path, array $unaliasedPath, $result, $contextValue)
         {
@@ -17293,10 +17293,10 @@ namespace GraphQL\Executor {
          * type. Memoizing ensures the subfields are not repeatedly calculated, which
          * saves overhead when resolving lists of values.
          *
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @phpstan-return Fields
          */
@@ -17313,10 +17313,10 @@ namespace GraphQL\Executor {
          *
          * @phpstan-param Fields $fields
          *
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return Promise|\stdClass|array<mixed>
+         * @return \GraphQL\Executor\Promise\Promise|\stdClass|array<mixed>
          */
         protected function executeFields(\GraphQL\Type\Definition\ObjectType $parentType, $rootValue, array $path, array $unaliasedPath, \ArrayObject $fields, $contextValue)
         {
@@ -17337,17 +17337,17 @@ namespace GraphQL\Executor {
          * Transform an associative array with Promises to a Promise which resolves to an
          * associative array where all Promises were resolved.
          *
-         * @param array<string, Promise|mixed> $assoc
+         * @param array<string, \GraphQL\Executor\Promise\Promise|mixed> $assoc
          */
         protected function promiseForAssocArray(array $assoc): \GraphQL\Executor\Promise\Promise
         {
         }
         /**
          * @param mixed $runtimeTypeOrName
-         * @param AbstractType&Type $returnType
+         * @param \GraphQL\Type\Definition\AbstractType&\GraphQL\Type\Definition\Type $returnType
          * @param mixed $result
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function ensureValidRuntimeType($runtimeTypeOrName, \GraphQL\Type\Definition\AbstractType $returnType, \GraphQL\Type\Definition\ResolveInfo $info, $result): \GraphQL\Type\Definition\ObjectType
         {
@@ -17365,7 +17365,7 @@ namespace GraphQL\Executor {
     /**
      * @see ArgumentNode - force IDE import
      *
-     * @phpstan-import-type ArgumentNodeValue from ArgumentNode
+     * @phpstan-import-type ArgumentNodeValue from \GraphQL\Language\AST\ArgumentNode
      *
      * @see \GraphQL\Tests\Executor\ValuesTest
      */
@@ -17376,12 +17376,12 @@ namespace GraphQL\Executor {
          * variable definitions and arbitrary input. If the input cannot be coerced
          * to match the variable definitions, an Error will be thrown.
          *
-         * @param NodeList<VariableDefinitionNode> $varDefNodes
+         * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\VariableDefinitionNode> $varDefNodes
          * @param array<string, mixed> $rawVariableValues
          *
          * @throws \Exception
          *
-         * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
+         * @return array{array<int, \GraphQL\Error\Error>, null}|array{null, array<string, mixed>}
          */
         public static function getVariableValues(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\NodeList $varDefNodes, array $rawVariableValues): array
         {
@@ -17393,11 +17393,11 @@ namespace GraphQL\Executor {
          *
          * If the directive does not exist on the node, returns undefined.
          *
-         * @param EnumTypeDefinitionNode|EnumTypeExtensionNode|EnumValueDefinitionNode|FieldDefinitionNode|FieldNode|FragmentDefinitionNode|FragmentSpreadNode|InlineFragmentNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode|InputValueDefinitionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|OperationDefinitionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode|SchemaExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|VariableDefinitionNode $node
+         * @param \GraphQL\Language\AST\EnumTypeDefinitionNode|\GraphQL\Language\AST\EnumTypeExtensionNode|\GraphQL\Language\AST\EnumValueDefinitionNode|\GraphQL\Language\AST\FieldDefinitionNode|\GraphQL\Language\AST\FieldNode|\GraphQL\Language\AST\FragmentDefinitionNode|\GraphQL\Language\AST\FragmentSpreadNode|\GraphQL\Language\AST\InlineFragmentNode|\GraphQL\Language\AST\InputObjectTypeDefinitionNode|\GraphQL\Language\AST\InputObjectTypeExtensionNode|\GraphQL\Language\AST\InputValueDefinitionNode|\GraphQL\Language\AST\InterfaceTypeDefinitionNode|\GraphQL\Language\AST\InterfaceTypeExtensionNode|\GraphQL\Language\AST\ObjectTypeDefinitionNode|\GraphQL\Language\AST\ObjectTypeExtensionNode|\GraphQL\Language\AST\OperationDefinitionNode|\GraphQL\Language\AST\ScalarTypeDefinitionNode|\GraphQL\Language\AST\ScalarTypeExtensionNode|\GraphQL\Language\AST\SchemaExtensionNode|\GraphQL\Language\AST\UnionTypeDefinitionNode|\GraphQL\Language\AST\UnionTypeExtensionNode|\GraphQL\Language\AST\VariableDefinitionNode $node
          * @param array<string, mixed>|null $variableValues
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @return array<string, mixed>|null
          */
@@ -17408,12 +17408,12 @@ namespace GraphQL\Executor {
          * Prepares an object map of argument values given a list of argument
          * definitions and list of argument AST nodes.
          *
-         * @param FieldDefinition|Directive $def
-         * @param FieldNode|DirectiveNode $node
+         * @param \GraphQL\Type\Definition\FieldDefinition|\GraphQL\Type\Definition\Directive $def
+         * @param \GraphQL\Language\AST\FieldNode|\GraphQL\Language\AST\DirectiveNode $node
          * @param array<string, mixed>|null $variableValues
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @return array<string, mixed>
          */
@@ -17421,12 +17421,12 @@ namespace GraphQL\Executor {
         {
         }
         /**
-         * @param FieldDefinition|Directive $def
+         * @param \GraphQL\Type\Definition\FieldDefinition|\GraphQL\Type\Definition\Directive $def
          * @param array<string, ArgumentNodeValue> $argumentValueMap
          * @param array<string, mixed>|null $variableValues
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @return array<string, mixed>
          */
@@ -17440,8 +17440,8 @@ namespace GraphQL {
      * This is the primary facade for fulfilling GraphQL operations.
      * See [related documentation](executing-queries.md).
      *
-     * @phpstan-import-type ArgsMapper from Executor
-     * @phpstan-import-type FieldResolver from Executor
+     * @phpstan-import-type ArgsMapper from \GraphQL\Executor\Executor
+     * @phpstan-import-type FieldResolver from \GraphQL\Executor\Executor
      *
      * @see \GraphQL\Tests\GraphQLTest
      */
@@ -17487,16 +17487,16 @@ namespace GraphQL {
          *    Empty array would allow to skip query validation (may be convenient for persisted
          *    queries which are validated before persisting and assumed valid during execution)
          *
-         * @param string|DocumentNode $source
+         * @param string|\GraphQL\Language\AST\DocumentNode $source
          * @param mixed $rootValue
          * @param mixed $contextValue
          * @param array<string, mixed>|null $variableValues
-         * @param array<ValidationRule>|null $validationRules
+         * @param array<\GraphQL\Validator\Rules\ValidationRule>|null $validationRules
          *
          * @api
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function executeQuery(\GraphQL\Type\Schema $schema, $source, $rootValue = null, $contextValue = null, ?array $variableValues = null, ?string $operationName = null, ?callable $fieldResolver = null, ?array $validationRules = null): \GraphQL\Executor\ExecutionResult
         {
@@ -17505,11 +17505,11 @@ namespace GraphQL {
          * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
          * Useful for Async PHP platforms.
          *
-         * @param string|DocumentNode $source
+         * @param string|\GraphQL\Language\AST\DocumentNode $source
          * @param mixed $rootValue
          * @param mixed $context
          * @param array<string, mixed>|null $variableValues
-         * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
+         * @param array<\GraphQL\Validator\Rules\ValidationRule>|null $validationRules Defaults to using all available rules
          *
          * @api
          *
@@ -17521,9 +17521,9 @@ namespace GraphQL {
         /**
          * Returns directives defined in GraphQL spec.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<string, Directive>
+         * @return array<string, \GraphQL\Type\Definition\Directive>
          *
          * @api
          */
@@ -17533,9 +17533,9 @@ namespace GraphQL {
         /**
          * Returns types defined in GraphQL spec.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<string, ScalarType>
+         * @return array<string, \GraphQL\Type\Definition\ScalarType>
          *
          * @api
          */
@@ -17547,11 +17547,11 @@ namespace GraphQL {
          *
          * Standard types not listed here remain untouched.
          *
-         * @param array<string, ScalarType> $types
+         * @param array<string, \GraphQL\Type\Definition\ScalarType> $types
          *
          * @api
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function overrideStandardTypes(array $types): void
         {
@@ -17559,7 +17559,7 @@ namespace GraphQL {
         /**
          * Returns standard validation rules implementing GraphQL spec.
          *
-         * @return array<class-string<ValidationRule>, ValidationRule>
+         * @return array<class-string<\GraphQL\Validator\Rules\ValidationRule>, \GraphQL\Validator\Rules\ValidationRule>
          *
          * @api
          */
@@ -17627,7 +17627,7 @@ namespace GraphQL\Language\AST {
          * Returns a clone of this instance and all its children, except Location $loc.
          *
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return static
          */
@@ -17641,7 +17641,7 @@ namespace GraphQL\Language\AST {
          * @phpstan-param TCloneable $value
          *
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @phpstan-return TCloneable
          */
@@ -18200,7 +18200,7 @@ namespace GraphQL\Language\AST {
          * @phpstan-param T|array<string, mixed> $value
          *
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         #[\ReturnTypeWillChange]
         public function offsetSet($offset, $value): void
@@ -18243,7 +18243,7 @@ namespace GraphQL\Language\AST {
          * Returns a clone of this instance and all its children, except Location $loc.
          *
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return static<T>
          */
@@ -18516,14 +18516,14 @@ namespace GraphQL\Language {
         }
         /**
          * @throws \JsonException
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\SyntaxError
          */
         public function advance(): \GraphQL\Language\Token
         {
         }
         /**
          * @throws \JsonException
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\SyntaxError
          */
         public function lookahead(): \GraphQL\Language\Token
         {
@@ -18575,71 +18575,71 @@ namespace GraphQL\Language {
      *   future.)
      * Those magic functions allow partial parsing:
      *
-     * @method static NameNode name(Source|string $source, ParserOptions $options = [])
-     * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, ParserOptions $options = [])
-     * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static OperationDefinitionNode operationDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NameNode name(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ExecutableDefinitionNode|\GraphQL\Language\AST\TypeSystemDefinitionNode definition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ExecutableDefinitionNode executableDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\OperationDefinitionNode operationDefinition(Source|string $source, ParserOptions $options = [])
      * @method static string operationType(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, ParserOptions $options = [])
-     * @method static VariableDefinitionNode variableDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static VariableNode variable(Source|string $source, ParserOptions $options = [])
-     * @method static SelectionSetNode selectionSet(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\VariableDefinitionNode> variableDefinitions(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\VariableDefinitionNode variableDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\VariableNode variable(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\SelectionSetNode selectionSet(Source|string $source, ParserOptions $options = [])
      * @method static mixed selection(Source|string $source, ParserOptions $options = [])
-     * @method static FieldNode field(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<ArgumentNode> arguments(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<ArgumentNode> constArguments(Source|string $source, ParserOptions $options = [])
-     * @method static ArgumentNode argument(Source|string $source, ParserOptions $options = [])
-     * @method static ArgumentNode constArgument(Source|string $source, ParserOptions $options = [])
-     * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, ParserOptions $options = [])
-     * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static NameNode fragmentName(Source|string $source, ParserOptions $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, ParserOptions $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, ParserOptions $options = [])
-     * @method static StringValueNode stringLiteral(Source|string $source, ParserOptions $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, ParserOptions $options = [])
-     * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, ParserOptions $options = [])
-     * @method static ListValueNode array(Source|string $source, ParserOptions $options = [])
-     * @method static ListValueNode constArray(Source|string $source, ParserOptions $options = [])
-     * @method static ObjectValueNode object(Source|string $source, ParserOptions $options = [])
-     * @method static ObjectValueNode constObject(Source|string $source, ParserOptions $options = [])
-     * @method static ObjectFieldNode objectField(Source|string $source, ParserOptions $options = [])
-     * @method static ObjectFieldNode constObjectField(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<DirectiveNode> directives(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, ParserOptions $options = [])
-     * @method static DirectiveNode directive(Source|string $source, ParserOptions $options = [])
-     * @method static DirectiveNode constDirective(Source|string $source, ParserOptions $options = [])
-     * @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, ParserOptions $options = [])
-     * @method static NamedTypeNode namedType(Source|string $source, ParserOptions $options = [])
-     * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static StringValueNode|null description(Source|string $source, ParserOptions $options = [])
-     * @method static SchemaDefinitionNode schemaDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static FieldDefinitionNode fieldDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, ParserOptions $options = [])
-     * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static TypeExtensionNode typeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static SchemaExtensionNode schemaTypeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, ParserOptions $options = [])
-     * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, ParserOptions $options = [])
-     * @method static NodeList<NameNode> directiveLocations(Source|string $source, ParserOptions $options = [])
-     * @method static NameNode directiveLocation(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\FieldNode field(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\ArgumentNode> arguments(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\ArgumentNode> constArguments(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ArgumentNode argument(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ArgumentNode constArgument(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\FragmentSpreadNode|\GraphQL\Language\AST\InlineFragmentNode fragment(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\FragmentDefinitionNode fragmentDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NameNode fragmentName(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\BooleanValueNode|\GraphQL\Language\AST\EnumValueNode|\GraphQL\Language\AST\FloatValueNode|\GraphQL\Language\AST\IntValueNode|\GraphQL\Language\AST\ListValueNode|\GraphQL\Language\AST\NullValueNode|\GraphQL\Language\AST\ObjectValueNode|\GraphQL\Language\AST\StringValueNode|\GraphQL\Language\AST\VariableNode valueLiteral(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\BooleanValueNode|\GraphQL\Language\AST\EnumValueNode|\GraphQL\Language\AST\FloatValueNode|\GraphQL\Language\AST\IntValueNode|\GraphQL\Language\AST\ListValueNode|\GraphQL\Language\AST\NullValueNode|\GraphQL\Language\AST\ObjectValueNode|\GraphQL\Language\AST\StringValueNode constValueLiteral(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\StringValueNode stringLiteral(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\BooleanValueNode|\GraphQL\Language\AST\EnumValueNode|\GraphQL\Language\AST\FloatValueNode|\GraphQL\Language\AST\IntValueNode|\GraphQL\Language\AST\StringValueNode constValue(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\BooleanValueNode|\GraphQL\Language\AST\EnumValueNode|\GraphQL\Language\AST\FloatValueNode|\GraphQL\Language\AST\IntValueNode|\GraphQL\Language\AST\ListValueNode|\GraphQL\Language\AST\ObjectValueNode|\GraphQL\Language\AST\StringValueNode|\GraphQL\Language\AST\VariableNode variableValue(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ListValueNode array(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ListValueNode constArray(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ObjectValueNode object(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ObjectValueNode constObject(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ObjectFieldNode objectField(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ObjectFieldNode constObjectField(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> directives(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> constDirectives(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\DirectiveNode directive(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\DirectiveNode constDirective(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ListTypeNode|\GraphQL\Language\AST\NamedTypeNode|\GraphQL\Language\AST\NonNullTypeNode typeReference(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NamedTypeNode namedType(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\StringValueNode|null description(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\SchemaDefinitionNode schemaDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\NamedTypeNode> implementsInterfaces(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\FieldDefinitionNode> fieldsDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\FieldDefinitionNode fieldDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\InputValueDefinitionNode> argumentsDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\InputValueDefinitionNode inputValueDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\NamedTypeNode> unionMemberTypes(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\EnumValueDefinitionNode enumValueDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\TypeExtensionNode typeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\SchemaExtensionNode schemaTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\ObjectTypeExtensionNode objectTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\UnionTypeExtensionNode unionTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\EnumTypeExtensionNode enumTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\DirectiveDefinitionNode directiveDefinition(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\NameNode> directiveLocations(Source|string $source, ParserOptions $options = [])
+     * @method static \GraphQL\Language\AST\NameNode directiveLocation(Source|string $source, ParserOptions $options = [])
      *
      * @see \GraphQL\Tests\Language\ParserTest
      */
@@ -18657,7 +18657,7 @@ namespace GraphQL\Language {
          * @api
          *
          * @throws \JsonException
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\SyntaxError
          */
         public static function parse($source, array $options = []): \GraphQL\Language\AST\DocumentNode
         {
@@ -18677,9 +18677,9 @@ namespace GraphQL\Language {
          * @phpstan-param ParserOptions $options
          *
          * @throws \JsonException
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\SyntaxError
          *
-         * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
+         * @return \GraphQL\Language\AST\BooleanValueNode|\GraphQL\Language\AST\EnumValueNode|\GraphQL\Language\AST\FloatValueNode|\GraphQL\Language\AST\IntValueNode|\GraphQL\Language\AST\ListValueNode|\GraphQL\Language\AST\NullValueNode|\GraphQL\Language\AST\ObjectValueNode|\GraphQL\Language\AST\StringValueNode|\GraphQL\Language\AST\VariableNode
          *
          * @api
          */
@@ -18701,9 +18701,9 @@ namespace GraphQL\Language {
          * @phpstan-param ParserOptions $options
          *
          * @throws \JsonException
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\SyntaxError
          *
-         * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
+         * @return \GraphQL\Language\AST\ListTypeNode|\GraphQL\Language\AST\NamedTypeNode|\GraphQL\Language\AST\NonNullTypeNode
          *
          * @api
          */
@@ -18716,9 +18716,9 @@ namespace GraphQL\Language {
          * @phpstan-param array{string, ParserOptions} $arguments
          *
          * @throws \JsonException
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\SyntaxError
          *
-         * @return Node|NodeList<Node>
+         * @return \GraphQL\Language\AST\Node|\GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>
          */
         public static function __callStatic(string $name, array $arguments)
         {
@@ -18765,9 +18765,9 @@ namespace GraphQL\Language {
         {
         }
         /**
-         * @template TNode of Node
+         * @template TNode of \GraphQL\Language\AST\Node
          *
-         * @param NodeList<TNode> $list
+         * @param \GraphQL\Language\AST\NodeList<TNode> $list
          *
          * @throws \JsonException
          */
@@ -18777,9 +18777,9 @@ namespace GraphQL\Language {
         /**
          * Print each item on its own line, wrapped in an indented "{ }" block.
          *
-         * @template TNode of Node
+         * @template TNode of \GraphQL\Language\AST\Node
          *
-         * @param NodeList<TNode> $list
+         * @param \GraphQL\Language\AST\NodeList<TNode> $list
          *
          * @throws \JsonException
          */
@@ -18996,7 +18996,7 @@ namespace GraphQL\Language {
      *       ]
      *     ]);
      *
-     * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|NodeList<Node>|null|false|void)
+     * @phpstan-type NodeVisitor callable(\GraphQL\Language\AST\Node): (VisitorOperation|\GraphQL\Language\AST\Node|\GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>|null|false|void)
      * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
      *
      * @see \GraphQL\Tests\Language\VisitorTest
@@ -19015,7 +19015,7 @@ namespace GraphQL\Language {
         /**
          * Visit the AST (see class description for details).
          *
-         * @param NodeList<Node>|Node $root
+         * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>|\GraphQL\Language\AST\Node $root
          * @param VisitorArray $visitor
          * @param array<string, mixed>|null $keyMap
          *
@@ -19075,7 +19075,7 @@ namespace GraphQL\Language {
         /**
          * @phpstan-param VisitorArray $visitor
          *
-         * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|Node|NodeList<Node>|void|false|null))|null
+         * @return (callable(\GraphQL\Language\AST\Node $node, string|int|null $key, \GraphQL\Language\AST\Node|\GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>|null $parent, array<int, int|string> $path, array<int, \GraphQL\Language\AST\Node|\GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>> $ancestors): (VisitorOperation|\GraphQL\Language\AST\Node|null))|(callable(\GraphQL\Language\AST\Node): (VisitorOperation|\GraphQL\Language\AST\Node|\GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>|void|false|null))|null
          */
         protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
         {
@@ -19251,12 +19251,12 @@ namespace GraphQL\Server {
      *
      * @see ExecutionResult
      *
-     * @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
-     * @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
-     * @phpstan-type ValidationRulesOption array<ValidationRule>|null|callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>
+     * @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|\GraphQL\Language\AST\DocumentNode)
+     * @phpstan-type RootValueResolver callable(OperationParams $operation, \GraphQL\Language\AST\DocumentNode $doc, string $operationType): mixed
+     * @phpstan-type ValidationRulesOption array<\GraphQL\Validator\Rules\ValidationRule>|null|callable(OperationParams $operation, \GraphQL\Language\AST\DocumentNode $doc, string $operationType): array<\GraphQL\Validator\Rules\ValidationRule>
      *
-     * @phpstan-import-type ErrorsHandler from ExecutionResult
-     * @phpstan-import-type ErrorFormatter from ExecutionResult
+     * @phpstan-import-type ErrorsHandler from \GraphQL\Executor\ExecutionResult
+     * @phpstan-import-type ErrorFormatter from \GraphQL\Executor\ExecutionResult
      *
      * @see \GraphQL\Tests\Server\ServerConfigTest
      */
@@ -19270,7 +19270,7 @@ namespace GraphQL\Server {
          *
          * @api
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function create(array $config = []): self
         {
@@ -19316,7 +19316,7 @@ namespace GraphQL\Server {
         /**
          * Set validation rules for this server.
          *
-         * @param array<ValidationRule>|callable|null $validationRules
+         * @param array<\GraphQL\Validator\Rules\ValidationRule>|callable|null $validationRules
          *
          * @phpstan-param ValidationRulesOption $validationRules
          *
@@ -19386,7 +19386,7 @@ namespace GraphQL\Server {
         {
         }
         /**
-         * @return array<ValidationRule>|callable|null
+         * @return array<\GraphQL\Validator\Rules\ValidationRule>|callable|null
          *
          * @phpstan-return ValidationRulesOption
          */
@@ -19439,7 +19439,7 @@ namespace GraphQL\Server {
          *
          * @api
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct($config)
         {
@@ -19459,7 +19459,7 @@ namespace GraphQL\Server {
          * @api
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          * @throws RequestError
          */
         public function handleRequest($parsedBody = null): void
@@ -19478,10 +19478,10 @@ namespace GraphQL\Server {
          * @param OperationParams|array<OperationParams> $parsedBody
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          * @throws RequestError
          *
-         * @return ExecutionResult|array<int, ExecutionResult>|Promise
+         * @return \GraphQL\Executor\ExecutionResult|array<int, \GraphQL\Executor\ExecutionResult>|\GraphQL\Executor\Promise\Promise
          *
          * @api
          */
@@ -19498,10 +19498,10 @@ namespace GraphQL\Server {
          * @throws \InvalidArgumentException
          * @throws \JsonException
          * @throws \RuntimeException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          * @throws RequestError
          *
-         * @return ResponseInterface|Promise
+         * @return \Psr\Http\Message\ResponseInterface|\GraphQL\Executor\Promise\Promise
          *
          * @api
          */
@@ -19514,10 +19514,10 @@ namespace GraphQL\Server {
          *
          * @throws \Exception
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          * @throws RequestError
          *
-         * @return ExecutionResult|array<int, ExecutionResult>|Promise
+         * @return \GraphQL\Executor\ExecutionResult|array<int, \GraphQL\Executor\ExecutionResult>|\GraphQL\Executor\Promise\Promise
          *
          * @api
          */
@@ -19535,7 +19535,7 @@ namespace GraphQL\Type\Definition {
      *     defaultValue?: mixed,
      *     description?: string|null,
      *     deprecationReason?: string|null,
-     *     astNode?: InputValueDefinitionNode|null
+     *     astNode?: \GraphQL\Language\AST\InputValueDefinitionNode|null
      * }
      * @phpstan-type ArgumentConfig array{
      *     name: string,
@@ -19543,7 +19543,7 @@ namespace GraphQL\Type\Definition {
      *     defaultValue?: mixed,
      *     description?: string|null,
      *     deprecationReason?: string|null,
-     *     astNode?: InputValueDefinitionNode|null
+     *     astNode?: \GraphQL\Language\AST\InputValueDefinitionNode|null
      * }
      * @phpstan-type ArgumentListConfig iterable<ArgumentConfig|ArgumentType>|iterable<UnnamedArgumentConfig>
      */
@@ -19585,7 +19585,7 @@ namespace GraphQL\Type\Definition {
         /**
          * @param Type&NamedType $parentType
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(\GraphQL\Type\Definition\FieldDefinition $parentField, \GraphQL\Type\Definition\Type $parentType): void
         {
@@ -19604,13 +19604,13 @@ namespace GraphQL\Type\Definition {
         public function serialize($value): bool
         {
         }
-        /** @throws Error */
+        /** @throws \GraphQL\Error\Error */
         public function parseValue($value): bool
         {
         }
         /**
          * @throws \JsonException
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): bool
         {
@@ -19619,14 +19619,16 @@ namespace GraphQL\Type\Definition {
     #[\Attribute(\Attribute::TARGET_ALL)]
     class Deprecated
     {
-        public function __construct(public string $reason = \GraphQL\Type\Definition\Directive::DEFAULT_DEPRECATION_REASON)
+        public string $reason;
+        public function __construct(string $reason = \GraphQL\Type\Definition\Directive::DEFAULT_DEPRECATION_REASON)
         {
         }
     }
     #[\Attribute(\Attribute::TARGET_ALL)]
     class Description
     {
-        public function __construct(public string $description)
+        public string $description;
+        public function __construct(string $description)
         {
         }
     }
@@ -19639,7 +19641,7 @@ namespace GraphQL\Type\Definition {
      *   args?: ArgumentListConfig|null,
      *   locations: array<string>,
      *   isRepeatable?: bool|null,
-     *   astNode?: DirectiveDefinitionNode|null
+     *   astNode?: \GraphQL\Language\AST\DirectiveDefinitionNode|null
      * }
      */
     class Directive
@@ -19708,7 +19710,7 @@ namespace GraphQL\Type\Definition {
      *   value?: mixed,
      *   deprecationReason?: string|null,
      *   description?: string|null,
-     *   astNode?: EnumValueDefinitionNode|null
+     *   astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
      * }
      */
     class EnumValueDefinition
@@ -19732,8 +19734,8 @@ namespace GraphQL\Type\Definition {
     /**
      * @see Executor
      *
-     * @phpstan-import-type FieldResolver from Executor
-     * @phpstan-import-type ArgsMapper from Executor
+     * @phpstan-import-type FieldResolver from \GraphQL\Executor\Executor
+     * @phpstan-import-type ArgsMapper from \GraphQL\Executor\Executor
      * @phpstan-import-type ArgumentListConfig from Argument
      *
      * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
@@ -19748,7 +19750,7 @@ namespace GraphQL\Type\Definition {
      *     description?: string|null,
      *     visible?: VisibilityFn|bool,
      *     deprecationReason?: string|null,
-     *     astNode?: FieldDefinitionNode|null,
+     *     astNode?: \GraphQL\Language\AST\FieldDefinitionNode|null,
      *     complexity?: ComplexityFn|null
      * }
      * @phpstan-type UnnamedFieldDefinitionConfig array{
@@ -19759,7 +19761,7 @@ namespace GraphQL\Type\Definition {
      *     description?: string|null,
      *     visible?: VisibilityFn|bool,
      *     deprecationReason?: string|null,
-     *     astNode?: FieldDefinitionNode|null,
+     *     astNode?: \GraphQL\Language\AST\FieldDefinitionNode|null,
      *     complexity?: ComplexityFn|null
      * }
      * @phpstan-type FieldsConfig iterable<mixed>|callable(): iterable<mixed>
@@ -19825,7 +19827,7 @@ namespace GraphQL\Type\Definition {
          *
          * @phpstan-param FieldsConfig $fields
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, self|UnresolvedFieldDefinition>
          */
@@ -19851,7 +19853,7 @@ namespace GraphQL\Type\Definition {
         /**
          * @param Type&NamedType $parentType
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(\GraphQL\Type\Definition\Type $parentType): void
         {
@@ -19863,17 +19865,17 @@ namespace GraphQL\Type\Definition {
         public ?string $description = 'The `Float` scalar type represents signed double-precision fractional
 values as specified by
 [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';
-        /** @throws SerializationError */
+        /** @throws \GraphQL\Error\SerializationError */
         public function serialize($value): float
         {
         }
-        /** @throws Error */
+        /** @throws \GraphQL\Error\Error */
         public function parseValue($value): float
         {
         }
         /**
          * @throws \JsonException
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null)
         {
@@ -19887,17 +19889,17 @@ refetch an object or as key for a cache. The ID type appears in a JSON
 response as a String; however, it is not intended to be human-readable.
 When expected as an input type, any string (such as `"4"`) or integer
 (such as `4`) input value will be accepted as an ID.';
-        /** @throws SerializationError */
+        /** @throws \GraphQL\Error\SerializationError */
         public function serialize($value): string
         {
         }
-        /** @throws Error */
+        /** @throws \GraphQL\Error\Error */
         public function parseValue($value): string
         {
         }
         /**
          * @throws \JsonException
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): string
         {
@@ -19911,7 +19913,7 @@ When expected as an input type, any string (such as `"4"`) or integer
      *   defaultValue?: mixed,
      *   description?: string|null,
      *   deprecationReason?: string|null,
-     *   astNode?: InputValueDefinitionNode|null
+     *   astNode?: \GraphQL\Language\AST\InputValueDefinitionNode|null
      * }
      * @phpstan-type UnnamedInputObjectFieldConfig array{
      *   name?: string,
@@ -19919,7 +19921,7 @@ When expected as an input type, any string (such as `"4"`) or integer
      *   defaultValue?: mixed,
      *   description?: string|null,
      *   deprecationReason?: string|null,
-     *   astNode?: InputValueDefinitionNode|null
+     *   astNode?: \GraphQL\Language\AST\InputValueDefinitionNode|null
      * }
      */
     class InputObjectField
@@ -19952,7 +19954,7 @@ When expected as an input type, any string (such as `"4"`) or integer
         /**
          * @param Type&NamedType $parentType
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function assertValid(\GraphQL\Type\Definition\Type $parentType): void
         {
@@ -19970,17 +19972,17 @@ When expected as an input type, any string (such as `"4"`) or integer
         public string $name = \GraphQL\Type\Definition\Type::INT;
         public ?string $description = 'The `Int` scalar type represents non-fractional signed whole numeric
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
-        /** @throws SerializationError */
+        /** @throws \GraphQL\Error\SerializationError */
         public function serialize($value): int
         {
         }
-        /** @throws Error */
+        /** @throws \GraphQL\Error\Error */
         public function parseValue($value): int
         {
         }
         /**
          * @throws \JsonException
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): int
         {
@@ -20056,7 +20058,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
          * @param class-string<\UnitEnum> $enumClass The fully qualified class name of a native PHP enum
          * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
          * @param string|null $description The description the enum will have in the schema, defaults to PHPDoc of the given class
-         * @param array<EnumTypeExtensionNode>|null $extensionASTNodes
+         * @param array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null $extensionASTNodes
          *
          * @throws \Exception
          * @throws \ReflectionException
@@ -20079,7 +20081,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
          *
          * @throws \Exception
          */
-        protected function extractDescription(\ReflectionClassConstant|\ReflectionClass $reflection): ?string
+        protected function extractDescription($reflection): ?string
         {
         }
         /** @throws \Exception */
@@ -20095,14 +20097,14 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     class QueryPlan
     {
         /**
-         * @param iterable<FieldNode> $fieldNodes
+         * @param iterable<\GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param array<string, mixed> $variableValues
-         * @param array<string, FragmentDefinitionNode> $fragments
+         * @param array<string, \GraphQL\Language\AST\FragmentDefinitionNode> $fragments
          * @param QueryPlanOptions $options
          *
          * @throws \Exception
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(\GraphQL\Type\Definition\ObjectType $parentType, \GraphQL\Type\Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options = [])
         {
@@ -20172,7 +20174,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
          *
          * @api
          *
-         * @var \ArrayObject<int, FieldNode>
+         * @var \ArrayObject<int, \GraphQL\Language\AST\FieldNode>
          */
         public \ArrayObject $fieldNodes;
         /**
@@ -20212,7 +20214,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
          *
          * @api
          *
-         * @var array<string, FragmentDefinitionNode>
+         * @var array<string, \GraphQL\Language\AST\FragmentDefinitionNode>
          */
         public array $fragments = [];
         /**
@@ -20238,9 +20240,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
          */
         public array $variableValues = [];
         /**
-         * @param \ArrayObject<int, FieldNode> $fieldNodes
+         * @param \ArrayObject<int, \GraphQL\Language\AST\FieldNode> $fieldNodes
          * @param list<string|int> $path
-         * @param array<string, FragmentDefinitionNode> $fragments
+         * @param array<string, \GraphQL\Language\AST\FragmentDefinitionNode> $fragments
          * @param mixed|null $rootValue
          * @param array<string, mixed> $variableValues
          * @param list<string|int> $unaliasedPath
@@ -20408,8 +20410,8 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
          * @param int $depth How many levels to include in the output beyond the first
          *
          * @throws \Exception
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, mixed>
          *
@@ -20422,8 +20424,8 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
          * @param QueryPlanOptions $options
          *
          * @throws \Exception
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function lookAhead(array $options = []): \GraphQL\Type\Definition\QueryPlan
         {
@@ -20435,17 +20437,17 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         public ?string $description = 'The `String` scalar type represents textual data, represented as UTF-8
 character sequences. The String type is most often used by GraphQL to
 represent free-form human-readable text.';
-        /** @throws SerializationError */
+        /** @throws \GraphQL\Error\SerializationError */
         public function serialize($value): string
         {
         }
-        /** @throws Error */
+        /** @throws \GraphQL\Error\Error */
         public function parseValue($value): string
         {
         }
         /**
          * @throws \JsonException
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public function parseLiteral(\GraphQL\Language\AST\Node $valueNode, ?array $variables = null): string
         {
@@ -20540,7 +20542,7 @@ namespace GraphQL\Type {
          *
          * @throws \Exception
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, array<mixed>>
          *
@@ -20549,11 +20551,11 @@ namespace GraphQL\Type {
         public static function fromSchema(\GraphQL\Type\Schema $schema, array $options = []): array
         {
         }
-        /** @param Type&NamedType $type */
+        /** @param \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType $type */
         public static function isIntrospectionType(\GraphQL\Type\Definition\NamedType $type): bool
         {
         }
-        /** @return array<string, Type&NamedType> */
+        /** @return array<string, \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> */
         public static function getTypes(): array
         {
         }
@@ -20610,19 +20612,19 @@ namespace GraphQL\Type {
      *
      * @see Type, NamedType
      *
-     * @phpstan-type MaybeLazyObjectType ObjectType|(callable(): (ObjectType|null))|null
-     * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
-     * @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)|iterable<(callable(): Type&NamedType)>|(callable(): iterable<(callable(): Type&NamedType)>)
+     * @phpstan-type MaybeLazyObjectType \GraphQL\Type\Definition\ObjectType|(callable(): (\GraphQL\Type\Definition\ObjectType|null))|null
+     * @phpstan-type TypeLoader callable(string $typeName): ((\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|null)
+     * @phpstan-type Types iterable<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType>|(callable(): iterable<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType>)|iterable<(callable(): \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)>|(callable(): iterable<(callable(): \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)>)
      * @phpstan-type SchemaConfigOptions array{
      *   query?: MaybeLazyObjectType,
      *   mutation?: MaybeLazyObjectType,
      *   subscription?: MaybeLazyObjectType,
      *   types?: Types|null,
-     *   directives?: array<Directive>|null,
+     *   directives?: array<\GraphQL\Type\Definition\Directive>|null,
      *   typeLoader?: TypeLoader|null,
      *   assumeValid?: bool|null,
-     *   astNode?: SchemaDefinitionNode|null,
-     *   extensionASTNodes?: array<SchemaExtensionNode>|null,
+     *   astNode?: \GraphQL\Language\AST\SchemaDefinitionNode|null,
+     *   extensionASTNodes?: array<\GraphQL\Language\AST\SchemaExtensionNode>|null,
      * }
      */
     class SchemaConfig
@@ -20639,7 +20641,7 @@ namespace GraphQL\Type {
          * @phpstan-var Types
          */
         public $types = [];
-        /** @var array<Directive>|null */
+        /** @var array<\GraphQL\Type\Definition\Directive>|null */
         public ?array $directives = null;
         /**
          * @var callable|null
@@ -20649,7 +20651,7 @@ namespace GraphQL\Type {
         public $typeLoader;
         public bool $assumeValid = false;
         public ?\GraphQL\Language\AST\SchemaDefinitionNode $astNode = null;
-        /** @var array<SchemaExtensionNode> */
+        /** @var array<\GraphQL\Language\AST\SchemaExtensionNode> */
         public array $extensionASTNodes = [];
         /**
          * Converts an array of options to instance of SchemaConfig
@@ -20657,7 +20659,7 @@ namespace GraphQL\Type {
          *
          * @phpstan-param SchemaConfigOptions $options
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @api
          */
@@ -20675,7 +20677,7 @@ namespace GraphQL\Type {
         /**
          * @param MaybeLazyObjectType $query
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @api
          */
@@ -20693,7 +20695,7 @@ namespace GraphQL\Type {
         /**
          * @param MaybeLazyObjectType $mutation
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @api
          */
@@ -20711,7 +20713,7 @@ namespace GraphQL\Type {
         /**
          * @param MaybeLazyObjectType $subscription
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @api
          */
@@ -20739,7 +20741,7 @@ namespace GraphQL\Type {
         {
         }
         /**
-         * @return array<Directive>|null
+         * @return array<\GraphQL\Type\Definition\Directive>|null
          *
          * @api
          */
@@ -20747,7 +20749,7 @@ namespace GraphQL\Type {
         {
         }
         /**
-         * @param array<Directive>|null $directives
+         * @param array<\GraphQL\Type\Definition\Directive>|null $directives
          *
          * @api
          */
@@ -20784,18 +20786,18 @@ namespace GraphQL\Type {
         public function setAstNode(?\GraphQL\Language\AST\SchemaDefinitionNode $astNode): self
         {
         }
-        /** @return array<SchemaExtensionNode> */
+        /** @return array<\GraphQL\Language\AST\SchemaExtensionNode> */
         public function getExtensionASTNodes(): array
         {
         }
-        /** @param array<SchemaExtensionNode> $extensionASTNodes */
+        /** @param array<\GraphQL\Language\AST\SchemaExtensionNode> $extensionASTNodes */
         public function setExtensionASTNodes(array $extensionASTNodes): self
         {
         }
         /**
          * @param mixed $maybeLazyObjectType Should be MaybeLazyObjectType
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function assertMaybeLazyObjectType($maybeLazyObjectType): void
         {
@@ -20806,26 +20808,26 @@ namespace GraphQL\Type {
         public function __construct(\GraphQL\Type\Schema $schema)
         {
         }
-        /** @return list<Error> */
+        /** @return list<\GraphQL\Error\Error> */
         public function getErrors(): array
         {
         }
         public function validateRootTypes(): void
         {
         }
-        /** @param array<Node|null>|Node|null $nodes */
+        /** @param array<\GraphQL\Language\AST\Node|null>|\GraphQL\Language\AST\Node|null $nodes */
         public function reportError(string $message, $nodes = null): void
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function validateDirectives(): void
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function validateDirectiveDefinitions(): void
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function validateTypes(): void
         {
         }
@@ -20856,7 +20858,7 @@ namespace GraphQL\Type\Validation {
          * It does not terminate when a cycle was found but continues to explore
          * the graph to find all possible cycles.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function validate(\GraphQL\Type\Definition\InputObjectType $inputObj): void
         {
@@ -20895,7 +20897,7 @@ namespace GraphQL\Utils {
          * @api
          *
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function fromArray(array $node): \GraphQL\Language\AST\Node
         {
@@ -20929,13 +20931,13 @@ namespace GraphQL\Utils {
          * | null          | NullValue            |
          *
          * @param mixed $value
-         * @param InputType&Type $type
+         * @param \GraphQL\Type\Definition\InputType&\GraphQL\Type\Definition\Type $type
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          *
-         * @return (ValueNode&Node)|null
+         * @return (\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node)|null
          *
          * @api
          */
@@ -20961,7 +20963,7 @@ namespace GraphQL\Utils {
          * | Enum Value           | Mixed         |
          * | Null Value           | null          |
          *
-         * @param (ValueNode&Node)|null $valueNode
+         * @param (\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node)|null $valueNode
          * @param array<string, mixed>|null $variables
          *
          * @throws \Exception
@@ -21003,8 +21005,8 @@ namespace GraphQL\Utils {
         /**
          * Returns type definition for given AST Type node.
          *
-         * @param callable(string): ?Type $typeLoader
-         * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+         * @param callable(string): ?\GraphQL\Type\Definition\Type $typeLoader
+         * @param \GraphQL\Language\AST\NamedTypeNode|\GraphQL\Language\AST\ListTypeNode|\GraphQL\Language\AST\NonNullTypeNode $inputTypeNode
          *
          * @throws \Exception
          *
@@ -21028,7 +21030,7 @@ namespace GraphQL\Utils {
          * concatenate the ASTs together into batched AST, useful for validating many
          * GraphQL source files which together represent one conceptual application.
          *
-         * @param array<DocumentNode> $documents
+         * @param array<\GraphQL\Language\AST\DocumentNode> $documents
          *
          * @api
          */
@@ -21039,24 +21041,24 @@ namespace GraphQL\Utils {
     /**
      * @see FieldDefinition, InputObjectField
      *
-     * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
-     * @phpstan-import-type InputObjectFieldConfig from InputObjectField
-     * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+     * @phpstan-import-type UnnamedFieldDefinitionConfig from \GraphQL\Type\Definition\FieldDefinition
+     * @phpstan-import-type InputObjectFieldConfig from \GraphQL\Type\Definition\InputObjectField
+     * @phpstan-import-type UnnamedInputObjectFieldConfig from \GraphQL\Type\Definition\InputObjectField
      *
-     * @phpstan-type ResolveType callable(string, Node|null): Type&NamedType
-     * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
-     * @phpstan-type FieldConfigDecorator callable(UnnamedFieldDefinitionConfig, FieldDefinitionNode, ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode): UnnamedFieldDefinitionConfig
+     * @phpstan-type ResolveType callable(string, \GraphQL\Language\AST\Node|null): \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
+     * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode, array<string, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode>): array<string, mixed>
+     * @phpstan-type FieldConfigDecorator callable(UnnamedFieldDefinitionConfig, \GraphQL\Language\AST\FieldDefinitionNode, \GraphQL\Language\AST\ObjectTypeDefinitionNode|\GraphQL\Language\AST\ObjectTypeExtensionNode|\GraphQL\Language\AST\InterfaceTypeDefinitionNode|\GraphQL\Language\AST\InterfaceTypeExtensionNode): UnnamedFieldDefinitionConfig
      */
     class ASTDefinitionBuilder
     {
         /**
-         * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
-         * @param array<string, array<int, Node&TypeExtensionNode>> $typeExtensionsMap
+         * @param array<string, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode> $typeDefinitionsMap
+         * @param array<string, array<int, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeExtensionNode>> $typeExtensionsMap
          *
          * @phpstan-param ResolveType $resolveType
          * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct(array $typeDefinitionsMap, array $typeExtensionsMap, callable $resolveType, ?callable $typeConfigDecorator = null, ?callable $fieldConfigDecorator = null)
         {
@@ -21066,14 +21068,14 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+         * @param string|(\GraphQL\Language\AST\Node&\GraphQL\Language\AST\NamedTypeNode)|(\GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode) $ref
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return Type&NamedType
+         * @return \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
          */
         public function buildType($ref): \GraphQL\Type\Definition\Type
         {
@@ -21086,19 +21088,19 @@ namespace GraphQL\Utils {
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return (Type&NamedType)|null
+         * @return (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|null
          */
         public function maybeBuildType(string $name): ?\GraphQL\Type\Definition\Type
         {
         }
         /**
-         * @param ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $node
+         * @param \GraphQL\Language\AST\ObjectTypeDefinitionNode|\GraphQL\Language\AST\ObjectTypeExtensionNode|\GraphQL\Language\AST\InterfaceTypeDefinitionNode|\GraphQL\Language\AST\InterfaceTypeExtensionNode $node
          *
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @return UnnamedFieldDefinitionConfig
          */
@@ -21161,7 +21163,7 @@ namespace GraphQL\Utils {
          * of breaking changes covered by the other functions down below.
          *
          * @throws \TypeError
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21172,7 +21174,7 @@ namespace GraphQL\Utils {
          * Given two schemas, returns an Array containing descriptions of any breaking
          * changes in the newSchema related to removing an entire type.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21184,7 +21186,7 @@ namespace GraphQL\Utils {
          * changes in the newSchema related to changing the type of a type.
          *
          * @throws \TypeError
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21192,7 +21194,7 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21200,7 +21202,7 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return Changes
          */
@@ -21211,7 +21213,7 @@ namespace GraphQL\Utils {
          * Given two schemas, returns an Array containing descriptions of any breaking
          * changes in the newSchema related to removing types from a union type.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21222,7 +21224,7 @@ namespace GraphQL\Utils {
          * Given two schemas, returns an Array containing descriptions of any breaking
          * changes in the newSchema related to removing values from an enum type.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21235,7 +21237,7 @@ namespace GraphQL\Utils {
          * (such as removal or change of type of an argument, or a change in an
          * argument's default value).
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return Changes
          */
@@ -21243,7 +21245,7 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21251,7 +21253,7 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21259,31 +21261,31 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
         public static function findRemovedDirectiveArgs(\GraphQL\Type\Schema $oldSchema, \GraphQL\Type\Schema $newSchema): array
         {
         }
-        /** @return array<int, Argument> */
+        /** @return array<int, \GraphQL\Type\Definition\Argument> */
         public static function findRemovedArgsForDirectives(\GraphQL\Type\Definition\Directive $oldDirective, \GraphQL\Type\Definition\Directive $newDirective): array
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
         public static function findAddedNonNullDirectiveArgs(\GraphQL\Type\Schema $oldSchema, \GraphQL\Type\Schema $newSchema): array
         {
         }
-        /** @return array<int, Argument> */
+        /** @return array<int, \GraphQL\Type\Definition\Argument> */
         public static function findAddedArgsForDirective(\GraphQL\Type\Definition\Directive $oldDirective, \GraphQL\Type\Definition\Directive $newDirective): array
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21298,7 +21300,7 @@ namespace GraphQL\Utils {
          * Given two schemas, returns an Array containing descriptions of all the types
          * of potentially dangerous changes covered by the other functions down below.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21309,7 +21311,7 @@ namespace GraphQL\Utils {
          * Given two schemas, returns an Array containing descriptions of any dangerous
          * changes in the newSchema related to adding values to an enum type.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21317,7 +21319,7 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21328,7 +21330,7 @@ namespace GraphQL\Utils {
          * Given two schemas, returns an Array containing descriptions of any dangerous
          * changes in the newSchema related to adding types to a union type.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, Change>
          */
@@ -21337,8 +21339,8 @@ namespace GraphQL\Utils {
         }
     }
     /**
-     * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
-     * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+     * @phpstan-import-type UnnamedFieldDefinitionConfig from \GraphQL\Type\Definition\FieldDefinition
+     * @phpstan-import-type UnnamedInputObjectFieldConfig from \GraphQL\Type\Definition\InputObjectField
      *
      * @phpstan-type Options array{
      *   assumeValid?: bool
@@ -21384,14 +21386,14 @@ namespace GraphQL\Utils {
          * @api
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function build(array $introspectionQuery, array $options = []): \GraphQL\Type\Schema
         {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function buildSchema(): \GraphQL\Type\Schema
         {
@@ -21403,7 +21405,7 @@ namespace GraphQL\Utils {
         /**
          * @param array<string, mixed> $typeRef
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function getInterfaceType(array $typeRef): \GraphQL\Type\Definition\InterfaceType
         {
@@ -21412,7 +21414,7 @@ namespace GraphQL\Utils {
          * @param array<string, mixed> $inputValueIntrospection
          *
          * @throws \Exception
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\SyntaxError
          *
          * @return UnnamedInputObjectFieldConfig
          */
@@ -21423,7 +21425,7 @@ namespace GraphQL\Utils {
          * @param array<string, mixed> $directive
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function buildDirective(array $directive): \GraphQL\Type\Definition\Directive
         {
@@ -21471,7 +21473,7 @@ namespace GraphQL\Utils {
          * A helper function to build a GraphQLSchema directly from a source
          * document.
          *
-         * @param DocumentNode|Source|string $source
+         * @param \GraphQL\Language\AST\DocumentNode|\GraphQL\Language\Source|string $source
          * @param array<string, bool> $options
          *
          * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
@@ -21482,9 +21484,9 @@ namespace GraphQL\Utils {
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
-         * @throws SyntaxError
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SyntaxError
          */
         public static function build($source, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null): \GraphQL\Type\Schema
         {
@@ -21507,8 +21509,8 @@ namespace GraphQL\Utils {
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function buildAST(\GraphQL\Language\AST\DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null): \GraphQL\Type\Schema
         {
@@ -21516,8 +21518,8 @@ namespace GraphQL\Utils {
         /**
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function buildSchema(): \GraphQL\Type\Schema
         {
@@ -21534,17 +21536,17 @@ namespace GraphQL\Utils {
     class InterfaceImplementations
     {
         /**
-         * @param array<int, ObjectType> $objects
-         * @param array<int, InterfaceType> $interfaces
+         * @param array<int, \GraphQL\Type\Definition\ObjectType> $objects
+         * @param array<int, \GraphQL\Type\Definition\InterfaceType> $interfaces
          */
         public function __construct(array $objects, array $interfaces)
         {
         }
-        /** @return array<int, ObjectType> */
+        /** @return array<int, \GraphQL\Type\Definition\ObjectType> */
         public function objects(): array
         {
         }
-        /** @return array<int, InterfaceType> */
+        /** @return array<int, \GraphQL\Type\Definition\InterfaceType> */
         public function interfaces(): array
         {
         }
@@ -21661,16 +21663,16 @@ namespace GraphQL\Utils {
     /**
      * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
      * @phpstan-import-type FieldConfigDecorator from ASTDefinitionBuilder
-     * @phpstan-import-type UnnamedArgumentConfig from Argument
-     * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+     * @phpstan-import-type UnnamedArgumentConfig from \GraphQL\Type\Definition\Argument
+     * @phpstan-import-type UnnamedInputObjectFieldConfig from \GraphQL\Type\Definition\InputObjectField
      *
      * @see \GraphQL\Tests\Utils\SchemaExtenderTest
      */
     class SchemaExtender
     {
-        /** @var array<string, Type> */
+        /** @var array<string, \GraphQL\Type\Definition\Type> */
         protected array $extendTypeCache = [];
-        /** @var array<string, array<TypeExtensionNode>> */
+        /** @var array<string, array<\GraphQL\Language\AST\TypeExtensionNode>> */
         protected array $typeExtensionsMap = [];
         protected \GraphQL\Utils\ASTDefinitionBuilder $astBuilder;
         /**
@@ -21682,7 +21684,7 @@ namespace GraphQL\Utils {
          * @api
          *
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function extend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, array $options = [], ?callable $typeConfigDecorator = null, ?callable $fieldConfigDecorator = null): \GraphQL\Type\Schema
         {
@@ -21695,16 +21697,16 @@ namespace GraphQL\Utils {
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function doExtend(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $documentAST, array $options = [], ?callable $typeConfigDecorator = null, ?callable $fieldConfigDecorator = null): \GraphQL\Type\Schema
         {
         }
         /**
-         * @param Type&NamedType $type
+         * @param \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType $type
          *
-         * @return array<TypeExtensionNode>|null
+         * @return array<\GraphQL\Language\AST\TypeExtensionNode>|null
          */
         protected function extensionASTNodes(\GraphQL\Type\Definition\NamedType $type): ?array
         {
@@ -21712,30 +21714,30 @@ namespace GraphQL\Utils {
         /**
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function extendScalarType(\GraphQL\Type\Definition\ScalarType $type): \GraphQL\Type\Definition\CustomScalarType
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function extendUnionType(\GraphQL\Type\Definition\UnionType $type): \GraphQL\Type\Definition\UnionType
         {
         }
         /**
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function extendEnumType(\GraphQL\Type\Definition\EnumType $type): \GraphQL\Type\Definition\EnumType
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function extendInputObjectType(\GraphQL\Type\Definition\InputObjectType $type): \GraphQL\Type\Definition\InputObjectType
         {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, UnnamedInputObjectFieldConfig>
          */
@@ -21744,7 +21746,7 @@ namespace GraphQL\Utils {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, array<string, mixed>>
          */
@@ -21754,29 +21756,29 @@ namespace GraphQL\Utils {
         /**
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<int, ObjectType>
+         * @return array<int, \GraphQL\Type\Definition\ObjectType>
          */
         protected function extendUnionPossibleTypes(\GraphQL\Type\Definition\UnionType $type): array
         {
         }
         /**
-         * @param ObjectType|InterfaceType $type
+         * @param \GraphQL\Type\Definition\ObjectType|\GraphQL\Type\Definition\InterfaceType $type
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<int, InterfaceType>
+         * @return array<int, \GraphQL\Type\Definition\InterfaceType>
          */
         protected function extendImplementedInterfaces(\GraphQL\Type\Definition\ImplementingType $type): array
         {
         }
         /**
-         * @template T of Type
+         * @template T of \GraphQL\Type\Definition\Type
          *
          * @param T $typeDef
          *
@@ -21786,7 +21788,7 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @param array<Argument> $args
+         * @param array<\GraphQL\Type\Definition\Argument> $args
          *
          * @return array<string, UnnamedArgumentConfig>
          */
@@ -21794,22 +21796,22 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @param InterfaceType|ObjectType $type
+         * @param \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\ObjectType $type
          *
          * @throws \Exception
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, array<string, mixed>>
          */
         protected function extendFieldMap(\GraphQL\Type\Definition\Type $type): array
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function extendObjectType(\GraphQL\Type\Definition\ObjectType $type): \GraphQL\Type\Definition\ObjectType
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected function extendInterfaceType(\GraphQL\Type\Definition\InterfaceType $type): \GraphQL\Type\Definition\InterfaceType
         {
         }
@@ -21817,14 +21819,14 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @template T of Type
+         * @template T of \GraphQL\Type\Definition\Type
          *
-         * @param T&NamedType $type
+         * @param T&\GraphQL\Type\Definition\NamedType $type
          *
          * @throws \ReflectionException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return T&NamedType
+         * @return T&\GraphQL\Type\Definition\NamedType
          */
         protected function extendNamedType(\GraphQL\Type\Definition\Type $type): \GraphQL\Type\Definition\Type
         {
@@ -21834,26 +21836,26 @@ namespace GraphQL\Utils {
         {
         }
         /**
-         * @template T of Type
+         * @template T of \GraphQL\Type\Definition\Type
          *
-         * @param (T&NamedType)|null $type
+         * @param (T&\GraphQL\Type\Definition\NamedType)|null $type
          *
          * @throws \ReflectionException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return (T&NamedType)|null
+         * @return (T&\GraphQL\Type\Definition\NamedType)|null
          */
         protected function extendMaybeNamedType(?\GraphQL\Type\Definition\Type $type = null): ?\GraphQL\Type\Definition\Type
         {
         }
         /**
-         * @param array<DirectiveDefinitionNode> $directiveDefinitions
+         * @param array<\GraphQL\Language\AST\DirectiveDefinitionNode> $directiveDefinitions
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
-         * @return array<int, Directive>
+         * @return array<int, \GraphQL\Type\Definition\Directive>
          */
         protected function getMergedDirectives(\GraphQL\Type\Schema $schema, array $directiveDefinitions): array
         {
@@ -21887,9 +21889,9 @@ namespace GraphQL\Utils {
          * @api
          *
          * @throws \JsonException
-         * @throws Error
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         public static function doPrint(\GraphQL\Type\Schema $schema, array $options = []): string
         {
@@ -21902,9 +21904,9 @@ namespace GraphQL\Utils {
          * @api
          *
          * @throws \JsonException
-         * @throws Error
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         public static function printIntrospectionSchema(\GraphQL\Type\Schema $schema, array $options = []): string
         {
@@ -21915,29 +21917,29 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws Error
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         public static function printType(\GraphQL\Type\Definition\Type $type, array $options = []): string
         {
         }
         /**
-         * @param callable(Directive  $directive): bool $directiveFilter
-         * @param callable(Type&NamedType $type): bool $typeFilter
+         * @param callable(\GraphQL\Type\Definition\Directive  $directive): bool $directiveFilter
+         * @param callable(\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType $type): bool $typeFilter
          * @param array<string, bool> $options
          *
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws Error
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printFilteredSchema(\GraphQL\Type\Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         protected static function printSchemaDefinition(\GraphQL\Type\Schema $schema): ?string
         {
         }
@@ -21962,7 +21964,7 @@ namespace GraphQL\Utils {
          * schema but not as a root operation type, the schema definition must still
          * be printed to avoid ambiguity.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected static function hasDefaultRootOperationTypes(\GraphQL\Type\Schema $schema): bool
         {
@@ -21973,15 +21975,15 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printDirective(\GraphQL\Type\Definition\Directive $directive, array $options): string
         {
         }
         /**
          * @param array<string, bool> $options
-         * @param (Type&NamedType)|Directive|EnumValueDefinition|Argument|FieldDefinition|InputObjectField $def
+         * @param (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|\GraphQL\Type\Definition\Directive|\GraphQL\Type\Definition\EnumValueDefinition|\GraphQL\Type\Definition\Argument|\GraphQL\Type\Definition\FieldDefinition|\GraphQL\Type\Definition\InputObjectField $def
          *
          * @throws \JsonException
          */
@@ -21990,23 +21992,23 @@ namespace GraphQL\Utils {
         }
         /**
          * @param array<string, bool> $options
-         * @param array<int, Argument> $args
+         * @param array<int, \GraphQL\Type\Definition\Argument> $args
          *
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printArgs(array $options, array $args, string $indentation = ''): string
         {
         }
         /**
-         * @param InputObjectField|Argument $arg
+         * @param \GraphQL\Type\Definition\InputObjectField|\GraphQL\Type\Definition\Argument $arg
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printInputValue($arg): string
         {
@@ -22027,31 +22029,31 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printObject(\GraphQL\Type\Definition\ObjectType $type, array $options): string
         {
         }
         /**
          * @param array<string, bool> $options
-         * @param ObjectType|InterfaceType $type
+         * @param \GraphQL\Type\Definition\ObjectType|\GraphQL\Type\Definition\InterfaceType $type
          *
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printFields(array $options, $type): string
         {
         }
         /**
-         * @param FieldDefinition|EnumValueDefinition|InputObjectField|Argument $deprecation
+         * @param \GraphQL\Type\Definition\FieldDefinition|\GraphQL\Type\Definition\EnumValueDefinition|\GraphQL\Type\Definition\InputObjectField|\GraphQL\Type\Definition\Argument $deprecation
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printDeprecated($deprecation): string
         {
@@ -22065,8 +22067,8 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printInterface(\GraphQL\Type\Definition\InterfaceType $type, array $options): string
         {
@@ -22077,7 +22079,7 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected static function printUnion(\GraphQL\Type\Definition\UnionType $type, array $options): string
         {
@@ -22088,8 +22090,8 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printEnum(\GraphQL\Type\Definition\EnumType $type, array $options): string
         {
@@ -22100,8 +22102,8 @@ namespace GraphQL\Utils {
          * @phpstan-param Options $options
          *
          * @throws \JsonException
-         * @throws InvariantViolation
-         * @throws SerializationError
+         * @throws \GraphQL\Error\InvariantViolation
+         * @throws \GraphQL\Error\SerializationError
          */
         protected static function printInputObject(\GraphQL\Type\Definition\InputObjectType $type, array $options): string
         {
@@ -22121,7 +22123,7 @@ namespace GraphQL\Utils {
          * Provided a type and a super type, return true if the first type is either
          * equal or a subset of the second super type (covariant).
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function isTypeSubTypeOf(\GraphQL\Type\Schema $schema, \GraphQL\Type\Definition\Type $maybeSubType, \GraphQL\Type\Definition\Type $superType): bool
         {
@@ -22132,11 +22134,11 @@ namespace GraphQL\Utils {
         public function __construct(\GraphQL\Type\Schema $schema)
         {
         }
-        /** @return array<int, (CompositeType&Type)|null> */
+        /** @return array<int, (\GraphQL\Type\Definition\CompositeType&\GraphQL\Type\Definition\Type)|null> */
         public function getParentTypeStack(): array
         {
         }
-        /** @return array<int, FieldDefinition|null> */
+        /** @return array<int, \GraphQL\Type\Definition\FieldDefinition|null> */
         public function getFieldDefStack(): array
         {
         }
@@ -22153,23 +22155,23 @@ namespace GraphQL\Utils {
          *     ...
          * ]
          *
-         * @param (Type&NamedType)|(Type&WrappingType) $type
-         * @param array<string, Type&NamedType> $typeMap
+         * @param (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|(\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\WrappingType) $type
+         * @param array<string, \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> $typeMap
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function extractTypes(\GraphQL\Type\Definition\Type $type, array &$typeMap): void
         {
         }
         /**
-         * @param array<string, Type&NamedType> $typeMap
+         * @param array<string, \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> $typeMap
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public static function extractTypesFromDirectives(\GraphQL\Type\Definition\Directive $directive, array &$typeMap): void
         {
         }
-        /** @return (Type&InputType)|null */
+        /** @return (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\InputType)|null */
         public function getParentInputType(): ?\GraphQL\Type\Definition\InputType
         {
         }
@@ -22182,7 +22184,7 @@ namespace GraphQL\Utils {
         }
         /**
          * @throws \Exception
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         public function enter(\GraphQL\Language\AST\Node $node): void
         {
@@ -22190,7 +22192,7 @@ namespace GraphQL\Utils {
         public function getType(): ?\GraphQL\Type\Definition\Type
         {
         }
-        /** @return (CompositeType&Type)|null */
+        /** @return (\GraphQL\Type\Definition\CompositeType&\GraphQL\Type\Definition\Type)|null */
         public function getParentType(): ?\GraphQL\Type\Definition\CompositeType
         {
         }
@@ -22204,7 +22206,7 @@ namespace GraphQL\Utils {
         public function getDefaultValue()
         {
         }
-        /** @return (InputType&Type)|null */
+        /** @return (\GraphQL\Type\Definition\InputType&\GraphQL\Type\Definition\Type)|null */
         public function getInputType(): ?\GraphQL\Type\Definition\InputType
         {
         }
@@ -22264,7 +22266,7 @@ namespace GraphQL\Utils {
         /**
          * Upholds the spec rules about naming.
          *
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public static function assertValidName(string $name): void
         {
@@ -22313,9 +22315,9 @@ namespace GraphQL\Utils {
     }
     /**
      * @phpstan-type CoercedValue array{errors: null, value: mixed}
-     * @phpstan-type CoercedErrors array{errors: array<int, CoercionError>, value: null}
+     * @phpstan-type CoercedErrors array{errors: array<int, \GraphQL\Error\CoercionError>, value: null}
      *
-     * @phpstan-import-type InputPath from CoercionError
+     * @phpstan-import-type InputPath from \GraphQL\Error\CoercionError
      */
     class Value
     {
@@ -22326,11 +22328,11 @@ namespace GraphQL\Utils {
          * or a list of encountered coercion errors.
          *
          * @param mixed $value
-         * @param InputType&Type $type
+         * @param \GraphQL\Type\Definition\InputType&\GraphQL\Type\Definition\Type $type
          *
          * @phpstan-param InputPath|null $path
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @phpstan-return CoercedValue|CoercedErrors
          */
@@ -22363,11 +22365,11 @@ namespace GraphQL\Validator {
         /**
          * Validate a GraphQL query against a schema.
          *
-         * @param array<ValidationRule>|null $rules Defaults to using all available rules
+         * @param array<\GraphQL\Validator\Rules\ValidationRule>|null $rules Defaults to using all available rules
          *
          * @throws \Exception
          *
-         * @return list<Error>
+         * @return list<\GraphQL\Error\Error>
          *
          * @api
          */
@@ -22379,14 +22381,14 @@ namespace GraphQL\Validator {
          *
          * @throws \InvalidArgumentException
          *
-         * @return array<string, ValidationRule>
+         * @return array<string, \GraphQL\Validator\Rules\ValidationRule>
          *
          * @api
          */
         public static function allRules(): array
         {
         }
-        /** @return array<class-string<ValidationRule>, ValidationRule> */
+        /** @return array<class-string<\GraphQL\Validator\Rules\ValidationRule>, \GraphQL\Validator\Rules\ValidationRule> */
         public static function defaultRules(): array
         {
         }
@@ -22395,12 +22397,12 @@ namespace GraphQL\Validator {
          *
          * @throws \InvalidArgumentException
          *
-         * @return array<class-string<QuerySecurityRule>, QuerySecurityRule>
+         * @return array<class-string<\GraphQL\Validator\Rules\QuerySecurityRule>, \GraphQL\Validator\Rules\QuerySecurityRule>
          */
         public static function securityRules(): array
         {
         }
-        /** @return array<class-string<ValidationRule>, ValidationRule> */
+        /** @return array<class-string<\GraphQL\Validator\Rules\ValidationRule>, \GraphQL\Validator\Rules\ValidationRule> */
         public static function sdlRules(): array
         {
         }
@@ -22437,25 +22439,25 @@ namespace GraphQL\Validator {
         /**
          * Validate a GraphQL document defined through schema definition language.
          *
-         * @param array<ValidationRule>|null $rules
+         * @param array<\GraphQL\Validator\Rules\ValidationRule>|null $rules
          *
          * @throws \Exception
          *
-         * @return list<Error>
+         * @return list<\GraphQL\Error\Error>
          */
         public static function validateSDL(\GraphQL\Language\AST\DocumentNode $documentAST, ?\GraphQL\Type\Schema $schemaToExtend = null, ?array $rules = null): array
         {
         }
         /**
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public static function assertValidSDL(\GraphQL\Language\AST\DocumentNode $documentAST): void
         {
         }
         /**
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          */
         public static function assertValidSDLExtension(\GraphQL\Language\AST\DocumentNode $documentAST, \GraphQL\Type\Schema $schema): void
         {
@@ -22464,7 +22466,7 @@ namespace GraphQL\Validator {
     interface ValidationContext
     {
         public function reportError(\GraphQL\Error\Error $error): void;
-        /** @return list<Error> */
+        /** @return list<\GraphQL\Error\Error> */
         public function getErrors(): array;
         public function getDocument(): \GraphQL\Language\AST\DocumentNode;
         public function getSchema(): ?\GraphQL\Type\Schema;
@@ -22474,13 +22476,13 @@ namespace GraphQL\Validator {
      * allowing access to commonly useful contextual information from within a
      * validation rule.
      *
-     * @phpstan-type VariableUsage array{node: VariableNode, type: (Type&InputType)|null, defaultValue: mixed}
+     * @phpstan-type VariableUsage array{node: \GraphQL\Language\AST\VariableNode, type: (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\InputType)|null, defaultValue: mixed}
      */
     class QueryValidationContext implements \GraphQL\Validator\ValidationContext
     {
         protected \GraphQL\Type\Schema $schema;
         protected \GraphQL\Language\AST\DocumentNode $ast;
-        /** @var list<Error> */
+        /** @var list<\GraphQL\Error\Error> */
         protected array $errors = [];
         public function __construct(\GraphQL\Type\Schema $schema, \GraphQL\Language\AST\DocumentNode $ast, \GraphQL\Utils\TypeInfo $typeInfo)
         {
@@ -22488,7 +22490,7 @@ namespace GraphQL\Validator {
         public function reportError(\GraphQL\Error\Error $error): void
         {
         }
-        /** @return list<Error> */
+        /** @return list<\GraphQL\Error\Error> */
         public function getErrors(): array
         {
         }
@@ -22506,14 +22508,14 @@ namespace GraphQL\Validator {
         public function getRecursiveVariableUsages(\GraphQL\Language\AST\OperationDefinitionNode $operation): array
         {
         }
-        /** @return array<int, FragmentDefinitionNode> */
+        /** @return array<int, \GraphQL\Language\AST\FragmentDefinitionNode> */
         public function getRecursivelyReferencedFragments(\GraphQL\Language\AST\OperationDefinitionNode $operation): array
         {
         }
         /**
-         * @param OperationDefinitionNode|FragmentDefinitionNode $node
+         * @param \GraphQL\Language\AST\OperationDefinitionNode|\GraphQL\Language\AST\FragmentDefinitionNode $node
          *
-         * @return array<int, FragmentSpreadNode>
+         * @return array<int, \GraphQL\Language\AST\FragmentSpreadNode>
          */
         public function getFragmentSpreads(\GraphQL\Language\AST\HasSelectionSet $node): array
         {
@@ -22524,15 +22526,15 @@ namespace GraphQL\Validator {
         public function getType(): ?\GraphQL\Type\Definition\Type
         {
         }
-        /** @return (CompositeType&Type)|null */
+        /** @return (\GraphQL\Type\Definition\CompositeType&\GraphQL\Type\Definition\Type)|null */
         public function getParentType(): ?\GraphQL\Type\Definition\CompositeType
         {
         }
-        /** @return (Type&InputType)|null */
+        /** @return (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\InputType)|null */
         public function getInputType(): ?\GraphQL\Type\Definition\InputType
         {
         }
-        /** @return (Type&InputType)|null */
+        /** @return (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\InputType)|null */
         public function getParentInputType(): ?\GraphQL\Type\Definition\InputType
         {
         }
@@ -22551,9 +22553,9 @@ namespace GraphQL\Validator\Rules {
     /**
      * @see Node, VisitorOperation
      *
-     * @phpstan-type NodeVisitorFnResult VisitorOperation|mixed|null
-     * @phpstan-type VisitorFnResult array<string, callable(Node): NodeVisitorFnResult>|array<string, array<string, callable(Node): NodeVisitorFnResult>>
-     * @phpstan-type VisitorFn callable(ValidationContext): VisitorFnResult
+     * @phpstan-type NodeVisitorFnResult \GraphQL\Language\VisitorOperation|mixed|null
+     * @phpstan-type VisitorFnResult array<string, callable(\GraphQL\Language\AST\Node): NodeVisitorFnResult>|array<string, array<string, callable(\GraphQL\Language\AST\Node): NodeVisitorFnResult>>
+     * @phpstan-type VisitorFn callable(\GraphQL\Validator\ValidationContext): VisitorFnResult
      */
     class CustomValidationRule extends \GraphQL\Validator\Rules\ValidationRule
     {
@@ -22597,7 +22599,7 @@ namespace GraphQL\Validator\Rules {
          * suggest them, sorted by how often the type is referenced, starting
          * with interfaces.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, string>
          */
@@ -22608,7 +22610,7 @@ namespace GraphQL\Validator\Rules {
          * For the field name provided, determine if there are any similar field names
          * that may be the result of a typo.
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<int, string>
          */
@@ -22643,7 +22645,7 @@ namespace GraphQL\Validator\Rules {
      */
     class KnownArgumentNames extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
         }
@@ -22658,7 +22660,7 @@ namespace GraphQL\Validator\Rules {
      * A GraphQL directive is only valid if all supplied arguments are defined by
      * that field.
      *
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      */
     class KnownArgumentNamesOnDirectives extends \GraphQL\Validator\Rules\ValidationRule
     {
@@ -22666,16 +22668,16 @@ namespace GraphQL\Validator\Rules {
         public static function unknownDirectiveArgMessage(string $argName, string $directiveName, array $suggestedArgs): string
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getSDLVisitor(\GraphQL\Validator\SDLValidationContext $context): array
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @phpstan-return VisitorArray
          */
@@ -22684,20 +22686,20 @@ namespace GraphQL\Validator\Rules {
         }
     }
     /**
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      */
     class KnownDirectives extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getSDLVisitor(\GraphQL\Validator\SDLValidationContext $context): array
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @phpstan-return VisitorArray
          */
@@ -22708,7 +22710,7 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @param array<Node|NodeList<Node>> $ancestors
+         * @param array<\GraphQL\Language\AST\Node|\GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>> $ancestors
          *
          * @throws \Exception
          */
@@ -22789,7 +22791,7 @@ namespace GraphQL\Validator\Rules {
     {
         /** @var array<string, bool> */
         protected array $visitedFrags;
-        /** @var array<int, FragmentSpreadNode> */
+        /** @var array<int, \GraphQL\Language\AST\FragmentSpreadNode> */
         protected array $spreadPath;
         /** @var array<string, int|null> */
         protected array $spreadPathIndexByName;
@@ -22819,9 +22821,9 @@ namespace GraphQL\Validator\Rules {
     }
     class NoUnusedFragments extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @var array<int, OperationDefinitionNode> */
+        /** @var array<int, \GraphQL\Language\AST\OperationDefinitionNode> */
         protected array $operationDefs;
-        /** @var array<int, FragmentDefinitionNode> */
+        /** @var array<int, \GraphQL\Language\AST\FragmentDefinitionNode> */
         protected array $fragmentDefs;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -22832,7 +22834,7 @@ namespace GraphQL\Validator\Rules {
     }
     class NoUnusedVariables extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @var array<int, VariableDefinitionNode> */
+        /** @var array<int, \GraphQL\Language\AST\VariableDefinitionNode> */
         protected array $variableDefs;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -22862,8 +22864,8 @@ namespace GraphQL\Validator\Rules {
      * ReasonOrReasons is recursive, but PHPStan does not support that.
      *
      * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
-     * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, FieldNode>, array<int, FieldNode>}
-     * @phpstan-type FieldInfo array{Type|null, FieldNode, FieldDefinition|null}
+     * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, \GraphQL\Language\AST\FieldNode>, array<int, \GraphQL\Language\AST\FieldNode>}
+     * @phpstan-type FieldInfo array{\GraphQL\Type\Definition\Type|null, \GraphQL\Language\AST\FieldNode, \GraphQL\Type\Definition\FieldDefinition|null}
      * @phpstan-type FieldMap array<string, array<int, FieldInfo>>
      */
     class OverlappingFieldsCanBeMerged extends \GraphQL\Validator\Rules\ValidationRule
@@ -22879,7 +22881,7 @@ namespace GraphQL\Validator\Rules {
          * selection set. Selection sets may be asked for this information multiple
          * times, so this improves the performance of this validator.
          *
-         * @phpstan-var \SplObjectStorage<SelectionSetNode, array{FieldMap, array<int, string>}>
+         * @phpstan-var \SplObjectStorage<\GraphQL\Language\AST\SelectionSetNode, array{FieldMap, array<int, string>}>
          */
         protected \SplObjectStorage $cachedFieldsAndFragmentNames;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
@@ -22991,8 +22993,8 @@ namespace GraphQL\Validator\Rules {
          * Determines if there is a conflict between two particular fields, including
          * comparing their sub-fields.
          *
-         * @param array{Type|null, FieldNode, FieldDefinition|null} $field1
-         * @param array{Type|null, FieldNode, FieldDefinition|null} $field2
+         * @param array{\GraphQL\Type\Definition\Type|null, \GraphQL\Language\AST\FieldNode, \GraphQL\Type\Definition\FieldDefinition|null} $field1
+         * @param array{\GraphQL\Type\Definition\Type|null, \GraphQL\Language\AST\FieldNode, \GraphQL\Type\Definition\FieldDefinition|null} $field2
          *
          * @throws \Exception
          *
@@ -23002,8 +23004,8 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @param NodeList<ArgumentNode> $arguments1 keep
-         * @param NodeList<ArgumentNode> $arguments2 keep
+         * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\ArgumentNode> $arguments1 keep
+         * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\ArgumentNode> $arguments2 keep
          *
          * @throws \JsonException
          */
@@ -23120,10 +23122,10 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @param CompositeType&Type $fragType
-         * @param CompositeType&Type $parentType
+         * @param \GraphQL\Type\Definition\CompositeType&\GraphQL\Type\Definition\Type $fragType
+         * @param \GraphQL\Type\Definition\CompositeType&\GraphQL\Type\Definition\Type $parentType
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function doTypesOverlap(\GraphQL\Type\Schema $schema, \GraphQL\Type\Definition\CompositeType $fragType, \GraphQL\Type\Definition\CompositeType $parentType): bool
         {
@@ -23134,7 +23136,7 @@ namespace GraphQL\Validator\Rules {
         /**
          * @throws \Exception
          *
-         * @return (CompositeType&Type)|null
+         * @return (\GraphQL\Type\Definition\CompositeType&\GraphQL\Type\Definition\Type)|null
          */
         protected function getFragmentType(\GraphQL\Validator\QueryValidationContext $context, string $name): ?\GraphQL\Type\Definition\Type
         {
@@ -23170,7 +23172,7 @@ namespace GraphQL\Validator\Rules {
      * A directive is only valid if all required (non-null without a
      * default value) field arguments have been provided.
      *
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      */
     class ProvidedRequiredArgumentsOnDirectives extends \GraphQL\Validator\Rules\ValidationRule
     {
@@ -23189,8 +23191,8 @@ namespace GraphQL\Validator\Rules {
          * @throws \Exception
          * @throws \InvalidArgumentException
          * @throws \ReflectionException
-         * @throws Error
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @phpstan-return VisitorArray
          */
@@ -23207,7 +23209,7 @@ namespace GraphQL\Validator\Rules {
         protected int $queryComplexity;
         /** @var array<string, mixed> */
         protected array $rawVariableValues = [];
-        /** @var NodeList<VariableDefinitionNode> */
+        /** @var \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\VariableDefinitionNode> */
         protected \GraphQL\Language\AST\NodeList $variableDefs;
         /** @phpstan-var ASTAndDefs */
         protected \ArrayObject $fieldNodeAndDefs;
@@ -23235,7 +23237,7 @@ namespace GraphQL\Validator\Rules {
          *
          * @throws \Exception
          * @throws \ReflectionException
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function directiveExcludesField(\GraphQL\Language\AST\FieldNode $node): bool
         {
@@ -23250,7 +23252,7 @@ namespace GraphQL\Validator\Rules {
         }
         /**
          * @throws \Exception
-         * @throws Error
+         * @throws \GraphQL\Error\Error
          *
          * @return array<string, mixed>
          */
@@ -23290,7 +23292,7 @@ namespace GraphQL\Validator\Rules {
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
         }
-        /** @param OperationDefinitionNode|FieldNode|InlineFragmentNode|FragmentDefinitionNode $node */
+        /** @param \GraphQL\Language\AST\OperationDefinitionNode|\GraphQL\Language\AST\FieldNode|\GraphQL\Language\AST\InlineFragmentNode|\GraphQL\Language\AST\FragmentDefinitionNode $node */
         protected function fieldDepth(\GraphQL\Language\AST\Node $node, int $depth = 0, int $maxDepth = 0): int
         {
         }
@@ -23349,11 +23351,11 @@ namespace GraphQL\Validator\Rules {
         }
     }
     /**
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      */
     class UniqueArgumentNames extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @var array<string, NameNode> */
+        /** @var array<string, \GraphQL\Language\AST\NameNode> */
         protected array $knownArgNames;
         public function getSDLVisitor(\GraphQL\Validator\SDLValidationContext $context): array
         {
@@ -23386,20 +23388,20 @@ namespace GraphQL\Validator\Rules {
      * A GraphQL document is only valid if all non-repeatable directives at
      * a given location are uniquely named.
      *
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      */
     class UniqueDirectivesPerLocation extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
         }
-        /** @throws InvariantViolation */
+        /** @throws \GraphQL\Error\InvariantViolation */
         public function getSDLVisitor(\GraphQL\Validator\SDLValidationContext $context): array
         {
         }
         /**
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @phpstan-return VisitorArray
          */
@@ -23429,7 +23431,7 @@ namespace GraphQL\Validator\Rules {
     }
     class UniqueFragmentNames extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @var array<string, NameNode> */
+        /** @var array<string, \GraphQL\Language\AST\NameNode> */
         protected array $knownFragmentNames;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -23439,13 +23441,13 @@ namespace GraphQL\Validator\Rules {
         }
     }
     /**
-     * @phpstan-import-type VisitorArray from Visitor
+     * @phpstan-import-type VisitorArray from \GraphQL\Language\Visitor
      */
     class UniqueInputFieldNames extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @var array<string, NameNode> */
+        /** @var array<string, \GraphQL\Language\AST\NameNode> */
         protected array $knownNames;
-        /** @var array<array<string, NameNode>> */
+        /** @var array<array<string, \GraphQL\Language\AST\NameNode>> */
         protected array $knownNameStack;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -23463,7 +23465,7 @@ namespace GraphQL\Validator\Rules {
     }
     class UniqueOperationNames extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @var array<string, NameNode> */
+        /** @var array<string, \GraphQL\Language\AST\NameNode> */
         protected array $knownOperationNames;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -23496,7 +23498,7 @@ namespace GraphQL\Validator\Rules {
     }
     class UniqueVariableNames extends \GraphQL\Validator\Rules\ValidationRule
     {
-        /** @var array<string, NameNode> */
+        /** @var array<string, \GraphQL\Language\AST\NameNode> */
         protected array $knownVariableNames;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
@@ -23517,7 +23519,7 @@ namespace GraphQL\Validator\Rules {
         {
         }
         /**
-         * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+         * @param \GraphQL\Language\AST\VariableNode|\GraphQL\Language\AST\NullValueNode|\GraphQL\Language\AST\IntValueNode|\GraphQL\Language\AST\FloatValueNode|\GraphQL\Language\AST\StringValueNode|\GraphQL\Language\AST\BooleanValueNode|\GraphQL\Language\AST\EnumValueNode|\GraphQL\Language\AST\ListValueNode|\GraphQL\Language\AST\ObjectValueNode $node
          *
          * @throws \JsonException
          */
@@ -23539,7 +23541,7 @@ namespace GraphQL\Validator\Rules {
         /**
          * A map from variable names to their definition nodes.
          *
-         * @var array<string, VariableDefinitionNode>
+         * @var array<string, \GraphQL\Language\AST\VariableDefinitionNode>
          */
         protected array $varDefMap;
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
@@ -23559,10 +23561,10 @@ namespace GraphQL\Validator\Rules {
          * which includes considering if default values exist for either the variable
          * or the location at which it is located.
          *
-         * @param ValueNode|null $varDefaultValue
+         * @param \GraphQL\Language\AST\ValueNode|null $varDefaultValue
          * @param mixed $locationDefaultValue
          *
-         * @throws InvariantViolation
+         * @throws \GraphQL\Error\InvariantViolation
          */
         protected function allowedVariableUsage(\GraphQL\Type\Schema $schema, \GraphQL\Type\Definition\Type $varType, $varDefaultValue, \GraphQL\Type\Definition\Type $locationType, $locationDefaultValue): bool
         {
@@ -23574,7 +23576,7 @@ namespace GraphQL\Validator {
     {
         protected \GraphQL\Language\AST\DocumentNode $ast;
         protected ?\GraphQL\Type\Schema $schema;
-        /** @var list<Error> */
+        /** @var list<\GraphQL\Error\Error> */
         protected array $errors = [];
         public function __construct(\GraphQL\Language\AST\DocumentNode $ast, ?\GraphQL\Type\Schema $schema)
         {

@@ -108,16 +108,26 @@ do_release() {
 	fi
 }
 
-GQL_JSON="$(wget -q -O- "https://packagist.org/packages/wp-graphql/wp-graphql.json")"
+# Grab the JSON feed of all versions of WPGraphQL from the WordPress.org API.
+GQL_JSON="$(wget -q -O- "https://api.wordpress.org/plugins/info/1.0/wp-graphql.json")"
 
-# Get every possible version from GQL_JSON. Valid versions are prefixed with `v`, followed by anything.
-printf -v JQ_FILTER '.package.versions[].version | select(. | startswith("v"))'
+# Normalize the prefix.
+printf -v JQ_FILTER '.versions | keys[] | select(. != "trunk") | "v" + ltrimstr("v")'
 # Sort the versions.
 POSSIBLE_VERSIONS="$(jq -r "$JQ_FILTER" <<<"$GQL_JSON" | sort -V)"
 
+# The version we last built. Definitionally a real release, so the feed must list it.
+CURRENT_VERSION="$(jq -r '.require."wpackagist-plugin/wp-graphql"' <source/composer.json | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+
+# Check if the current version is in the list of possible versions. If not, exit with an error.
+if ! grep -qxF "v${CURRENT_VERSION}" <<<"${POSSIBLE_VERSIONS}"; then
+	echo "::error::Version feed does not list current v${CURRENT_VERSION} — version discovery is broken."
+	exit 1
+fi
+
 # Read latest version from composer.json if no FROM_VERSION is set.
 if [ -z "${FROM_VERSION}" ]; then
-	FROM_VERSION="$(jq -r '.require."wpackagist-plugin/wp-graphql"' <source/composer.json | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+	FROM_VERSION="${CURRENT_VERSION}"
 fi
 
 echo "Checking versions from ${FROM_VERSION:-1.0.0}..."
