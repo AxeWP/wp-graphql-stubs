@@ -16700,6 +16700,62 @@ namespace GraphQL\Executor\Promise {
     }
 }
 namespace GraphQL\Executor\Promise\Adapter {
+    /**
+     * Allows integration with amphp/amp v3 (fiber-based futures).
+     *
+     * @see https://amphp.org/amp
+     */
+    class AmpFutureAdapter implements \GraphQL\Executor\Promise\PromiseAdapter
+    {
+        public function isThenable($value): bool
+        {
+        }
+        /** @throws \GraphQL\Error\InvariantViolation */
+        public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /** @throws \GraphQL\Error\InvariantViolation */
+        public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /** @throws \GraphQL\Error\InvariantViolation */
+        public function create(callable $resolver): \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /**
+         * @throws \Error
+         * @throws \GraphQL\Error\InvariantViolation
+         */
+        public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /** @throws \GraphQL\Error\InvariantViolation */
+        public function createRejected(\Throwable $reason): \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /**
+         * @throws \Error
+         * @throws \GraphQL\Error\InvariantViolation
+         */
+        public function all(iterable $promisesOrValues): \GraphQL\Executor\Promise\Promise
+        {
+        }
+        /**
+         * @param \Amp\DeferredFuture<mixed> $deferred
+         * @param mixed $value
+         */
+        protected static function resolveDeferred(\Amp\DeferredFuture $deferred, $value): void
+        {
+        }
+        /**
+         * @param mixed $value
+         *
+         * @return mixed
+         */
+        protected static function unwrapResult($value)
+        {
+        }
+    }
     class AmpPromiseAdapter implements \GraphQL\Executor\Promise\PromiseAdapter
     {
         public function isThenable($value): bool
@@ -16891,7 +16947,7 @@ namespace GraphQL\Executor\Promise {
      */
     class Promise
     {
-        /** @var \GraphQL\Executor\Promise\Adapter\SyncPromise|\React\Promise\PromiseInterface<mixed>|\Amp\Promise<mixed> */
+        /** @var \GraphQL\Executor\Promise\Adapter\SyncPromise|\React\Promise\PromiseInterface<mixed>|\Amp\Future<mixed>|\Amp\Promise<mixed> */
         public $adoptedPromise;
         /**
          * @param mixed $adoptedPromise
@@ -18595,7 +18651,8 @@ namespace GraphQL\Language {
      *   noLocation?: bool,
      *   allowLegacySDLEmptyFields?: bool,
      *   allowLegacySDLImplementsInterfaces?: bool,
-     *   experimentalFragmentVariables?: bool
+     *   experimentalFragmentVariables?: bool,
+     *   recursionLimit?: int<0, max>
      * }
      *
      * - **noLocation**:
@@ -18624,6 +18681,11 @@ namespace GraphQL\Language {
      *   ```
      *
      *   Note: this feature is experimental and may change or be removed in the future.
+     *
+     * - **recursionLimit**:
+     *   Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
+     *   The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
+     *   Defaults to 256. Set to 0 to disable the limit.
      *
      * Those magic functions allow partial parsing:
      *
@@ -18697,6 +18759,8 @@ namespace GraphQL\Language {
      */
     class Parser
     {
+        /** @api */
+        public const DEFAULT_RECURSION_LIMIT = 256;
         /**
          * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
          *
@@ -22957,6 +23021,7 @@ namespace GraphQL\Validator\Rules {
      */
     class OverlappingFieldsCanBeMerged extends \GraphQL\Validator\Rules\ValidationRule
     {
+        public const DEFAULT_MAX_COMPARISON_COUNT = 100000;
         /**
          * A memoization for when two fragments are compared "between" each other for
          * conflicts. Two fragments may be compared many times, so memoizing this can
@@ -22971,6 +23036,11 @@ namespace GraphQL\Validator\Rules {
          * @phpstan-var \SplObjectStorage<\GraphQL\Language\AST\SelectionSetNode, array{FieldMap, array<int, string>}>
          */
         protected \SplObjectStorage $cachedFieldsAndFragmentNames;
+        protected int $comparisonCount;
+        protected int $comparisonLimit;
+        public function __construct(int $comparisonLimit = self::DEFAULT_MAX_COMPARISON_COUNT)
+        {
+        }
         public function getVisitor(\GraphQL\Validator\QueryValidationContext $context): array
         {
         }
