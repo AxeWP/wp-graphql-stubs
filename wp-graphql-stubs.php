@@ -21169,7 +21169,7 @@ namespace GraphQL\Utils {
      * @phpstan-import-type InputObjectFieldConfig from \GraphQL\Type\Definition\InputObjectField
      * @phpstan-import-type UnnamedInputObjectFieldConfig from \GraphQL\Type\Definition\InputObjectField
      *
-     * @phpstan-type ResolveType callable(string, \GraphQL\Language\AST\Node|null): \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
+     * @phpstan-type ResolveType callable(string, \GraphQL\Language\AST\Node|null): (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)
      * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode, array<string, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode>): array<string, mixed>
      * @phpstan-type FieldConfigDecorator callable(UnnamedFieldDefinitionConfig, \GraphQL\Language\AST\FieldDefinitionNode, \GraphQL\Language\AST\ObjectTypeDefinitionNode|\GraphQL\Language\AST\ObjectTypeExtensionNode|\GraphQL\Language\AST\InterfaceTypeDefinitionNode|\GraphQL\Language\AST\InterfaceTypeExtensionNode): UnnamedFieldDefinitionConfig
      */
