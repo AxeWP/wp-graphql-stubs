@@ -7,9 +7,8 @@ The stubs are generated with [php-stubs/generator](https://github.com/php-stubs/
 
 ## Requirements
 
-- PHP 7.3+
+- PHP 7.4+
 - Sodium PHP extension as latest WordPress core uses it and **compat code is removed** from stubs.
-
 
 ## Installation
 
