@@ -594,7 +594,7 @@ namespace {
     /**
      * Class - WPGraphQL_CLI_Command
      *
-     * @deprecated since x-release-please-version Use \WPGraphQL\CLI\Commands instead.
+     * @deprecated since 2.7.0 Use \WPGraphQL\CLI\Commands instead.
      * @codeCoverageIgnore
      */
     class WPGraphQL_CLI_Command extends \WPGraphQL\CLI\Commands
@@ -602,7 +602,7 @@ namespace {
         /**
          * {@inheritDoc}
          *
-         * @deprecated since x-release-please-version Use \WPGraphQL\CLI\Commands::generate_static_schema instead.
+         * @deprecated since 2.7.0 Use \WPGraphQL\CLI\Commands::generate_static_schema instead.
          */
         public function generate_static_schema($args, $assoc_args): void
         {
@@ -13639,6 +13639,14 @@ namespace {
         {
         }
         /**
+         * Load the plugin textdomain for translations.
+         *
+         * @since 2.7.0
+         */
+        public static function load_textdomain(): void
+        {
+        }
+        /**
          * Determine the post_types and taxonomies, etc that should show in GraphQL.
          */
         public function setup_types(): void
@@ -13867,6 +13875,7 @@ namespace GraphQL\Type {
      */
     class Schema
     {
+        public ?string $description;
         public ?\GraphQL\Language\AST\SchemaDefinitionNode $astNode;
         /** @var array<\GraphQL\Language\AST\SchemaExtensionNode> */
         public array $extensionASTNodes = [];
@@ -18387,6 +18396,7 @@ namespace GraphQL\Language\AST {
         public \GraphQL\Language\AST\NodeList $directives;
         /** @var NodeList<OperationTypeDefinitionNode> */
         public \GraphQL\Language\AST\NodeList $operationTypes;
+        public ?\GraphQL\Language\AST\StringValueNode $description = null;
     }
     class SchemaExtensionNode extends \GraphQL\Language\AST\Node implements \GraphQL\Language\AST\TypeSystemExtensionNode
     {
@@ -19036,7 +19046,7 @@ namespace GraphQL\Language {
             'typeCondition',
             'directives',
             'selectionSet',
-        ], \GraphQL\Language\AST\NodeKind::INT => [], \GraphQL\Language\AST\NodeKind::FLOAT => [], \GraphQL\Language\AST\NodeKind::STRING => [], \GraphQL\Language\AST\NodeKind::BOOLEAN => [], \GraphQL\Language\AST\NodeKind::NULL => [], \GraphQL\Language\AST\NodeKind::ENUM => [], \GraphQL\Language\AST\NodeKind::LST => ['values'], \GraphQL\Language\AST\NodeKind::OBJECT => ['fields'], \GraphQL\Language\AST\NodeKind::OBJECT_FIELD => ['name', 'value'], \GraphQL\Language\AST\NodeKind::DIRECTIVE => ['name', 'arguments'], \GraphQL\Language\AST\NodeKind::NAMED_TYPE => ['name'], \GraphQL\Language\AST\NodeKind::LIST_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::NON_NULL_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'], \GraphQL\Language\AST\NodeKind::OPERATION_TYPE_DEFINITION => ['type'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'], \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes']];
+        ], \GraphQL\Language\AST\NodeKind::INT => [], \GraphQL\Language\AST\NodeKind::FLOAT => [], \GraphQL\Language\AST\NodeKind::STRING => [], \GraphQL\Language\AST\NodeKind::BOOLEAN => [], \GraphQL\Language\AST\NodeKind::NULL => [], \GraphQL\Language\AST\NodeKind::ENUM => [], \GraphQL\Language\AST\NodeKind::LST => ['values'], \GraphQL\Language\AST\NodeKind::OBJECT => ['fields'], \GraphQL\Language\AST\NodeKind::OBJECT_FIELD => ['name', 'value'], \GraphQL\Language\AST\NodeKind::DIRECTIVE => ['name', 'arguments'], \GraphQL\Language\AST\NodeKind::NAMED_TYPE => ['name'], \GraphQL\Language\AST\NodeKind::LIST_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::NON_NULL_TYPE => ['type'], \GraphQL\Language\AST\NodeKind::SCHEMA_DEFINITION => ['description', 'directives', 'operationTypes'], \GraphQL\Language\AST\NodeKind::OPERATION_TYPE_DEFINITION => ['type'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'], \GraphQL\Language\AST\NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'], \GraphQL\Language\AST\NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'], \GraphQL\Language\AST\NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'], \GraphQL\Language\AST\NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'], \GraphQL\Language\AST\NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes']];
         /**
          * Visit the AST (see class description for details).
          *
@@ -20514,6 +20524,7 @@ namespace GraphQL\Type {
      * @phpstan-type IntrospectionOptions array{
      *     descriptions?: bool,
      *     directiveIsRepeatable?: bool,
+     *     schemaDescription?: bool,
      *     typeIsOneOf?: bool,
      * }
      *
@@ -20641,6 +20652,7 @@ namespace GraphQL\Type {
      * @phpstan-type TypeLoader callable(string $typeName): ((\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|null)
      * @phpstan-type Types iterable<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType>|(callable(): iterable<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType>)|iterable<(callable(): \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)>|(callable(): iterable<(callable(): \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)>)
      * @phpstan-type SchemaConfigOptions array{
+     *   description?: string|null,
      *   query?: MaybeLazyObjectType,
      *   mutation?: MaybeLazyObjectType,
      *   subscription?: MaybeLazyObjectType,
@@ -20654,6 +20666,7 @@ namespace GraphQL\Type {
      */
     class SchemaConfig
     {
+        public ?string $description = null;
         /** @var MaybeLazyObjectType */
         public $query;
         /** @var MaybeLazyObjectType */
@@ -20689,6 +20702,14 @@ namespace GraphQL\Type {
          * @api
          */
         public static function create(array $options = []): self
+        {
+        }
+        /** @api */
+        public function getDescription(): ?string
+        {
+        }
+        /** @api */
+        public function setDescription(?string $description): self
         {
         }
         /**
@@ -21964,7 +21985,10 @@ namespace GraphQL\Utils {
         protected static function printFilteredSchema(\GraphQL\Type\Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \JsonException
+         * @throws \GraphQL\Error\InvariantViolation
+         */
         protected static function printSchemaDefinition(\GraphQL\Type\Schema $schema): ?string
         {
         }
@@ -22008,7 +22032,7 @@ namespace GraphQL\Utils {
         }
         /**
          * @param array<string, bool> $options
-         * @param (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|\GraphQL\Type\Definition\Directive|\GraphQL\Type\Definition\EnumValueDefinition|\GraphQL\Type\Definition\Argument|\GraphQL\Type\Definition\FieldDefinition|\GraphQL\Type\Definition\InputObjectField $def
+         * @param (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|\GraphQL\Type\Definition\Directive|\GraphQL\Type\Definition\EnumValueDefinition|\GraphQL\Type\Definition\Argument|\GraphQL\Type\Definition\FieldDefinition|\GraphQL\Type\Definition\InputObjectField|\GraphQL\Type\Schema $def
          *
          * @throws \JsonException
          */
