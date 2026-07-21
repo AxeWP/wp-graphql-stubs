@@ -11218,7 +11218,7 @@ namespace GraphQL\Type\Definition {
         public function extensionASTNodes(): array;
     }
     /**
-     * Registry of standard GraphQL types and base class for all other types.
+     * Registry of built-in GraphQL types and base class for all other types.
      */
     abstract class Type implements \JsonSerializable
     {
@@ -11227,14 +11227,28 @@ namespace GraphQL\Type\Definition {
         public const STRING = 'String';
         public const BOOLEAN = 'Boolean';
         public const ID = 'ID';
-        public const STANDARD_TYPE_NAMES = [self::INT, self::FLOAT, self::STRING, self::BOOLEAN, self::ID];
-        public const BUILT_IN_TYPE_NAMES = [...self::STANDARD_TYPE_NAMES, ...\GraphQL\Type\Introspection::TYPE_NAMES];
+        /** @var list<string> */
+        public const BUILT_IN_SCALAR_NAMES = [self::INT, self::FLOAT, self::STRING, self::BOOLEAN, self::ID];
+        /**
+         * @deprecated use {@see Type::BUILT_IN_SCALAR_NAMES}
+         *
+         * @var list<string>
+         */
+        public const STANDARD_TYPE_NAMES = self::BUILT_IN_SCALAR_NAMES;
+        /**
+         * Names of all built-in types: built-in scalars and introspection types.
+         *
+         * @see Type::BUILT_IN_SCALAR_NAMES for just the built-in scalar names.
+         *
+         * @var list<string>
+         */
+        public const BUILT_IN_TYPE_NAMES = [...self::BUILT_IN_SCALAR_NAMES, ...\GraphQL\Type\Introspection::TYPE_NAMES];
         /** @var array<string, ScalarType>|null */
-        protected static ?array $standardTypes;
+        protected static ?array $builtInScalars;
         /** @var array<string, Type&NamedType>|null */
         protected static ?array $builtInTypes;
         /**
-         * Returns the registered or default standard Int type.
+         * Returns the built-in Int scalar type.
          *
          * @api
          */
@@ -11242,7 +11256,7 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Returns the registered or default standard Float type.
+         * Returns the built-in Float scalar type.
          *
          * @api
          */
@@ -11250,7 +11264,7 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Returns the registered or default standard String type.
+         * Returns the built-in String scalar type.
          *
          * @api
          */
@@ -11258,7 +11272,7 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Returns the registered or default standard Boolean type.
+         * Returns the built-in Boolean scalar type.
          *
          * @api
          */
@@ -11266,7 +11280,7 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Returns the registered or default standard ID type.
+         * Returns the built-in ID scalar type.
          *
          * @api
          */
@@ -11298,7 +11312,9 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Returns all builtin in types including base scalar and introspection types.
+         * Returns all built-in types: built-in scalars and introspection types.
+         *
+         * @api
          *
          * @return array<string, Type&NamedType>
          */
@@ -11306,7 +11322,19 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Returns all builtin scalar types.
+         * Returns all built-in scalar types.
+         *
+         * @api
+         *
+         * @return array<string, ScalarType>
+         */
+        public static function builtInScalars(): array
+        {
+        }
+        /**
+         * Returns all built-in scalar types.
+         *
+         * @deprecated use {@see Type::builtInScalars()}
          *
          * @return array<string, ScalarType>
          */
@@ -11314,13 +11342,34 @@ namespace GraphQL\Type\Definition {
         {
         }
         /**
-         * Allows partially or completely overriding the standard types.
+         * Allows partially or completely overriding the standard types globally.
+         *
+         * @deprecated prefer per-schema scalar overrides via {@see SchemaConfig::$types} or {@see SchemaConfig::$typeLoader}
          *
          * @param array<ScalarType> $types
          *
          * @throws \GraphQL\Error\InvariantViolation
          */
         public static function overrideStandardTypes(array $types): void
+        {
+        }
+        /**
+         * Determines if the given type is a built-in scalar (Int, Float, String, Boolean, ID).
+         *
+         * Does not unwrap NonNull/List wrappers — checks the type instance directly.
+         * ScalarType is a NamedType, so {@see Type::getNamedType()} is unnecessary.
+         *
+         * @param mixed $type
+         *
+         * @phpstan-assert-if-true ScalarType $type
+         *
+         * @api
+         */
+        public static function isBuiltInScalar($type): bool
+        {
+        }
+        /** Checks if the given name is one of the built-in scalar type names (ID, String, Int, Float, Boolean). */
+        public static function isBuiltInScalarName(string $name): bool
         {
         }
         /**
@@ -11404,7 +11453,9 @@ namespace GraphQL\Type\Definition {
         {
         }
     }
-    /** @see NamedType */
+    /**
+     * @see NamedType
+     */
     trait NamedTypeImplementation
     {
         public string $name;
@@ -17439,7 +17490,7 @@ namespace GraphQL\Executor {
          *
          * @return array<string, mixed>|null
          */
-        public static function getDirectiveValues(\GraphQL\Type\Definition\Directive $directiveDef, \GraphQL\Language\AST\Node $node, ?array $variableValues = null): ?array
+        public static function getDirectiveValues(\GraphQL\Type\Definition\Directive $directiveDef, \GraphQL\Language\AST\Node $node, ?array $variableValues = null, ?\GraphQL\Type\Schema $schema = null): ?array
         {
         }
         /**
@@ -17455,7 +17506,7 @@ namespace GraphQL\Executor {
          *
          * @return array<string, mixed>
          */
-        public static function getArgumentValues($def, \GraphQL\Language\AST\Node $node, ?array $variableValues = null): array
+        public static function getArgumentValues($def, \GraphQL\Language\AST\Node $node, ?array $variableValues = null, ?\GraphQL\Type\Schema $schema = null): array
         {
         }
         /**
@@ -17468,7 +17519,7 @@ namespace GraphQL\Executor {
          *
          * @return array<string, mixed>
          */
-        public static function getArgumentValuesForMap($def, array $argumentValueMap, ?array $variableValues = null, ?\GraphQL\Language\AST\Node $referenceNode = null): array
+        public static function getArgumentValuesForMap($def, array $argumentValueMap, ?array $variableValues = null, ?\GraphQL\Language\AST\Node $referenceNode = null, ?\GraphQL\Type\Schema $schema = null): array
         {
         }
     }
@@ -17559,6 +17610,8 @@ namespace GraphQL {
         /**
          * Returns directives defined in GraphQL spec.
          *
+         * @deprecated use {@see Directive::builtInDirectives()}
+         *
          * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, \GraphQL\Type\Definition\Directive>
@@ -17569,7 +17622,9 @@ namespace GraphQL {
         {
         }
         /**
-         * Returns types defined in GraphQL spec.
+         * Returns built-in scalar types defined in GraphQL spec.
+         *
+         * @deprecated use {@see Type::builtInScalars()}
          *
          * @throws \GraphQL\Error\InvariantViolation
          *
@@ -17584,6 +17639,8 @@ namespace GraphQL {
          * Replaces standard types with types from this list (matching by name).
          *
          * Standard types not listed here remain untouched.
+         *
+         * @deprecated prefer per-schema scalar overrides via {@see \GraphQL\Type\SchemaConfig::$types} or {@see \GraphQL\Type\SchemaConfig::$typeLoader}
          *
          * @param array<string, \GraphQL\Type\Definition\ScalarType> $types
          *
@@ -18578,40 +18635,33 @@ namespace GraphQL\Language {
      *   experimentalFragmentVariables?: bool
      * }
      *
-     * noLocation:
-     *   (By default, the parser creates AST nodes that know the location
-     *   in the source that they correspond to. This configuration flag
-     *   disables that behavior for performance or testing.)
+     * - **noLocation**:
+     *   By default, the parser creates AST nodes that know the location in the source.
+     *   This configuration flag disables that behavior for performance or testing.
      *
-     * allowLegacySDLEmptyFields:
-     *   If enabled, the parser will parse empty fields sets in the Schema
-     *   Definition Language. Otherwise, the parser will follow the current
-     *   specification.
+     * - **allowLegacySDLEmptyFields**:
+     *   If enabled, the parser will parse empty fields sets in the Schema Definition Language.
+     *   Otherwise, the parser will follow the current specification.
+     *   This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
      *
-     *   This option is provided to ease adoption of the final SDL specification
-     *   and will be removed in a future major release.
+     * - **allowLegacySDLImplementsInterfaces**:
+     *   If enabled, the parser will parse implemented interfaces with no `&` character between each interface.
+     *   Otherwise, the parser will follow the current specification.
+     *   This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
      *
-     * allowLegacySDLImplementsInterfaces:
-     *   If enabled, the parser will parse implemented interfaces with no `&`
-     *   character between each interface. Otherwise, the parser will follow the
-     *   current specification.
-     *
-     *   This option is provided to ease adoption of the final SDL specification
-     *   and will be removed in a future major release.
-     *
-     * experimentalFragmentVariables:
-     *   (If enabled, the parser will understand and parse variable definitions
-     *   contained in a fragment definition. They'll be represented in the
-     *   `variableDefinitions` field of the FragmentDefinitionNode.
-     *
+     * - **experimentalFragmentVariables**:
+     *   If enabled, the parser will understand and parse variable definitions contained in a fragment definition.
+     *   They'll be represented in the `variableDefinitions` field of the FragmentDefinitionNode.
      *   The syntax is identical to normal, query-defined variables. For example:
      *
-     *     fragment A($var: Boolean = false) on T  {
-     *       ...
-     *     }
+     *   ```graphql
+     *   fragment A($var: Boolean = false) on T {
+     *     ...
+     *   }
+     *   ```
      *
-     *   Note: this feature is experimental and may change or be removed in the
-     *   future.)
+     *   Note: this feature is experimental and may change or be removed in the future.
+     *
      * Those magic functions allow partial parsing:
      *
      * @method static \GraphQL\Language\AST\NameNode name(Source|string $source, ParserOptions $options = [])
@@ -18961,8 +19011,8 @@ namespace GraphQL\Language {
      * the visitor's enter function at each node in the traversal, and calling the
      * leave function after visiting that node and all of its child nodes.
      *
-     * By returning different values from the `enter` and `leave` functions, the
-     * behavior of the visitor can be altered.
+     * By returning different values from the `enter` and `leave` functions, the behavior of the visitor can be altered.
+     *
      * - no return (`void`) or return `null`: no action
      * - `Visitor::skipNode()`: skips over the subtree at the current node of the AST
      * - `Visitor::stop()`: stop the Visitor completely
@@ -18973,14 +19023,16 @@ namespace GraphQL\Language {
      * a new version of the AST with the changes applied will be returned from the
      * visit function.
      *
-     *   $editedAST = Visitor::visit($ast, [
-     *       'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
-     *           // ...
-     *       },
-     *       'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
-     *           // ...
-     *       }
-     *   ]);
+     * ```php
+     * $editedAST = Visitor::visit($ast, [
+     *     'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
+     *         // ...
+     *     },
+     *     'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
+     *         // ...
+     *     }
+     * ]);
+     * ```
      *
      * Alternatively to providing `enter` and `leave` functions, a visitor can
      * instead provide functions named the same as the [kinds of AST nodes](class-reference.md#graphqllanguageastnodekind),
@@ -18989,51 +19041,59 @@ namespace GraphQL\Language {
      *
      * 1. Named visitors triggered when entering a node a specific kind.
      *
-     *     Visitor::visit($ast, [
-     *       NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
-     *         // enter the "ObjectTypeDefinition" node
-     *       }
-     *     ]);
+     *    ```php
+     *    Visitor::visit($ast, [
+     *        NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+     *            // enter the "ObjectTypeDefinition" node
+     *        }
+     *    ]);
+     *    ```
      *
      * 2. Named visitors that trigger upon entering and leaving a node of
      *    a specific kind.
      *
-     *     Visitor::visit($ast, [
-     *       NodeKind::OBJECT_TYPE_DEFINITION => [
-     *         'enter' => function (ObjectTypeDefinitionNode $node) {
-     *           // enter the "ObjectTypeDefinition" node
-     *         }
-     *         'leave' => function (ObjectTypeDefinitionNode $node) {
-     *           // leave the "ObjectTypeDefinition" node
-     *         }
-     *       ]
-     *     ]);
+     *    ```php
+     *    Visitor::visit($ast, [
+     *        NodeKind::OBJECT_TYPE_DEFINITION => [
+     *            'enter' => function (ObjectTypeDefinitionNode $node) {
+     *                // enter the "ObjectTypeDefinition" node
+     *            },
+     *            'leave' => function (ObjectTypeDefinitionNode $node) {
+     *                // leave the "ObjectTypeDefinition" node
+     *            }
+     *        ]
+     *    ]);
+     *    ```
      *
      * 3. Generic visitors that trigger upon entering and leaving any node.
      *
-     *     Visitor::visit($ast, [
-     *       'enter' => function (Node $node) {
-     *         // enter any node
-     *       },
-     *       'leave' => function (Node $node) {
-     *         // leave any node
-     *       }
-     *     ]);
+     *    ```php
+     *    Visitor::visit($ast, [
+     *        'enter' => function (Node $node) {
+     *            // enter any node
+     *        },
+     *        'leave' => function (Node $node) {
+     *            // leave any node
+     *        }
+     *    ]);
+     *    ```
      *
      * 4. Parallel visitors for entering and leaving nodes of a specific kind.
      *
-     *     Visitor::visit($ast, [
-     *       'enter' => [
-     *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
-     *           // enter the "ObjectTypeDefinition" node
-     *         }
-     *       },
-     *       'leave' => [
-     *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
-     *           // leave the "ObjectTypeDefinition" node
-     *         }
-     *       ]
-     *     ]);
+     *    ```php
+     *    Visitor::visit($ast, [
+     *        'enter' => [
+     *            NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+     *                // enter the "ObjectTypeDefinition" node
+     *            }
+     *        ],
+     *        'leave' => [
+     *            NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+     *                // leave the "ObjectTypeDefinition" node
+     *            }
+     *        ]
+     *    ]);
+     *    ```
      *
      * @phpstan-type NodeVisitor callable(\GraphQL\Language\AST\Node): (VisitorOperation|\GraphQL\Language\AST\Node|\GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\Node>|null|false|void)
      * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
@@ -19721,6 +19781,14 @@ namespace GraphQL\Type\Definition {
         {
         }
         /** @return array<string, Directive> */
+        public static function builtInDirectives(): array
+        {
+        }
+        /**
+         * @deprecated use {@see Directive::builtInDirectives()}
+         *
+         * @return array<string, Directive>
+         */
         public static function getInternalDirectives(): array
         {
         }
@@ -19736,6 +19804,10 @@ namespace GraphQL\Type\Definition {
         public static function oneOfDirective(): \GraphQL\Type\Definition\Directive
         {
         }
+        public static function isBuiltInDirective(self $directive): bool
+        {
+        }
+        /** @deprecated use {@see Directive::isBuiltInDirective()} */
         public static function isSpecifiedDirective(\GraphQL\Type\Definition\Directive $directive): bool
         {
         }
@@ -20086,7 +20158,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         {
         }
     }
-    /** @phpstan-import-type PartialEnumValueConfig from EnumType */
+    /**
+     * @phpstan-import-type PartialEnumValueConfig from EnumType
+     */
     class PhpEnumType extends \GraphQL\Type\Definition\EnumType
     {
         public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
@@ -21022,7 +21096,7 @@ namespace GraphQL\Utils {
          *
          * @api
          */
-        public static function valueFromAST(?\GraphQL\Language\AST\ValueNode $valueNode, \GraphQL\Type\Definition\Type $type, ?array $variables = null)
+        public static function valueFromAST(?\GraphQL\Language\AST\ValueNode $valueNode, \GraphQL\Type\Definition\Type $type, ?array $variables = null, ?\GraphQL\Type\Schema $schema = null)
         {
         }
         /**
@@ -21495,16 +21569,13 @@ namespace GraphQL\Utils {
      * }
      *
      * - assumeValid:
-     *     When building a schema from a GraphQL service's introspection result, it
-     *     might be safe to assume the schema is valid. Set to true to assume the
-     *     produced schema is valid.
-     *
-     *     Default: false
+     *   When building a schema from a GraphQL service's introspection result, it might be safe to assume the schema is valid.
+     *   Set to true to assume the produced schema is valid.
+     *   Default: false
      *
      * - assumeValidSDL:
-     *     Set to true to assume the SDL is valid.
-     *
-     *     Default: false
+     *   Set to true to assume the SDL is valid.
+     *   Default: false
      *
      * @see \GraphQL\Tests\Utils\BuildSchemaTest
      */
@@ -22389,7 +22460,7 @@ namespace GraphQL\Utils {
          *
          * @phpstan-return CoercedValue|CoercedErrors
          */
-        public static function coerceInputValue($value, \GraphQL\Type\Definition\InputType $type, ?array $path = null): array
+        public static function coerceInputValue($value, \GraphQL\Type\Definition\InputType $type, ?array $path = null, ?\GraphQL\Type\Schema $schema = null): array
         {
         }
     }
