@@ -5,37 +5,6 @@
  * @see https://github.com/axewp/wp-graphql-stubs
  */
 
-namespace {
-    class WPGraphQL_CLI_Command extends \WP_CLI_Command
-    {
-        /**
-         * Generate a static schema.
-         *
-         * Defaults to creating a schema.graphql file in the IDL format at the root
-         * of the plugin.
-         *
-         * [--output=<output>]
-         * : The file path to save the schema to.
-         *
-         * @todo: Provide alternative formats (AST? INTROSPECTION JSON?) and options for output file-type?
-         * @todo: Add Unit Tests
-         *
-         * ## EXAMPLE
-         *
-         *     # Generate a static schema
-         *     $ wp graphql generate-static-schema
-         *
-         *     # Generate a static schema and save it to a specific file
-         *     $ wp graphql generate-static-schema --output=/path/to/file.graphql
-         *
-         * @alias generate
-         * @subcommand generate-static-schema
-         */
-        public function generate_static_schema($args, $assoc_args)
-        {
-        }
-    }
-}
 namespace WPGraphQL\Type\Connection {
     /**
      * Class Comments
@@ -580,6 +549,62 @@ namespace WPGraphQL\Connection {
          * @deprecated 1.13.0
          */
         public static function get_connection_args()
+        {
+        }
+    }
+}
+namespace WPGraphQL\CLI {
+    /**
+     * Class - Commands
+     */
+    class Commands extends \WP_CLI_Command
+    {
+        /**
+         * Generate a static schema.
+         *
+         * Defaults to creating a schema.graphql file in the IDL format at the root
+         * of the plugin.
+         *
+         * [--output=<output>]
+         * : The file path to save the schema to.
+         *
+         * @todo: Provide alternative formats (AST? INTROSPECTION JSON?) and options for output file-type?
+         * @todo: Add Unit Tests
+         *
+         * ## EXAMPLE
+         *
+         *     # Generate a static schema
+         *     $ wp graphql generate-static-schema
+         *
+         *     # Generate a static schema and save it to a specific file
+         *     $ wp graphql generate-static-schema --output=/path/to/file.graphql
+         *
+         * @alias generate
+         * @subcommand generate-static-schema
+         *
+         * @param array<string>        $args       Positional arguments.
+         * @param array<string, mixed> $assoc_args Associative arguments.
+         */
+        public function generate_static_schema($args, $assoc_args): void
+        {
+        }
+    }
+}
+namespace {
+    /**
+     * Class - WPGraphQL_CLI_Command
+     *
+     * @deprecated since x-release-please-version Use \WPGraphQL\CLI\Commands instead.
+     * @codeCoverageIgnore
+     */
+    class WPGraphQL_CLI_Command extends \WPGraphQL\CLI\Commands
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @deprecated since x-release-please-version Use \WPGraphQL\CLI\Commands::generate_static_schema instead.
+         */
+        public function generate_static_schema($args, $assoc_args): void
         {
         }
     }
@@ -23262,6 +23287,10 @@ namespace GraphQL\Validator\Rules {
         public function getMaxQueryComplexity(): int
         {
         }
+        /**
+         * Complexity of the first operation exceeding the defined limit, or, in case no operation
+         * exceeds the limit, complexity of the last defined operation.
+         */
         public function getQueryComplexity(): int
         {
         }
