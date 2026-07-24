@@ -626,7 +626,7 @@ namespace WPGraphQL\Admin {
         /**
          * Whether GraphiQL is enabled or not
          *
-         * @var bool
+         * @var bool|string
          */
         protected $graphiql_enabled;
         /**
@@ -4492,23 +4492,92 @@ namespace WPGraphQL\Data {
         {
         }
         /**
+         * Build the canonical, normalized map of settings WPGraphQL can expose.
+         *
+         * The map is keyed by option name and each entry is the setting's registered
+         * args plus its `key`. Both read surfaces (the flat settings map and the
+         * grouped settings map) are derived from this single map so a setting cannot
+         * appear on one surface and not the other.
+         *
+         * The map is resolvable without a built schema. When a `TypeRegistry` is
+         * provided (the schema-build path) settings whose declared type has no
+         * corresponding GraphQL type are excluded, since they can't become fields.
+         * When resolved without one (e.g. cache invalidation reading the map outside a
+         * GraphQL request) that gate is skipped: the map is used to identify settings,
+         * not to register fields, so over-inclusion is harmless and no schema build is
+         * forced.
+         *
+         * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry The WPGraphQL TypeRegistry, or null to resolve the map without a built schema.
+         *
+         * @return array<string,array<string,mixed>>
+         *
+         * @since 2.18.0
+         */
+        protected static function get_normalized_settings(?\WPGraphQL\Registry\TypeRegistry $type_registry = null): array
+        {
+        }
+        /**
+         * Derive the base (grouped) GraphQL field name for a normalized setting.
+         *
+         * `graphql_field_name`, when set, overrides the name otherwise derived from the
+         * REST name (`show_in_rest['name']`) or the option key. In every case the name
+         * is run through `Utils::format_field_name()`, the same canonical formatter the
+         * field registration applies, so the precomputed name matches the name that
+         * ends up in the Schema and stays consistent with field naming elsewhere.
+         *
+         * @param array<string,mixed> $setting A normalized settings map entry.
+         *
+         * @since 2.18.0
+         */
+        protected static function get_setting_field_name(array $setting): string
+        {
+        }
+        /**
+         * WPGraphQL-managed config for core settings, applied on top of their
+         * registered args in the normalized settings map.
+         *
+         * @return array<string,array<string,mixed>>
+         *
+         * @since 2.18.0
+         */
+        protected static function get_core_setting_config(): array
+        {
+        }
+        /**
+         * WPGraphQL-maintained shim settings for options WordPress does not register
+         * via register_setting() (e.g. the Site Address and the permalink options).
+         *
+         * These are seeded into the normalized settings map in memory so they surface
+         * in the Schema without mutating WordPress's global settings registry. Each
+         * entry follows the register_setting() args shape plus WPGraphQL per-entry
+         * config. They are seeded only when the option isn't already registered, so a
+         * real registration always wins.
+         *
+         * @return array<string,array<string,mixed>>
+         *
+         * @since 2.18.0
+         */
+        protected static function get_core_shim_settings(): array
+        {
+        }
+        /**
          * Get all of the allowed settings by group
          *
-         * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry The WPGraphQL TypeRegistry, or null to resolve the grouped map without a built schema.
          *
          * @return array<string,array<string,mixed>> $allowed_settings_by_group
          */
-        public static function get_allowed_settings_by_group(\WPGraphQL\Registry\TypeRegistry $type_registry)
+        public static function get_allowed_settings_by_group(?\WPGraphQL\Registry\TypeRegistry $type_registry = null)
         {
         }
         /**
          * Get all of the $allowed_settings
          *
-         * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
+         * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry The WPGraphQL TypeRegistry, or null to resolve the flat map without a built schema.
          *
          * @return array<string,array<string,mixed>> $allowed_settings
          */
-        public static function get_allowed_settings(\WPGraphQL\Registry\TypeRegistry $type_registry)
+        public static function get_allowed_settings(?\WPGraphQL\Registry\TypeRegistry $type_registry = null)
         {
         }
         /**
@@ -5023,6 +5092,38 @@ namespace WPGraphQL\Data\Loader {
          *
          * @param string[] $keys
          * @return array<string,\WP_Post_Type|null>
+         */
+        public function loadKeys(array $keys)
+        {
+        }
+    }
+    /**
+     * Class SettingGroupLoader
+     *
+     * Loads settings groups (keyed by their normalized group key, e.g. "general",
+     * "permalink") from the normalized settings map and returns them as
+     * SettingGroup models.
+     *
+     * @package WPGraphQL\Data\Loader
+     */
+    class SettingGroupLoader extends \WPGraphQL\Data\Loader\AbstractDataLoader
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * @param array<string,array<string,mixed>> $entry The group's entries from the normalized settings map.
+         *
+         * @return \WPGraphQL\Model\SettingGroup
+         * @throws \Exception
+         */
+        protected function get_model($entry, $key)
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @param string[] $keys Normalized settings group keys.
+         * @return array<string,array<string,array<string,mixed>>|null>
          */
         public function loadKeys(array $keys)
         {
@@ -7103,6 +7204,72 @@ namespace WPGraphQL\Model {
         }
     }
     /**
+     * Class SettingGroup - Models the data for a settings group
+     *
+     * This is the data-layer Model for a settings group (general, reading,
+     * discussion, permalink, etc.), giving each group a globally unique
+     * identifier so it can be resolved as a Node. Not to be confused with
+     * \WPGraphQL\Type\ObjectType\SettingGroup, which registers the GraphQL
+     * object types for setting groups.
+     *
+     * @property ?string $id
+     *
+     * @package WPGraphQL\Model
+     *
+     * @extends \WPGraphQL\Model\Model<array<string,array<string,mixed>>>
+     */
+    class SettingGroup extends \WPGraphQL\Model\Model
+    {
+        /**
+         * The normalized settings group key (e.g. "general", "permalink").
+         *
+         * @var string
+         */
+        protected $group_key;
+        /**
+         * SettingGroup constructor.
+         *
+         * @param string                            $group_key The normalized settings group key.
+         * @param array<string,array<string,mixed>> $settings  The group's entries from the normalized settings map.
+         *
+         * @throws \Exception
+         */
+        public function __construct(string $group_key, array $settings)
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * Setting groups are publicly readable by default; individual settings
+         * within a group can restrict reads at the field level.
+         */
+        protected function is_private()
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * Uses the group's registered GraphQL type name (e.g. `GeneralSettings`)
+         * so model-layer filters and debug messages identify the specific group
+         * rather than a generic model class name.
+         */
+        protected function get_model_name()
+        {
+        }
+        /**
+         * Returns the normalized settings group key the model was loaded for.
+         */
+        public function get_group_key(): string
+        {
+        }
+        /**
+         * {@inheritDoc}
+         */
+        protected function init()
+        {
+        }
+    }
+    /**
      * Class Taxonomy - Models data for taxonomies
      *
      * @property string        $description
@@ -8045,7 +8212,7 @@ namespace WPGraphQL\Mutation {
          * @param array<string,mixed>              $input The mutation input
          * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
          *
-         * @return array<string,array<string,string>>
+         * @return array<string,array<string,mixed>>
          *
          * @throws \GraphQL\Error\UserError
          */
@@ -8250,6 +8417,7 @@ namespace WPGraphQL\Registry {
      * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
      * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
      * @phpstan-import-type WPEnumTypeConfig from \WPGraphQL\Type\WPEnumType
+     * @phpstan-import-type RegisterEnumTypeConfig from \WPGraphQL\Type\WPEnumType
      * @phpstan-import-type WPScalarConfig from \WPGraphQL\Type\WPScalar
      *
      * @phpstan-type TypeDef \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
@@ -8429,10 +8597,13 @@ namespace WPGraphQL\Registry {
         /**
          * Add an Enum Type to the registry
          *
+         * The `name` is derived from the `$type_name` argument (it is overwritten in
+         * prepare_type()), so it is optional in the config and any value passed is ignored.
+         *
          * @param string              $type_name The name of the type to register
          * @param array<string,mixed> $config he configuration of the type
          *
-         * @phpstan-param WPEnumTypeConfig $config
+         * @phpstan-param RegisterEnumTypeConfig $config
          *
          * @throws \Exception
          */
@@ -9756,6 +9927,30 @@ namespace WPGraphQL\Type\Enum {
         {
         }
     }
+    /**
+     * Class - ContentTemplateEnum
+     *
+     * The templates that can be assigned to content, used to filter connections by the
+     * template a piece of content uses. Values are derived from the templates registered
+     * for the active theme (the same source as the ContentTemplate types).
+     *
+     * @package WPGraphQL\Type\Enum
+     *
+     * @since 2.18.0
+     */
+    class ContentTemplateEnum
+    {
+        /**
+         * Register the ContentTemplateEnum Type to the Schema.
+         *
+         * @return void
+         *
+         * @since 2.18.0
+         */
+        public static function register_type()
+        {
+        }
+    }
     class ContentTypeEnum
     {
         /**
@@ -10792,8 +10987,27 @@ namespace WPGraphQL\Type\ObjectType {
         {
         }
     }
+    /**
+     * Class SettingGroup
+     *
+     * Registers the GraphQL object types for setting groups. Not to be confused
+     * with \WPGraphQL\Model\SettingGroup, the data-layer Model a settings group
+     * resolves through.
+     */
     class SettingGroup
     {
+        /**
+         * Given the normalized settings group key, return the GraphQL Type name
+         * registered for the group.
+         *
+         * Single source of the group-key -> type-name derivation, shared by the
+         * type registration and node-type resolution so the two cannot drift.
+         *
+         * @param string $group_name The normalized settings group key.
+         */
+        public static function get_type_name(string $group_name): string
+        {
+        }
         /**
          * Register each settings group to the GraphQL Schema
          *
@@ -10817,6 +11031,27 @@ namespace WPGraphQL\Type\ObjectType {
          * @return array<string,array<string,mixed>>|null
          */
         public static function get_settings_group_fields(string $group_name, string $group, \WPGraphQL\Registry\TypeRegistry $type_registry)
+        {
+        }
+        /**
+         * Resolver for the timezone setting, assigned as the `graphql_resolve` config
+         * of the `timezone_string` entry in the normalized settings map.
+         *
+         * When a site is configured with a manual UTC offset instead of a named timezone,
+         * WordPress stores the offset in the `gmt_offset` option and leaves `timezone_string`
+         * empty. The `timezone` field maps to `timezone_string`, so without this fallback it
+         * would resolve to an empty string. Here we defer to `wp_timezone_string()`, which
+         * returns the named timezone when set and otherwise builds an offset string (e.g. `+02:00`)
+         * from `gmt_offset`.
+         *
+         * @param mixed               $value         The resolved value of the setting field.
+         * @param array<string,mixed> $setting_field The setting field config, including its `key` and `type`.
+         *
+         * @return mixed
+         *
+         * @since 2.18.0
+         */
+        public static function resolve_timezone_setting_value($value, array $setting_field)
         {
         }
     }
@@ -11632,6 +11867,14 @@ namespace WPGraphQL\Type {
      *  extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null,
      *  kind?:'enum'|null,
      * }
+     * @phpstan-type RegisterEnumTypeConfig array{
+     *  name?: string,
+     *  description?: string|null,
+     *  values: array<string, PartialWPEnumValueConfig>,
+     *  astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+     *  extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null,
+     *  kind?:'enum'|null,
+     * }
      * phpcs:enable
      */
     class WPEnumType extends \GraphQL\Type\Definition\EnumType
@@ -11639,7 +11882,7 @@ namespace WPGraphQL\Type {
         /**
          * WPEnumType constructor.
          *
-         * @param array<string,mixed> $config
+         * @param array<string,mixed> $config The enum type configuration.
          * @phpstan-param WPEnumTypeConfig $config
          */
         public function __construct($config)
@@ -12685,6 +12928,7 @@ namespace WPGraphQL\Type {
          *
          * @param array<string,mixed>              $config
          * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+         * @throws \InvalidArgumentException When scalar config is empty before or after filters.
          *
          * @phpstan-param WPScalarConfig $config
          */
@@ -16734,6 +16978,8 @@ namespace GraphQL\Executor {
 namespace GraphQL\Executor\Promise {
     /**
      * Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php)).
+     *
+     * @template TAdopted = mixed
      */
     interface PromiseAdapter
     {
@@ -16750,12 +16996,18 @@ namespace GraphQL\Executor\Promise {
          *
          * @param mixed $thenable
          *
+         * @phpstan-return Promise<TAdopted>
+         *
          * @api
          */
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise;
         /**
          * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
          * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
+         *
+         * @phpstan-param Promise<covariant TAdopted> $promise
+         *
+         * @phpstan-return Promise<TAdopted>
          *
          * @api
          */
@@ -16765,6 +17017,8 @@ namespace GraphQL\Executor\Promise {
          *
          * @param callable(callable $resolve, callable $reject): void $resolver
          *
+         * @phpstan-return Promise<TAdopted>
+         *
          * @api
          */
         public function create(callable $resolver): \GraphQL\Executor\Promise\Promise;
@@ -16773,13 +17027,15 @@ namespace GraphQL\Executor\Promise {
          *
          * @param mixed $value
          *
+         * @phpstan-return Promise<TAdopted>
+         *
          * @api
          */
         public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise;
         /**
-         * Creates a rejected promise for a reason if the reason is not a promise.
+         * Return a promise rejected with the given reason.
          *
-         * If the provided reason is a promise, then it is returned as-is.
+         * @phpstan-return Promise<TAdopted>
          *
          * @api
          */
@@ -16789,6 +17045,8 @@ namespace GraphQL\Executor\Promise {
          * items in the iterable are fulfilled.
          *
          * @param iterable<Promise|mixed> $promisesOrValues
+         *
+         * @phpstan-return Promise<TAdopted>
          *
          * @api
          */
@@ -16800,17 +17058,29 @@ namespace GraphQL\Executor\Promise\Adapter {
      * Allows integration with amphp/amp v3 (fiber-based futures).
      *
      * @see https://amphp.org/amp
+     *
+     * @implements \GraphQL\Executor\Promise\PromiseAdapter<\Amp\Future<mixed>>
      */
     class AmpFutureAdapter implements \GraphQL\Executor\Promise\PromiseAdapter
     {
         public function isThenable($value): bool
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\Amp\Future<mixed>>
+         */
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @phpstan-param \GraphQL\Executor\Promise\Promise<covariant \Amp\Future<mixed>> $promise
+         *
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\Amp\Future<mixed>>
+         */
         public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -16821,11 +17091,17 @@ namespace GraphQL\Executor\Promise\Adapter {
         /**
          * @throws \Error
          * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\Amp\Future<mixed>>
          */
         public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\Amp\Future<mixed>>
+         */
         public function createRejected(\Throwable $reason): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -16852,6 +17128,9 @@ namespace GraphQL\Executor\Promise\Adapter {
         {
         }
     }
+    /**
+     * @implements \GraphQL\Executor\Promise\PromiseAdapter<\Amp\Promise<mixed>>
+     */
     class AmpPromiseAdapter implements \GraphQL\Executor\Promise\PromiseAdapter
     {
         public function isThenable($value): bool
@@ -16861,7 +17140,13 @@ namespace GraphQL\Executor\Promise\Adapter {
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @phpstan-param \GraphQL\Executor\Promise\Promise<covariant \Amp\Promise<mixed>> $promise
+         *
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\Amp\Promise<mixed>>
+         */
         public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -16872,11 +17157,17 @@ namespace GraphQL\Executor\Promise\Adapter {
         /**
          * @throws \Error
          * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\Amp\Promise<mixed>>
          */
         public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\Amp\Promise<mixed>>
+         */
         public function createRejected(\Throwable $reason): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -16888,6 +17179,9 @@ namespace GraphQL\Executor\Promise\Adapter {
         {
         }
     }
+    /**
+     * @implements \GraphQL\Executor\Promise\PromiseAdapter<\React\Promise\PromiseInterface<mixed>>
+     */
     class ReactPromiseAdapter implements \GraphQL\Executor\Promise\PromiseAdapter
     {
         public function isThenable($value): bool
@@ -16897,23 +17191,45 @@ namespace GraphQL\Executor\Promise\Adapter {
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @phpstan-param \GraphQL\Executor\Promise\Promise<covariant \React\Promise\PromiseInterface<mixed>> $promise
+         *
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\React\Promise\PromiseInterface<mixed>>
+         */
         public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\React\Promise\PromiseInterface<mixed>>
+         */
         public function create(callable $resolver): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\React\Promise\PromiseInterface<mixed>>
+         */
         public function createFulfilled($value = null): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\React\Promise\PromiseInterface<mixed>>
+         */
         public function createRejected(\Throwable $reason): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<\React\Promise\PromiseInterface<mixed>>
+         */
         public function all(iterable $promisesOrValues): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -16921,6 +17237,8 @@ namespace GraphQL\Executor\Promise\Adapter {
     /**
      * Allows changing order of field resolution even in sync environments
      * (by leveraging queue of deferreds and promises).
+     *
+     * @implements \GraphQL\Executor\Promise\PromiseAdapter<SyncPromise>
      */
     class SyncPromiseAdapter implements \GraphQL\Executor\Promise\PromiseAdapter
     {
@@ -16931,7 +17249,13 @@ namespace GraphQL\Executor\Promise\Adapter {
         public function convertThenable($thenable): \GraphQL\Executor\Promise\Promise
         {
         }
-        /** @throws \GraphQL\Error\InvariantViolation */
+        /**
+         * @phpstan-param \GraphQL\Executor\Promise\Promise<covariant SyncPromise> $promise
+         *
+         * @throws \GraphQL\Error\InvariantViolation
+         *
+         * @phpstan-return \GraphQL\Executor\Promise\Promise<SyncPromise>
+         */
         public function then(\GraphQL\Executor\Promise\Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -17040,19 +17364,33 @@ namespace GraphQL\Executor\Promise\Adapter {
 namespace GraphQL\Executor\Promise {
     /**
      * Convenience wrapper for promises represented by Promise Adapter.
+     *
+     * The adopted promise is whatever the configured adapter produces (e.g.
+     * {@see \GraphQL\Executor\Promise\Adapter\SyncPromise}, a ReactPHP promise or an
+     * amphp Future). It is kept as a generic so the concrete platform type never has
+     * to be named in this class, which would otherwise require importing a class
+     * that may not exist for the installed platform.
+     *
+     * @template TAdopted = mixed
      */
     class Promise
     {
-        /** @var \GraphQL\Executor\Promise\Adapter\SyncPromise|\React\Promise\PromiseInterface<mixed>|\Amp\Future<mixed>|\Amp\Promise<mixed> */
+        /**
+         * @phpstan-var TAdopted
+         *
+         * @readonly
+         */
         public $adoptedPromise;
         /**
-         * @param mixed $adoptedPromise
+         * @phpstan-param TAdopted $adoptedPromise
+         * @phpstan-param PromiseAdapter<TAdopted> $adapter
          *
          * @throws \GraphQL\Error\InvariantViolation
          */
         public function __construct($adoptedPromise, \GraphQL\Executor\Promise\PromiseAdapter $adapter)
         {
         }
+        /** @phpstan-return Promise<TAdopted> */
         public function then(?callable $onFulfilled = null, ?callable $onRejected = null): \GraphQL\Executor\Promise\Promise
         {
         }
@@ -23634,6 +23972,12 @@ namespace GraphQL\Validator\Rules {
         public static function multipleFieldsInOperation(?string $operationName): string
         {
         }
+        public static function introspectionFieldInOperation(?string $operationName): string
+        {
+        }
+        public static function skipIncludeInOperation(?string $operationName): string
+        {
+        }
     }
     /**
      * Unique argument definition names.
@@ -23905,6 +24249,8 @@ namespace {
      * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
      * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
      *
+     * @return string The formatted name, safe for use as a GraphQL name.
+     *
      * @since v1.17.0
      */
     function graphql_format_name(string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i'): string
@@ -23972,6 +24318,8 @@ namespace {
      * Determine when to register types.
      *
      * @return 'graphql_register_initial_types'|'graphql_register_types'|'graphql_register_types_late'
+     *
+     * @since 0.4.3
      */
     function get_graphql_register_action(): string
     {
@@ -23989,6 +24337,8 @@ namespace {
      * Schema.
      *
      * register_graphql_interfaces_to_types( [ 'MyNewInterface' ], [ 'Post', 'Page' ] );
+     *
+     * @since 0.9.0
      */
     function register_graphql_interfaces_to_types($interface_names, $type_names): void
     {
@@ -23998,6 +24348,8 @@ namespace {
      *
      * @param string              $type_name The name of the Type to register
      * @param array<string,mixed> $config    The Type config
+     *
+     * @since 0.1.0
      */
     function register_graphql_type(string $type_name, array $config): void
     {
@@ -24007,6 +24359,8 @@ namespace {
      *
      * @param string              $type_name The name of the Type to register
      * @param array<string,mixed> $config    The Type config
+     *
+     * @since 0.4.0
      */
     function register_graphql_interface_type(string $type_name, $config): void
     {
@@ -24016,6 +24370,8 @@ namespace {
      *
      * @param string              $type_name The name of the Type to register
      * @param array<string,mixed> $config    The Type config
+     *
+     * @since 0.1.0
      */
     function register_graphql_object_type(string $type_name, array $config): void
     {
@@ -24025,6 +24381,8 @@ namespace {
      *
      * @param string              $type_name The name of the Type to register
      * @param array<string,mixed> $config    The Type config
+     *
+     * @since 0.1.0
      */
     function register_graphql_input_type(string $type_name, array $config): void
     {
@@ -24036,6 +24394,8 @@ namespace {
      * @param array<string,mixed> $config    The Type config
      *
      * @throws \Exception
+     *
+     * @since 0.1.0
      */
     function register_graphql_union_type(string $type_name, array $config): void
     {
@@ -24059,6 +24419,8 @@ namespace {
      *   extensionASTNodes?: \GraphQL\Language\AST\EnumTypeExtensionNode[]|null,
      *   kind?: 'enum'|null
      * } $config
+     *
+     * @since 0.1.0
      */
     function register_graphql_enum_type(string $type_name, array $config): void
     {
@@ -24257,6 +24619,8 @@ namespace {
      *
      * Default false.
      *
+     * @return bool True while a GraphQL request is in action, false otherwise.
+     *
      * @since 0.4.1
      */
     function is_graphql_request(): bool
@@ -24272,6 +24636,8 @@ namespace {
      * GraphQL request is an HTTP request, use this conditional.
      *
      * Default false.
+     *
+     * @return bool True when the current request is an HTTP request against the GraphQL endpoint, false otherwise.
      *
      * @since 0.4.1
      */
@@ -24353,6 +24719,8 @@ namespace {
      *
      * @param string $type_name The name of the type to validate
      *
+     * @return bool True if the name is valid for use in GraphQL, false otherwise.
+     *
      * @since 0.14.0
      */
     function is_valid_graphql_name(string $type_name): bool
@@ -24385,6 +24753,8 @@ namespace {
     /**
      * Get the endpoint route for the WPGraphQL API
      *
+     * @return string The relative endpoint path where the GraphQL API can be accessed.
+     *
      * @since 1.12.0
      */
     function graphql_get_endpoint(): string
@@ -24393,12 +24763,16 @@ namespace {
     /**
      * Return the full url for the GraphQL Endpoint.
      *
+     * @return string The full URL to the GraphQL endpoint.
+     *
      * @since 1.12.0
      */
     function graphql_get_endpoint_url(): string
     {
     }
     /**
+     * Registers an admin notice to display on WPGraphQL plugin screens.
+     *
      * @param string              $slug A unique slug to identify the admin notice by
      * @param array<string,mixed> $config The config for the admin notice. Determines visibility, context, etc.
      *
@@ -24408,6 +24782,8 @@ namespace {
      *  is_dismissable?: bool,
      *  conditions?: callable():bool
      * } $config
+     *
+     * @since 1.21.0
      */
     function register_graphql_admin_notice(string $slug, array $config): void
     {
@@ -24421,6 +24797,8 @@ namespace {
      *  is_dismissable?: bool,
      *  conditions?: callable():bool,
      * }>
+     *
+     * @since 1.29.0
      */
     function get_graphql_admin_notices(): array
     {
