@@ -13250,6 +13250,13 @@ namespace WPGraphQL\Utils {
          */
         protected $is_enabled_for_query;
         /**
+         * Cache of parsed query ASTs for the current request, keyed by query string.
+         * Avoids re-parsing the same document multiple times within a single request.
+         *
+         * @var array<string,?\GraphQL\Language\AST\DocumentNode>
+         */
+        protected array $parsed_asts = [];
+        /**
          * @param \WPGraphQL\Request $request The GraphQL request being executed
          */
         public function __construct(\WPGraphQL\Request $request)
@@ -13357,6 +13364,17 @@ namespace WPGraphQL\Utils {
          * @return \GraphQL\Type\Definition\Type|string|null
          */
         public static function get_wrapped_field_type(\GraphQL\Type\Definition\Type $type, \GraphQL\Type\Definition\FieldDefinition $field_def, $parent_type, bool $is_list_type = false)
+        {
+        }
+        /**
+         * Parse a query string into a DocumentNode, memoizing the result for the
+         * lifetime of the request. Returns null if the query is empty or invalid,
+         * letting each caller preserve its pre-memoization behavior: the set_*
+         * methods return [] and get_operation_name() returns null.
+         *
+         * @param ?string $query The GraphQL query string.
+         */
+        protected function get_parsed_ast(?string $query): ?\GraphQL\Language\AST\DocumentNode
         {
         }
         /**
@@ -21208,6 +21226,7 @@ namespace GraphQL\Type {
      *   mutation?: MaybeLazyObjectType,
      *   subscription?: MaybeLazyObjectType,
      *   types?: Types|null,
+     *   scalarOverrides?: array<\GraphQL\Type\Definition\ScalarType>|null,
      *   directives?: array<\GraphQL\Type\Definition\Directive>|null,
      *   typeLoader?: TypeLoader|null,
      *   assumeValid?: bool|null,
@@ -21230,6 +21249,17 @@ namespace GraphQL\Type {
          * @phpstan-var Types
          */
         public $types = [];
+        /**
+         * Replacements for built-in scalar types, keyed by their name.
+         *
+         * When null, they are discovered by scanning **types**, which requires
+         * resolving it fully even when it is given as a lazy callable.
+         * Pass replacement scalars explicitly (or an empty array for none)
+         * to skip the scan and keep lazy type loading lazy.
+         *
+         * @var array<string, \GraphQL\Type\Definition\ScalarType>|null
+         */
+        public ?array $scalarOverrides = null;
         /** @var array<\GraphQL\Type\Definition\Directive>|null */
         public ?array $directives = null;
         /**
@@ -21338,6 +21368,25 @@ namespace GraphQL\Type {
         {
         }
         /**
+         * @return array<string, \GraphQL\Type\Definition\ScalarType>|null
+         *
+         * @api
+         */
+        public function getScalarOverrides(): ?array
+        {
+        }
+        /**
+         * Deeper validation (that each override is a ScalarType named after a built-in scalar)
+         * runs during schema validation, see SchemaValidationContext::validateScalarOverrides().
+         *
+         * @param array<\GraphQL\Type\Definition\ScalarType>|null $scalarOverrides
+         *
+         * @api
+         */
+        public function setScalarOverrides(?array $scalarOverrides): self
+        {
+        }
+        /**
          * @return array<\GraphQL\Type\Definition\Directive>|null
          *
          * @api
@@ -21410,6 +21459,9 @@ namespace GraphQL\Type {
         {
         }
         public function validateRootTypes(): void
+        {
+        }
+        public function validateScalarOverrides(): void
         {
         }
         /** @param array<\GraphQL\Language\AST\Node|null>|\GraphQL\Language\AST\Node|null $nodes */
