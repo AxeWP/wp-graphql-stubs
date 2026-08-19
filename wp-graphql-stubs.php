@@ -9840,6 +9840,22 @@ namespace WPGraphQL\Server {
         }
     }
 }
+namespace WPGraphQL\Type\Connection {
+    /**
+     * Connection arguments shared by enqueued asset connections.
+     */
+    class EnqueuedAssets
+    {
+        /**
+         * Returns the connection arguments for enqueued assets.
+         *
+         * @return array<string,array<string,mixed>>
+         */
+        public static function get_connection_args(): array
+        {
+        }
+    }
+}
 namespace WPGraphQL\Type\Enum {
     class AvatarRatingEnum
     {
@@ -13906,6 +13922,28 @@ namespace WPGraphQL\Utils {
         public static function get_post_preview_id($post): int
         {
         }
+        /**
+         * Given the name of a registered Enum Type and an input string, return the enum's
+         * underlying value the input identifies.
+         *
+         * The input may be either the enum's underlying value (returned unchanged) or the
+         * enum's name as exposed in the schema (mapped back to its value). This is useful
+         * for fields that accept an identifier as an ID scalar, where no enum coercion
+         * happens, but the value space is also modeled as an Enum Type elsewhere in the
+         * schema. Enum names cannot always be re-derived from the value, TaxonomyEnum for
+         * example derives its names from a taxonomy's graphql_single_name, so the mapping
+         * must come from the registered Enum Type itself.
+         *
+         * @param string $enum_type_name The name of the registered Enum Type to map against, e.g. "ContentTypeEnum".
+         * @param string $input          The input to map. Either an enum name (e.g. "POST") or an underlying enum value (e.g. "post").
+         *
+         * @return ?string The underlying enum value, or null if the input matches neither an enum name nor an enum value, or the type is not a registered Enum Type.
+         *
+         * @since 2.20.0
+         */
+        public static function map_enum_name_to_value(string $enum_type_name, string $input): ?string
+        {
+        }
     }
 }
 namespace {
@@ -17138,11 +17176,13 @@ namespace GraphQL\Executor\Promise\Adapter {
         {
         }
         /**
-         * @param mixed $value
+         * @template T
          *
-         * @return mixed
+         * @param \Amp\Future<T> $future
+         * @param \Closure(T): void $onFulfilled
+         * @param \Closure(\Throwable): void $onRejected
          */
-        protected static function unwrapResult($value)
+        protected static function observeFuture(\Amp\Future $future, \Closure $onFulfilled, \Closure $onRejected): void
         {
         }
     }
