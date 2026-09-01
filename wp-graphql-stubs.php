@@ -1872,6 +1872,14 @@ namespace WPGraphQL {
          */
         public $request;
         /**
+         * Stores the normalized preview context for the request, parsed from the
+         * `X-GraphQL-Preview` header or the `preview` object in the request `extensions`.
+         * Null when the request does not carry preview context.
+         *
+         * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+         */
+        public $preview = null;
+        /**
          * Stores additional $config properties
          *
          * @var mixed $config
@@ -10636,6 +10644,27 @@ namespace WPGraphQL\Type\InterfaceType {
     class NodeWithFeaturedImage
     {
         /**
+         * Derives the featured image database ID for a previewed node from the request's
+         * preview context.
+         *
+         * Shared by the `previewResolve` callbacks below, which only run for an authorized
+         * preview targeting this node (see Preview::resolve_preview_field()). Mirrors how
+         * WordPress core resolves the previewed featured image from the `_thumbnail_id`
+         * request parameter, which it never persists to the revision:
+         *
+         * - An absent `featuredImageDatabaseId` means no override: the stored featured
+         *   image is used.
+         * - `0` means the featured image was removed in the preview.
+         * - A value that is not an existing attachment resolves as no image, so a junk id
+         *   is never echoed back as if it were a real featured image.
+         *
+         * @param \WPGraphQL\Model\Post $post    The post the featured image is resolved for.
+         * @param array<string,mixed>   $preview The request's preview context.
+         */
+        public static function get_previewed_featured_image_database_id(\WPGraphQL\Model\Post $post, array $preview): ?int
+        {
+        }
+        /**
          * Registers the NodeWithFeaturedImage Type to the Schema
          *
          * @param \WPGraphQL\Registry\TypeRegistry $type_registry
@@ -13153,6 +13182,66 @@ namespace WPGraphQL\Utils {
     class Preview
     {
         /**
+         * Returns the schema deprecation reason for the `asPreview` argument.
+         *
+         * Single-sourced so the schema's guidance cannot drift from the runtime behavior:
+         * when a request carries preview context, the context is applied and `asPreview`
+         * is ignored (see resolve_preview_field()).
+         */
+        public static function get_as_preview_deprecation_reason(): string
+        {
+        }
+        /**
+         * Adds the debug notice for an `asPreview` argument that was ignored because the
+         * request carries preview context. Shared by every resolver that accepts the
+         * deprecated argument so the guidance stays identical everywhere.
+         */
+        public static function debug_as_preview_ignored(): void
+        {
+        }
+        /**
+         * Whether the current user is allowed to preview the given post.
+         *
+         * This is the single authorization rule for the preview overlay, mirroring how
+         * WordPress core gates previews: the viewer must be authenticated and able to
+         * edit the post being previewed. Every consumer of preview context routes
+         * through this helper so the rule cannot drift between call sites.
+         *
+         * @param int $post_id The database ID of the post being previewed.
+         */
+        public static function viewer_can_preview(int $post_id): bool
+        {
+        }
+        /**
+         * Overlays previewable fields from a post's revision when the request carries
+         * preview context targeting that post, while preserving the node's published
+         * identity (id/databaseId and any field not opted in stay published).
+         *
+         * Opt-in is per field via field config:
+         * - `previewResolve` (callable): supplies a request-derived value (e.g. the previewed
+         *    featured image). Receives ( $source, $args, $context, $info, $preview ).
+         * - `isPreviewable` (bool true): runs the field's normal resolver against the revision.
+         *
+         * Unmarked fields resolve from the published node. Invalid or unauthorized preview
+         * context is treated as if it were never provided (returns the $nil sentinel), so it
+         * cannot be used to read or probe for unpublished content.
+         *
+         * @param mixed                                    $nil            The unique "no override" sentinel from graphql_pre_resolve_field.
+         * @param mixed                                    $source         The source being resolved.
+         * @param array<string,mixed>                      $args           The field args.
+         * @param \WPGraphQL\AppContext                    $context        The AppContext for the request.
+         * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo for the field.
+         * @param string                                   $type_name      The name of the type the field belongs to.
+         * @param string                                   $field_key      The name of the field.
+         * @param \GraphQL\Type\Definition\FieldDefinition $field          The field definition.
+         * @param ?callable                                $field_resolver The default field resolver.
+         *
+         * @return mixed
+         */
+        public static function resolve_preview_field($nil, $source, array $args, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info, string $type_name, string $field_key, \GraphQL\Type\Definition\FieldDefinition $field, $field_resolver)
+        {
+        }
+        /**
          * This filters the post meta for previews. Since WordPress core does not save meta for
          * revisions this resolves calls to get_post_meta() using the meta of the revisions parent (the
          * published version of the post).
@@ -13560,6 +13649,42 @@ namespace WPGraphQL\Utils {
          * @return array{sql: string, time: float, stack: string}
          */
         protected function normalize_query_log_entry($query, $index)
+        {
+        }
+    }
+    /**
+     * A parser for RFC 8941 Structured Field Dictionaries.
+     *
+     * Implements the parsing algorithms of RFC 8941 (Structured Field Values for HTTP),
+     * Section 4.2, for the Dictionary top-level type. Items of every RFC 8941 type
+     * (Integer, Decimal, String, Token, Byte Sequence, Boolean), Inner Lists, and
+     * Parameters are all recognized syntactically, so the output of any compliant
+     * serializer parses. Consumers receive each member's bare value and type and apply
+     * their own profile on top (the preview context, for example, accepts Integer and
+     * String members and ignores the rest); parameters are parsed and discarded.
+     *
+     * As RFC 8941 Section 4.2 requires, a parse error discards the entire field value:
+     * parse_dictionary() returns null and the consumer proceeds as if the header were
+     * absent.
+     *
+     * @see https://www.rfc-editor.org/rfc/rfc8941
+     *
+     * @internal Plumbing for WPGraphQL's header parsing, not public API.
+     *
+     * @phpstan-type StructuredFieldMember array{type:string,value:mixed}
+     */
+    class StructuredFields
+    {
+        /**
+         * Parses a Structured Field Dictionary (RFC 8941 Section 4.2.2).
+         *
+         * @param string $field_value The raw field value.
+         *
+         * @return array<string,array{type:string,value:mixed}>|null Map of member key to
+         *         ['type' => one of integer|decimal|string|token|byte-sequence|boolean|inner-list,
+         *         'value' => the bare value], or null when parsing fails.
+         */
+        public static function parse_dictionary(string $field_value): ?array
         {
         }
     }
