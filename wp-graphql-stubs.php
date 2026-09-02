@@ -1102,7 +1102,7 @@ namespace WPGraphQL\Admin\GraphiQL {
          * and contain the list of wp-* dependencies the script needs, plus a content
          * hash for cache busting.
          *
-         * @param string              $handle The WordPress script/style handle.
+         * @param non-empty-string    $handle The WordPress script/style handle.
          * @param array<string,mixed> $config The asset configuration from CORE_ASSETS or EXTENSION_ASSETS.
          */
         protected function enqueue_asset(string $handle, array $config): void
@@ -10003,7 +10003,7 @@ namespace WPGraphQL\Type\Enum {
          * Get information about available image sizes
          *
          * @param string $size Optional. The size to get information for.
-         * @return array<string, array{width: int, height: int, crop: bool}>|null
+         * @return ($size is '' ? array<string, array{width: int, height: int, crop: bool}> : array{width: int, height: int, crop: bool}|null)
          *
          * @since 2.3.0
          */
