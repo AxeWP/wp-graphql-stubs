@@ -5581,11 +5581,12 @@ namespace WPGraphQL\Data {
          *
          * @param array<string,mixed> $input         Data coming from the GraphQL mutation query input
          * @param string              $mutation_name Name of the mutation being performed
+         * @param int                 $user_id       The ID of the user being updated, or 0 when creating a new user. Used to validate role assignments against the current user's capabilities.
          *
          * @return array<string,mixed>
-         * @throws \GraphQL\Error\UserError If the passed email address is invalid.
+         * @throws \GraphQL\Error\UserError If the passed email address is invalid, or the current user is not allowed to assign one of the requested roles.
          */
-        public static function prepare_user_object($input, $mutation_name)
+        public static function prepare_user_object($input, $mutation_name, $user_id = 0)
         {
         }
         /**
