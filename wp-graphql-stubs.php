@@ -7752,6 +7752,28 @@ namespace WPGraphQL\Mutation {
         public static function mutate_and_get_payload()
         {
         }
+        /**
+         * Rejects a redirect whose target is not safe for the server to fetch.
+         *
+         * Registered on the Requests before_redirect hook while a media file is
+         * downloaded, so every hop of a redirect chain is validated with the same
+         * host resolution as the initial URL. Throwing aborts the request; WP_Http
+         * converts the exception into a WP_Error, which download_url() returns and
+         * the caller surfaces as an invalid filePath.
+         *
+         * Public because WordPress must be able to invoke it as a hook callback; it
+         * is not part of the extension API.
+         *
+         * @internal
+         *
+         * @param mixed $location The URL the response is redirecting to.
+         *
+         * @return void
+         * @throws \WpOrg\Requests\Exception When the redirect target is not publicly routable.
+         */
+        public static function reject_unsafe_redirect($location)
+        {
+        }
     }
     class MediaItemDelete
     {
