@@ -811,6 +811,8 @@ namespace WPGraphQL\Admin\Extensions {
      *   support_url: non-empty-string,
      *   documentation_url: non-empty-string,
      *   repo_url?: string,
+     *   plugin_file?: string,
+     *   plugin_path?: string,
      *   author: ExtensionAuthor,
      *   installed: bool,
      *   active: bool,
@@ -909,6 +911,7 @@ namespace WPGraphQL\Admin\Extensions {
      *  support_url: non-empty-string,
      *  documentation_url: non-empty-string,
      *  repo_url?: string,
+     *  plugin_file?: string,
      *  author: ExtensionAuthor,
      * }
      * phpcs:enable
@@ -925,6 +928,7 @@ namespace WPGraphQL\Admin\Extensions {
          * - description: Required. A description of the extension.
          * - plugin_url: Required. The URL to the plugin.
          * - repo_url: Optional. The URL to the repository for the plugin.
+         * - plugin_file: Optional. The file name of the plugin's main file (e.g. `wp-graphql-smart-cache.php`). When set, the extension is detected as installed/active by this file regardless of the directory it was installed into (WordPress.org installs and git checkouts often differ). Without it, detection falls back to matching the directory name against the last segment of `plugin_url`.
          * - support_url: Required. The URL to the support page for the plugin.
          * - documentation_url: Required. The URL to the documentation for the plugin.
          * - author: Required. An array with the following fields:
