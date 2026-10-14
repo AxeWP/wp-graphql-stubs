@@ -562,8 +562,8 @@ namespace WPGraphQL\CLI {
         /**
          * Generate a static schema.
          *
-         * Defaults to creating a schema.graphql file in the IDL format at the root
-         * of the plugin.
+         * Writes the schema in the GraphQL Schema Definition Language. Without --output, the schema is
+         * written to schema.graphql in the server's temporary directory.
          *
          * [--output=<output>]
          * : The file path to save the schema to.
@@ -586,6 +586,38 @@ namespace WPGraphQL\CLI {
          * @param array<string, mixed> $assoc_args Associative arguments.
          */
         public function generate_static_schema($args, $assoc_args): void
+        {
+        }
+        /**
+         * Show or record the status of the WPGraphQL settings review.
+         *
+         * The settings review walks administrators through settings for access, request limits and
+         * debugging, and they're invited to it until it's completed or skipped. `skip` records every
+         * setting currently in the review as reviewed without changing any settings, for example on
+         * sites whose settings are managed in code. On multisite, it applies to the site given by `--url`.
+         *
+         * <action>
+         * : What to do.
+         * ---
+         * options:
+         *   - status
+         *   - skip
+         * ---
+         *
+         * ## EXAMPLES
+         *
+         *     # Show whether the settings review has been completed or skipped
+         *     $ wp graphql settings-review status
+         *
+         *     # Record the settings review as skipped, without changing any settings
+         *     $ wp graphql settings-review skip
+         *
+         * @subcommand settings-review
+         *
+         * @param array<string>        $args       Positional arguments.
+         * @param array<string, mixed> $assoc_args Associative arguments.
+         */
+        public function settings_review($args, $assoc_args): void
         {
         }
     }
@@ -637,6 +669,10 @@ namespace WPGraphQL\Admin {
          * @var \WPGraphQL\Admin\Extensions\Extensions
          */
         protected $extensions;
+        /**
+         * @var \WPGraphQL\Admin\SettingsReview\SettingsReview
+         */
+        protected $settings_review;
         /**
          * Initialize Admin functionality for WPGraphQL
          *
@@ -1251,6 +1287,17 @@ namespace WPGraphQL\Admin\Settings {
         {
         }
         /**
+         * Returns the fields that only apply while a checkbox field in the same section is on.
+         *
+         * A field declares this with the `depends_on` key of its config, set to the name of the checkbox
+         * field. Declarations that don't name a checkbox field in the same section are left out.
+         *
+         * @return array<int,array{section:string,name:string,dependsOn:string}>
+         */
+        public function get_field_dependencies(): array
+        {
+        }
+        /**
          * Enqueue scripts and styles
          *
          * @param string $hook_suffix The current admin page.
@@ -1320,6 +1367,16 @@ namespace WPGraphQL\Admin\Settings {
          * @return void
          */
         public function admin_init()
+        {
+        }
+        /**
+         * Renders a setting's tradeoffs as a collapsible "What you gain / What it costs" section.
+         *
+         * @param array<string,mixed> $tradeoffs The field's `tradeoffs` config, with `benefits` and `costs` lists.
+         *
+         * @return void
+         */
+        public function render_field_tradeoffs(array $tradeoffs)
         {
         }
         /**
@@ -1548,6 +1605,628 @@ namespace WPGraphQL\Admin\Settings {
          * @return void
          */
         public function _style_fix()
+        {
+        }
+    }
+}
+namespace WPGraphQL\Admin\SettingsReview {
+    /**
+     * Class AdminPage
+     *
+     * The settings review's admin screen: its place in the menu, the element the app mounts into, the
+     * assets it needs and the data it starts with.
+     *
+     * The page has an item in the GraphQL menu while there are settings to review. Once the review is
+     * completed or skipped the item is hidden and the page is reached from the Settings page, which is
+     * why this class also keeps GraphQL > Settings highlighted while the review is open.
+     *
+     * @package WPGraphQL\Admin\SettingsReview
+     */
+    final class AdminPage
+    {
+        /**
+         * AdminPage constructor.
+         *
+         * @param \WPGraphQL\Admin\SettingsReview\SettingsReview $review The settings review.
+         */
+        public function __construct(\WPGraphQL\Admin\SettingsReview\SettingsReview $review)
+        {
+        }
+        /**
+         * Returns the URL of the review admin page.
+         */
+        public static function get_url(): string
+        {
+        }
+        /**
+         * Registers the review admin page.
+         */
+        public function register(): void
+        {
+        }
+        /**
+         * Sets the browser tab title for the review page.
+         *
+         * WordPress takes the title from the admin menu, and the review may not have a menu item.
+         */
+        public function set_page_title(): void
+        {
+        }
+        /**
+         * Whether the review has an item in the GraphQL menu for the current request.
+         */
+        public function shows_in_menu(): bool
+        {
+        }
+        /**
+         * Highlights the GraphQL menu while the review is open without a menu item of its own.
+         *
+         * @param string|null $parent_file The parent menu slug to highlight.
+         */
+        public function highlight_parent_menu($parent_file): ?string
+        {
+        }
+        /**
+         * Highlights GraphQL > Settings while the review is open without a menu item of its own.
+         *
+         * @param string|null $submenu_file The submenu slug to highlight.
+         */
+        public function highlight_settings_submenu($submenu_file): ?string
+        {
+        }
+        /**
+         * Renders the element the review app mounts into.
+         */
+        public function render(): void
+        {
+        }
+        /**
+         * Returns the data the review app starts with.
+         *
+         * @return array<string,mixed>
+         */
+        public function get_bootstrap_data(): array
+        {
+        }
+        /**
+         * Enqueues the review app on its admin page.
+         *
+         * @param string $hook_suffix The current admin page.
+         */
+        public function enqueue_scripts($hook_suffix): void
+        {
+        }
+    }
+    /**
+     * Class FieldFactory
+     *
+     * Turns registered settings fields into the shape the settings review renders.
+     *
+     * A setting opts in with the `settings_review` key of the config passed to
+     * register_graphql_settings_field(). Everything else here is derived from the setting's own
+     * registration, so a setting has one label, one description and one set of tradeoffs wherever it
+     * is shown.
+     *
+     * @package WPGraphQL\Admin\SettingsReview
+     *
+     * @phpstan-import-type SettingsReviewField from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     * @phpstan-import-type SettingsReviewOption from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     */
+    final class FieldFactory
+    {
+        /**
+         * FieldFactory constructor.
+         *
+         * @param \WPGraphQL\Admin\Settings\SettingsRegistry   $registry The settings registry.
+         * @param \WPGraphQL\Admin\SettingsReview\StepRegistry $steps    The step registry.
+         */
+        public function __construct(\WPGraphQL\Admin\Settings\SettingsRegistry $registry, \WPGraphQL\Admin\SettingsReview\StepRegistry $steps)
+        {
+        }
+        /**
+         * Returns the settings shown in the review, keyed by "{section}.{name}".
+         *
+         * @return array<string,SettingsReviewField>
+         */
+        public function all(): array
+        {
+        }
+        /**
+         * Returns the current value of each setting in the review, keyed by "{section}.{name}".
+         *
+         * @return array<string,mixed>
+         */
+        public function values(): array
+        {
+        }
+    }
+    /**
+     * Class RestController
+     *
+     * The REST route the settings review saves through.
+     *
+     * Writes are built from the review's own field list rather than from the submitted payload, so a
+     * request can only ever change settings the review actually shows. Anything else is rejected, and
+     * locked settings are left alone. Values are validated against the field they belong to before the
+     * section's registered sanitize callback runs on save.
+     *
+     * @package WPGraphQL\Admin\SettingsReview
+     *
+     * @phpstan-import-type SettingsReviewField from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     */
+    final class RestController
+    {
+        /**
+         * RestController constructor.
+         *
+         * @param \WPGraphQL\Admin\SettingsReview\SettingsReview $review The settings review.
+         */
+        public function __construct(\WPGraphQL\Admin\SettingsReview\SettingsReview $review)
+        {
+        }
+        /**
+         * Registers the REST API route the review saves through.
+         */
+        public function register_routes(): void
+        {
+        }
+        /**
+         * Whether the current user can save the review.
+         */
+        public function can_save(): bool
+        {
+        }
+        /**
+         * Saves the review.
+         *
+         * Completing the review saves the settings that were submitted, which are the ones the
+         * administrator changed. Settings that weren't changed keep their current stored value, or no
+         * stored value, so defaults that depend on the environment or change in a later version still
+         * apply to them. Skipping the review changes no settings. Either way, every setting currently in
+         * the review is recorded as reviewed.
+         *
+         * @param \WP_REST_Request<array{status:string,settings?:array<string,mixed>}> $request The REST request.
+         *
+         * @return \WP_REST_Response|\WP_Error
+         */
+        public function save(\WP_REST_Request $request)
+        {
+        }
+        /**
+         * Validates the submitted settings and groups them by settings section.
+         *
+         * Settings are submitted as `{ section: { name: value } }` and only the submitted settings are
+         * saved. Settings that aren't in the review are rejected, and locked settings are left as they are.
+         *
+         * @param array<string,mixed> $settings The submitted settings.
+         *
+         * @return array<string,array<string,mixed>>|\WP_Error The values to save, grouped by section, or an error listing the invalid settings.
+         */
+        public function prepare_settings(array $settings)
+        {
+        }
+    }
+    /**
+     * Class ReviewState
+     *
+     * Reads and writes the option that records whether the settings review was completed or skipped,
+     * and which settings were in it at the time.
+     *
+     * Keeping "which settings have been reviewed" separate from "which settings are in the review" is
+     * what lets a later release add a setting and invite administrators back: the stored list simply
+     * stops covering every current key.
+     *
+     * @package WPGraphQL\Admin\SettingsReview
+     *
+     * @phpstan-import-type SettingsReviewState from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     */
+    final class ReviewState
+    {
+        /**
+         * Returns the saved review state.
+         *
+         * @return SettingsReviewState
+         */
+        public static function get(): array
+        {
+        }
+        /**
+         * Records that the given settings have been reviewed.
+         *
+         * @param string   $status     'completed' or 'skipped'.
+         * @param string[] $field_keys The keys of every setting currently in the review.
+         *
+         * @return SettingsReviewState The saved state.
+         */
+        public static function record(string $status, array $field_keys): array
+        {
+        }
+        /**
+         * Returns the keys that haven't been reviewed yet.
+         *
+         * @param string[] $field_keys The keys of every setting currently in the review.
+         *
+         * @return string[]
+         */
+        public static function unreviewed(array $field_keys): array
+        {
+        }
+    }
+    /**
+     * Class SettingsReview
+     *
+     * A guided walkthrough of WPGraphQL settings that explains the tradeoffs of each choice.
+     *
+     * Settings opt in by adding a `settings_review` key to the config passed to
+     * register_graphql_settings_field(). Steps are registered with register_graphql_settings_review_step(),
+     * and a setting that doesn't name a registered step is shown in a step for its settings section.
+     *
+     * Site administrators are invited to the review until every setting in it has been reviewed, by
+     * completing the review (which saves the settings) or skipping it (which changes nothing). When a
+     * plugin update adds a setting to the review, administrators are invited again.
+     *
+     * This class is the entry point and the public surface. The work is split across four collaborators
+     * it owns, and the methods here delegate to them:
+     *
+     * - {@see StepRegistry}  the steps the review is divided into
+     * - {@see FieldFactory}  turning registered settings into reviewable fields, and reading their values
+     * - {@see AdminPage}     the admin screen, its menu placement, assets and bootstrap data
+     * - {@see RestController} the REST route the review saves through
+     *
+     * {@see ReviewState} reads and writes the option that records what has been reviewed.
+     *
+     * @package WPGraphQL\Admin\SettingsReview
+     *
+     * phpcs:disable -- For phpstan type hinting
+     * @phpstan-type SettingsReviewStepConfig array{
+     *   title: string,
+     *   description?: string,
+     *   order?: int,
+     * }
+     * @phpstan-type SettingsReviewStep array{
+     *   slug: string,
+     *   title: string,
+     *   description: string,
+     *   order: int,
+     * }
+     * @phpstan-type SettingsReviewStepWithFields array{
+     *   slug: string,
+     *   title: string,
+     *   description: string,
+     *   order: int,
+     *   fields: string[],
+     * }
+     * @phpstan-type SettingsReviewOption array{
+     *   value: string,
+     *   label: string,
+     * }
+     * @phpstan-type SettingsReviewField array{
+     *   key: string,
+     *   section: string,
+     *   name: string,
+     *   type: string,
+     *   step: string,
+     *   order: int,
+     *   label: string,
+     *   description: string,
+     *   options: SettingsReviewOption[],
+     *   min: int|float|null,
+     *   max: int|float|null,
+     *   inputStep: int|float|null,
+     *   default: mixed,
+     *   benefits: string[],
+     *   costs: string[],
+     *   dependsOn: string|null,
+     *   locked: bool,
+     * }
+     * @phpstan-type SettingsReviewState array{
+     *   status?: string,
+     *   reviewed?: string[],
+     *   updated_at?: int,
+     * }
+     * phpcs:enable
+     */
+    final class SettingsReview
+    {
+        /**
+         * The option that stores whether the review was completed or skipped, and which settings were reviewed.
+         */
+        public const STATE_OPTION = 'graphql_settings_review';
+        /**
+         * The admin page slug.
+         */
+        public const PAGE_SLUG = 'graphql-settings-review';
+        /**
+         * The slug of the admin notice that invites administrators to the review.
+         */
+        public const NOTICE_SLUG = 'wpgraphql-settings-review';
+        /**
+         * The REST API namespace.
+         */
+        public const REST_NAMESPACE = 'wp-graphql/v1';
+        /**
+         * The REST API route.
+         */
+        public const REST_ROUTE = '/settings-review';
+        /**
+         * The capability required to use the review. Matches the WPGraphQL settings page.
+         */
+        public const CAPABILITY = 'manage_options';
+        /**
+         * The settings field types the review can display.
+         */
+        public const SUPPORTED_FIELD_TYPES = ['checkbox', 'number', 'select', 'radio', 'user_role_select', 'text', 'url', 'textarea'];
+        /**
+         * SettingsReview constructor.
+         *
+         * @param \WPGraphQL\Admin\Settings\SettingsRegistry $registry The settings registry.
+         */
+        public function __construct(\WPGraphQL\Admin\Settings\SettingsRegistry $registry)
+        {
+        }
+        /**
+         * Registers the admin notice inviting administrators to the review.
+         *
+         * Must run before the admin notices are initialized. Settings aren't registered yet at that
+         * point, so the notice is removed later by maybe_remove_admin_notice() when there's nothing
+         * left to review.
+         */
+        public static function register_admin_notice(): void
+        {
+        }
+        /**
+         * Whether the invitation notice should show for the current user.
+         *
+         * The notice is also removed once every setting is reviewed (see maybe_remove_admin_notice()),
+         * and each user can dismiss it.
+         */
+        public static function should_show_invitation(): bool
+        {
+        }
+        /**
+         * Returns the saved review state.
+         *
+         * @return SettingsReviewState
+         */
+        public static function get_state(): array
+        {
+        }
+        /**
+         * Returns the URL of the review admin page.
+         */
+        public static function get_page_url(): string
+        {
+        }
+        /**
+         * Initializes the review's admin page, assets and REST API route.
+         */
+        public function init(): void
+        {
+        }
+        /**
+         * Removes the invitation notice when every setting in the review has been reviewed.
+         */
+        public function maybe_remove_admin_notice(): void
+        {
+        }
+        /**
+         * Whether the current user should be invited to the review.
+         */
+        public function should_invite(): bool
+        {
+        }
+        /**
+         * Registers a step.
+         *
+         * @param string                   $slug   The step slug.
+         * @param SettingsReviewStepConfig $config The step config.
+         */
+        public function register_step(string $slug, array $config): void
+        {
+        }
+        /**
+         * Returns the steps that have settings to review, in display order.
+         *
+         * Includes a step for each settings section whose review settings don't name a registered step.
+         *
+         * @return array<int,SettingsReviewStepWithFields>
+         */
+        public function get_steps(): array
+        {
+        }
+        /**
+         * Returns the settings shown in the review, keyed by "{section}.{name}".
+         *
+         * @return array<string,SettingsReviewField>
+         */
+        public function get_fields(): array
+        {
+        }
+        /**
+         * Returns the current value of each setting in the review, keyed by "{section}.{name}".
+         *
+         * @return array<string,mixed>
+         */
+        public function get_values(): array
+        {
+        }
+        /**
+         * Returns the keys of the settings in the review that haven't been reviewed.
+         *
+         * @return string[]
+         */
+        public function get_unreviewed_field_keys(): array
+        {
+        }
+        /**
+         * Records that every setting currently in the review has been reviewed.
+         *
+         * @param string $status 'completed' or 'skipped'.
+         *
+         * @return SettingsReviewState The saved state.
+         */
+        public function record_review(string $status): array
+        {
+        }
+        /**
+         * Registers the review admin page.
+         *
+         * The page has an item in the GraphQL menu while there are settings to review, the same rule as
+         * the invitation notice. Once the review is completed or skipped, the menu item is hidden and the
+         * review is reached from the Settings page, which stays highlighted in the menu while it's open.
+         */
+        public function register_admin_page(): void
+        {
+        }
+        /**
+         * Sets the browser tab title for the review page.
+         */
+        public function set_page_title(): void
+        {
+        }
+        /**
+         * Whether the review has an item in the GraphQL menu for the current request.
+         */
+        public function shows_in_menu(): bool
+        {
+        }
+        /**
+         * Highlights the GraphQL menu while the review is open without a menu item of its own.
+         *
+         * @param string|null $parent_file The parent menu slug to highlight.
+         */
+        public function highlight_parent_menu($parent_file): ?string
+        {
+        }
+        /**
+         * Highlights GraphQL > Settings while the review is open without a menu item of its own.
+         *
+         * @param string|null $submenu_file The submenu slug to highlight.
+         */
+        public function highlight_settings_submenu($submenu_file): ?string
+        {
+        }
+        /**
+         * Renders the element the review app mounts into.
+         */
+        public function render_admin_page(): void
+        {
+        }
+        /**
+         * Returns the data the review app starts with.
+         *
+         * @return array<string,mixed>
+         */
+        public function get_bootstrap_data(): array
+        {
+        }
+        /**
+         * Enqueues the review app on its admin page.
+         *
+         * @param string $hook_suffix The current admin page.
+         */
+        public function enqueue_scripts($hook_suffix): void
+        {
+        }
+        /**
+         * Registers the REST API route the review saves through.
+         */
+        public function register_rest_routes(): void
+        {
+        }
+        /**
+         * Whether the current user can save the review.
+         */
+        public function can_save(): bool
+        {
+        }
+        /**
+         * Saves the review.
+         *
+         * @param \WP_REST_Request<array{status:string,settings?:array<string,mixed>}> $request The REST request.
+         *
+         * @return \WP_REST_Response|\WP_Error
+         */
+        public function save(\WP_REST_Request $request)
+        {
+        }
+        /**
+         * Validates the submitted settings and groups them by settings section.
+         *
+         * @param array<string,mixed> $settings The submitted settings.
+         *
+         * @return array<string,array<string,mixed>>|\WP_Error The values to save, grouped by section, or an error listing the invalid settings.
+         */
+        public function prepare_settings(array $settings)
+        {
+        }
+    }
+    /**
+     * Class StepRegistry
+     *
+     * Holds the steps the settings review is divided into, and assembles the step list the review app
+     * renders.
+     *
+     * Core registers `access`, `request-limits` and `diagnostics`. Plugins add their own with
+     * register_graphql_settings_review_step(). A setting whose `settings_review` config doesn't name a
+     * registered step falls back to a step for its settings section, which is built here rather than
+     * registered, so an extension's settings show up without it having to register anything.
+     *
+     * @package WPGraphQL\Admin\SettingsReview
+     *
+     * @phpstan-import-type SettingsReviewStep from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     * @phpstan-import-type SettingsReviewStepConfig from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     * @phpstan-import-type SettingsReviewStepWithFields from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     * @phpstan-import-type SettingsReviewField from \WPGraphQL\Admin\SettingsReview\SettingsReview
+     */
+    final class StepRegistry
+    {
+        /**
+         * The default order for a step that doesn't declare one.
+         */
+        public const DEFAULT_ORDER = 100;
+        /**
+         * Registers a step.
+         *
+         * @param string                   $slug   The step slug.
+         * @param SettingsReviewStepConfig $config The step config.
+         */
+        public function register(string $slug, array $config): void
+        {
+        }
+        /**
+         * Registers the steps core ships.
+         */
+        public function register_core_steps(): void
+        {
+        }
+        /**
+         * Whether a step is registered.
+         *
+         * @param string $slug The step slug.
+         */
+        public function has(string $slug): bool
+        {
+        }
+        /**
+         * Returns the registered steps, keyed by slug.
+         *
+         * @return array<string,SettingsReviewStep>
+         */
+        public function all(): array
+        {
+        }
+        /**
+         * Returns the steps that have settings to review, in display order.
+         *
+         * Includes a step for each settings section whose review settings don't name a registered step.
+         *
+         * @param array<string,SettingsReviewField> $fields   The settings in the review, keyed by "{section}.{name}".
+         * @param array<string,mixed>               $sections The registered settings sections.
+         *
+         * @return array<int,SettingsReviewStepWithFields>
+         */
+        public function with_fields(array $fields, array $sections): array
         {
         }
     }
@@ -7173,7 +7852,7 @@ namespace WPGraphQL\Model {
      * @property ?string       $menuIcon
      * @property ?int          $menuPosition
      * @property ?string       $name
-     * @property ?bool         $public
+     * @property bool          $public
      * @property bool          $publiclyQueryable
      * @property ?string       $restBase
      * @property ?string       $restControllerClass
@@ -7325,6 +8004,17 @@ namespace WPGraphQL\Model {
         }
         /**
          * {@inheritDoc}
+         *
+         * A taxonomy is never private. It is in the schema only because it was
+         * registered with `show_in_graphql`, and the terms it describes are served to
+         * everyone already, since the Term model has no privacy rule of its own.
+         * Hiding the taxonomy while serving its terms described nothing and protected
+         * nothing.
+         *
+         * Field-level restriction still applies through the capability passed to the
+         * parent constructor: a viewer without `edit_terms` gets this model's allowed
+         * fields and null for the rest, exactly as they already did for a taxonomy
+         * registered `public => true`.
          */
         protected function is_private()
         {
@@ -9580,6 +10270,10 @@ namespace WPGraphQL\Server\ValidationRules {
     class QueryDepth extends \GraphQL\Validator\Rules\QuerySecurityRule
     {
         /**
+         * The max query depth used when none has been saved.
+         */
+        public const DEFAULT_MAX_QUERY_DEPTH = 15;
+        /**
          * QueryDepth constructor.
          */
         public function __construct()
@@ -9618,6 +10312,17 @@ namespace WPGraphQL\Server\ValidationRules {
          * @return string
          */
         public function errorMessage($max, $count)
+        {
+        }
+        /**
+         * Returns the max query depth for the current request.
+         *
+         * Starts from the saved settings (the Max Depth setting when Query Depth Limiting is
+         * enabled, 0 when it's not) and applies the `graphql_query_depth_max` filter.
+         *
+         * @return int The max query depth. 0 means no limit.
+         */
+        protected function get_effective_max_query_depth(): int
         {
         }
         /**
@@ -14094,6 +14799,25 @@ namespace WPGraphQL\Utils {
          * @since 2.20.0
          */
         public static function map_enum_name_to_value(string $enum_type_name, string $input): ?string
+        {
+        }
+        /**
+         * Whether an operation only asks for introspection.
+         *
+         * Returns true when the operation is a query and every field at its root, including
+         * fields reached through root-level fragment spreads and inline fragments, is `__schema`,
+         * `__type` or `__typename`, with at least one `__schema` or `__type` field.
+         *
+         * This differs from WPGraphQL::is_introspection_query(), which is true when `__schema` or
+         * `__type` appears anywhere in the request. Use this method when the answer decides whether a
+         * limit applies, so a content query can't skip the limit by adding an introspection field.
+         *
+         * @param \GraphQL\Language\AST\OperationDefinitionNode              $operation The operation to check.
+         * @param array<string,\GraphQL\Language\AST\FragmentDefinitionNode> $fragments The fragments in the document, keyed by name.
+         *
+         * @since 2.24.0
+         */
+        public static function is_introspection_only_operation(\GraphQL\Language\AST\OperationDefinitionNode $operation, array $fragments = []): bool
         {
         }
     }
@@ -24937,12 +25661,50 @@ namespace {
     /**
      * Registers a GraphQL Settings Field
      *
+     * Set `depends_on` to the name of a checkbox field in the same section when this field only applies
+     * while that checkbox is on. The field is then hidden while the checkbox is off, on the settings page
+     * and, when both fields are in it, in the settings review. Its saved value is kept.
+     *
+     * Set `tradeoffs` to describe what turning the setting on gains and costs, as
+     * `[ 'benefits' => string[], 'costs' => string[] ]`. The settings page shows them in a collapsible
+     * section under the setting, and the settings review shows them next to it.
+     *
+     * To show the field in the settings review, add a `settings_review` key to the config: `true`, or an array
+     * with any of `step` (the slug of a step registered with register_graphql_settings_review_step()),
+     * `description` (a short plain-text description to use instead of `desc`) and `order`. The settings
+     * review always uses the field's `label`. It supports the checkbox, number, select, radio,
+     * user_role_select, text, url and textarea field types.
+     *
      * @param string              $group  The name of the group to register a setting field to
      * @param array<string,mixed> $config The config for the settings field being registered
      *
      * @since 0.13.0
      */
     function register_graphql_settings_field(string $group, array $config): void
+    {
+    }
+    /**
+     * Registers a step in the WPGraphQL settings review.
+     *
+     * The settings review walks site administrators through settings and explains the tradeoffs of each.
+     * Settings are added to a step with the `settings_review` key of the config passed to
+     * register_graphql_settings_field(). A setting whose `settings_review` config doesn't name a registered
+     * step is shown in a step for its settings section.
+     *
+     * Core registers the `access` (order 10), `request-limits` (order 20) and `diagnostics` (order 30) steps.
+     *
+     * @param string              $slug   A unique slug for the step.
+     * @param array<string,mixed> $config The step config: `title` (required), `description` and `order` (steps are shown in ascending order, default 100).
+     *
+     * @phpstan-param array{
+     *  title: string,
+     *  description?: string,
+     *  order?: int,
+     * } $config
+     *
+     * @since 2.24.0
+     */
+    function register_graphql_settings_review_step(string $slug, array $config): void
     {
     }
     /**
