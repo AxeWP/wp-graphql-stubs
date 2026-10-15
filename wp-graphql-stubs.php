@@ -8286,6 +8286,30 @@ namespace WPGraphQL\Mutation {
         {
         }
         /**
+         * Stops the mutation unless the current user may comment on the target.
+         *
+         * Mirrors the conditions WordPress applies in
+         * `wp_handle_comment_submission()`: a trashed post, a status that is neither
+         * public nor private, a private post the user cannot read, and a
+         * password-protected post all refuse the comment, as does a post with comments
+         * closed.
+         *
+         * It also mirrors how core reports them. Core returns a `WP_Error` carrying no
+         * message for the cases the caller is not entitled to tell apart, and a real
+         * message only where the caller can already read the post. Doing otherwise
+         * turns the mutation into a way to discover which IDs exist and what state
+         * they are in, which is the point of this guard as much as refusing the write
+         * is.
+         *
+         * @param \WP_Post|null $commented_on The post being commented on.
+         * @param int           $post_id      The ID that was asked for.
+         *
+         * @throws \GraphQL\Error\UserError If the comment must not be created.
+         */
+        protected static function assert_can_comment_on(?\WP_Post $commented_on, int $post_id): void
+        {
+        }
+        /**
          * Defines the mutation data modification closure.
          *
          * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
@@ -8718,6 +8742,14 @@ namespace WPGraphQL\Mutation {
     }
     class SendPasswordResetEmail
     {
+        /**
+         * The most password reset emails one GraphQL request may send.
+         *
+         * A single operation can invoke this mutation many times with aliases, and a
+         * batch can carry many operations, so the request layer's batch limit cannot
+         * see them. This is counted in the resolver instead.
+         */
+        public const DEFAULT_MAX_EMAILS_PER_REQUEST = 1;
         /**
          * Registers the sendPasswordResetEmail Mutation
          *
