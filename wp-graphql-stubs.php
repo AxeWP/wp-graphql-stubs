@@ -19966,7 +19966,7 @@ namespace GraphQL\Language {
          * trailing blank line. However, if a block string starts with whitespace and is
          * a single-line, adding a leading blank line would strip that whitespace.
          */
-        public static function print(string $value): string
+        public static function print(string $value, bool $minimize = false): string
         {
         }
     }
@@ -20274,6 +20274,57 @@ namespace GraphQL\Language {
          * @api
          */
         public static function doPrint(\GraphQL\Language\AST\Node $ast): string
+        {
+        }
+        /**
+         * Strips characters that are not significant to the validity or execution of a GraphQL document:
+         * - UnicodeBOM
+         * - WhiteSpace
+         * - LineTerminator
+         * - Comment
+         * - Comma
+         * - BlockString indentation
+         *
+         * Neighboring non-punctuator tokens are always delimited by a single space.
+         * Parsing input and output yields the same AST, apart from node locations.
+         * The output is stable, but may change between releases.
+         *
+         * ```graphql
+         * query SomeQuery($foo: String!, $bar: String) {
+         *   someField(foo: $foo, bar: $bar) {
+         *     a
+         *     b {
+         *       c
+         *       d
+         *     }
+         *   }
+         * }
+         * ```
+         *
+         * becomes
+         *
+         * ```graphql
+         * query SomeQuery($foo:String!$bar:String){someField(foo:$foo bar:$bar){a b{c d}}}
+         * ```
+         *
+         * @param Source|string $source
+         *
+         * @throws \JsonException
+         * @throws \GraphQL\Error\SyntaxError
+         *
+         * @api
+         */
+        public static function stripIgnoredCharacters($source): string
+        {
+        }
+        protected static function isPunctuatorTokenKind(string $kind): bool
+        {
+        }
+        /** Steps through characters the same way as Lexer::readChar(), since token positions count them. */
+        protected static function advanceBytePosition(string $body, int $bytePosition, int $charCount): int
+        {
+        }
+        protected static function tokenSource(\GraphQL\Language\Token $token): string
         {
         }
         /** @throws \JsonException */
