@@ -674,6 +674,10 @@ namespace WPGraphQL\Admin {
          */
         protected $settings_review;
         /**
+         * @var \WPGraphQL\Admin\SiteHealth\SiteHealth
+         */
+        protected $site_health;
+        /**
          * Initialize Admin functionality for WPGraphQL
          *
          * @return void
@@ -2231,6 +2235,119 @@ namespace WPGraphQL\Admin\SettingsReview {
         }
     }
 }
+namespace WPGraphQL\Admin\SiteHealth {
+    /**
+     * Class SiteHealth
+     *
+     * Adds WPGraphQL recommendations to Tools > Site Health on production sites.
+     *
+     * Whether these settings are right depends on how a site uses its API, so the tests never report a
+     * critical issue. They report "recommended" to point at something worth checking, explain the
+     * tradeoff, and link to the setting.
+     *
+     * The tests are registered with the `site_status_tests` filter, so a site that has decided
+     * differently can remove any of them by its identifier.
+     *
+     * @package WPGraphQL\Admin\SiteHealth
+     * @since 2.26.0
+     *
+     * phpcs:disable -- For phpstan type hinting
+     * @phpstan-type SiteHealthResult array{
+     *   label: string,
+     *   status: string,
+     *   badge: array{label: string, color: string},
+     *   description: string,
+     *   actions: string,
+     *   test: string,
+     * }
+     * phpcs:enable
+     */
+    class SiteHealth
+    {
+        /**
+         * Initializes the Site Health tests.
+         *
+         * @since 2.26.0
+         */
+        public function init(): void
+        {
+        }
+        /**
+         * Adds the WPGraphQL tests to Site Health on production sites.
+         *
+         * @param array<string,array<string,mixed>> $tests The Site Health tests, keyed by type.
+         *
+         * @return array<string,array<string,mixed>>
+         *
+         * @since 2.26.0
+         */
+        public function register_tests($tests)
+        {
+        }
+        /**
+         * Checks whether logged-out visitors can read the schema.
+         *
+         * Follows the same rules as the DisableIntrospection validation rule, and passes when the API
+         * only accepts requests from logged-in users, since logged-out visitors then can't run any query.
+         *
+         * @return SiteHealthResult
+         *
+         * @since 2.26.0
+         */
+        public function test_public_introspection(): array
+        {
+        }
+        /**
+         * Checks whether GraphQL debug mode is on.
+         *
+         * @return SiteHealthResult
+         *
+         * @since 2.26.0
+         */
+        public function test_debug_mode(): array
+        {
+        }
+        /**
+         * Checks whether the query depth limit setting is on.
+         *
+         * The graphql_query_depth_max filter can also set a limit, but its value can depend on who is
+         * asking, so it isn't evaluated here.
+         *
+         * @return SiteHealthResult
+         *
+         * @since 2.26.0
+         */
+        public function test_query_depth(): array
+        {
+        }
+        /**
+         * Checks whether tracing or query logs are added to responses for any user.
+         *
+         * @return SiteHealthResult
+         *
+         * @since 2.26.0
+         */
+        public function test_debug_output(): array
+        {
+        }
+        /**
+         * Returns the value of the GRAPHQL_DEBUG constant, or null when it isn't defined.
+         *
+         * @since 2.26.0
+         */
+        protected function get_debug_constant(): ?bool
+        {
+        }
+        /**
+         * Returns the site's environment type.
+         *
+         * @since 2.26.0
+         */
+        protected function get_environment_type(): string
+        {
+        }
+    }
+}
 namespace WPGraphQL\Admin\Updates {
     /**
      * Class PluginsScreenLoader
@@ -2507,6 +2624,127 @@ namespace WPGraphQL\Admin\Updates {
          * The modal JS for the plugin update message.
          */
         public function modal_js(): void
+        {
+        }
+    }
+}
+namespace WPGraphQL\Admin {
+    /**
+     * Class UsageTracking
+     *
+     * Adds a settings toggle for the Appsero usage tracking opt-in, so a site that
+     * opted in through the one-time admin notice can opt out again later.
+     *
+     * Appsero's `{slug}_allow_tracking` option stays the source of truth. The
+     * toggle always displays that state, and saving it calls Appsero's `optin()` /
+     * `optout()` so the weekly cron and the `{slug}_tracker_optin|optout` actions
+     * stay consistent with it.
+     *
+     * @package WPGraphQL\Admin
+     *
+     * @since 2.26.0
+     */
+    class UsageTracking
+    {
+        /**
+         * The name of the settings field.
+         */
+        public const FIELD_NAME = 'share_usage_data';
+        /**
+         * @var \Appsero\Insights
+         */
+        protected $insights;
+        /**
+         * The Appsero client slug, used as the prefix of its options and actions.
+         *
+         * @var string
+         */
+        protected $slug;
+        /**
+         * The settings section (and option name) the toggle is stored in.
+         *
+         * @var string
+         */
+        protected $section;
+        /**
+         * The product name shown in the toggle's description.
+         *
+         * @var string
+         */
+        protected $product_name;
+        /**
+         * Whether a save of the settings section is currently opting in or out.
+         *
+         * @var bool
+         */
+        protected $applying = false;
+        /**
+         * Extensions with their own Appsero client can reuse this class with their own section and name.
+         *
+         * @param \Appsero\Insights $insights     The initialized Appsero insights instance.
+         * @param string            $slug         The Appsero client slug.
+         * @param string            $section      The settings section to add the toggle to.
+         * @param string            $product_name The product name shown in the toggle's description.
+         *
+         * @since 2.26.0
+         */
+        public function __construct($insights, string $slug, string $section = 'graphql_general_settings', string $product_name = 'WPGraphQL')
+        {
+        }
+        /**
+         * Register the hooks.
+         */
+        public function init(): void
+        {
+        }
+        /**
+         * Whether the site has opted in to usage tracking.
+         */
+        public function is_tracking_allowed(): bool
+        {
+        }
+        /**
+         * Register the toggle on the settings page.
+         */
+        public function register_field(): void
+        {
+        }
+        /**
+         * Apply the toggle when the settings section is saved.
+         *
+         * @param mixed $value     The new option value.
+         * @param mixed $old_value The stored option value, or false when the option is new.
+         *
+         * @return mixed The new option value, with the toggle set to the opt-in state that resulted.
+         */
+        public function on_pre_update_option($value, $old_value)
+        {
+        }
+        /**
+         * Keep the stored copy of the toggle in step with the real opt-in state.
+         *
+         * Without this, a write that re-saves the whole section (such as changing a
+         * different field) would carry a stale value along with it.
+         */
+        public function sync_stored_value(): void
+        {
+        }
+        /**
+         * Opt in or out when a write asks for a different state than the current one.
+         *
+         * The two directions are deliberately asymmetric. An "off" is always honored, so a
+         * withdrawal of consent is never missed. An "on" only opts in when the write actually
+         * changed the toggle, so re-saving the section for another field with a stale stored
+         * value can never grant consent on the site's behalf.
+         *
+         * Opting in also requires `manage_options`, the capability Appsero's own notice requires,
+         * because it shares the admin's name and email and the settings capability is filterable.
+         * A save made without a user (WP-CLI, cron) never opts the site in.
+         *
+         * @param mixed $old_value The stored option value, or false when the option is new.
+         * @param mixed $value     The new option value.
+         */
+        protected function apply_requested_state($old_value, $value): void
         {
         }
     }
@@ -7215,6 +7453,15 @@ namespace WPGraphQL\Model {
     abstract class Model
     {
         /**
+         * The type name encoded into the global ID of objects of this model. Empty for models without a global ID.
+         *
+         * Subclasses inherit their parent's value, so a subclass whose `id` field encodes a different type
+         * must set this as well, or to_global_id() returns an ID with the parent's type.
+         *
+         * @var string
+         */
+        protected static $global_id_type = '';
+        /**
          * Stores the name of the type the child class extending this one represents
          *
          * @var string
@@ -7276,6 +7523,17 @@ namespace WPGraphQL\Model {
          * @throws \Exception Throws Exception.
          */
         protected function __construct($restricted_cap = '', $allowed_restricted_fields = [], $owner = null)
+        {
+        }
+        /**
+         * Returns the global ID for an object of this model, e.g. `\WPGraphQL\Model\Post::to_global_id( 1 )`.
+         *
+         * @param int|string $id The database ID (or other identifier, such as a slug or name) of the object.
+         *
+         * @throws \LogicException If the model does not have a global ID.
+         * @since 2.26.0
+         */
+        public static function to_global_id($id): string
         {
         }
         /**
@@ -7494,6 +7752,12 @@ namespace WPGraphQL\Model {
     class Comment extends \WPGraphQL\Model\Model
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'comment';
+        /**
          * Comment constructor.
          *
          * @param \WP_Comment $comment The incoming WP_Comment to be modeled
@@ -7530,6 +7794,12 @@ namespace WPGraphQL\Model {
     class CommentAuthor extends \WPGraphQL\Model\Model
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'comment_author';
+        /**
          * CommentAuthor constructor.
          *
          * @param \WP_Comment $comment_author The incoming comment author array to be modeled
@@ -7560,6 +7830,12 @@ namespace WPGraphQL\Model {
      */
     class Menu extends \WPGraphQL\Model\Model
     {
+        /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'term';
         /**
          * Menu constructor.
          *
@@ -7613,6 +7889,12 @@ namespace WPGraphQL\Model {
     class MenuItem extends \WPGraphQL\Model\Model
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'post';
+        /**
          * MenuItem constructor.
          *
          * @param \WP_Post $post The incoming WP_Post object that needs modeling
@@ -7658,6 +7940,12 @@ namespace WPGraphQL\Model {
      */
     class Plugin extends \WPGraphQL\Model\Model
     {
+        /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'plugin';
         /**
          * Plugin constructor.
          *
@@ -7751,6 +8039,12 @@ namespace WPGraphQL\Model {
      */
     class Post extends \WPGraphQL\Model\Model
     {
+        /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'post';
         /**
          * Store the global post to reset during model tear down
          *
@@ -7875,6 +8169,12 @@ namespace WPGraphQL\Model {
     class PostType extends \WPGraphQL\Model\Model
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'post_type';
+        /**
          * PostType constructor.
          *
          * @param \WP_Post_Type $post_type The incoming post type to model.
@@ -7912,6 +8212,12 @@ namespace WPGraphQL\Model {
      */
     class SettingGroup extends \WPGraphQL\Model\Model
     {
+        /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'setting_group';
         /**
          * The normalized settings group key (e.g. "general", "permalink").
          *
@@ -7995,6 +8301,12 @@ namespace WPGraphQL\Model {
     class Taxonomy extends \WPGraphQL\Model\Model
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'taxonomy';
+        /**
          * Taxonomy constructor.
          *
          * @param \WP_Taxonomy $taxonomy The incoming Taxonomy to model.
@@ -8051,6 +8363,12 @@ namespace WPGraphQL\Model {
      */
     class Term extends \WPGraphQL\Model\Model
     {
+        /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'term';
         /**
          * Stores the taxonomy object for the term being modeled
          *
@@ -8113,6 +8431,12 @@ namespace WPGraphQL\Model {
     class Theme extends \WPGraphQL\Model\Model
     {
         /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'theme';
+        /**
          * Theme constructor.
          *
          * @param \WP_Theme $theme The incoming WP_Theme to be modeled
@@ -8171,6 +8495,12 @@ namespace WPGraphQL\Model {
      */
     class User extends \WPGraphQL\Model\Model
     {
+        /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'user';
         /**
          * The Global Post at time of Model generation
          *
@@ -8232,6 +8562,12 @@ namespace WPGraphQL\Model {
      */
     class UserRole extends \WPGraphQL\Model\Model
     {
+        /**
+         * {@inheritDoc}
+         *
+         * @var string
+         */
+        protected static $global_id_type = 'user_role';
         /**
          * UserRole constructor.
          *
