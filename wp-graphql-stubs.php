@@ -3205,6 +3205,22 @@ namespace WPGraphQL\Data {
         public function graphql_wp_comments_query_cursor_pagination_support(array $pieces, \WP_Comment_Query $query)
         {
         }
+        /**
+         * Applies a comment search limited to the author's name and URL and the comment's content.
+         *
+         * The comment connection passes the search term as `graphql_search_visible_fields`, in place of
+         * WP_Comment_Query's own `search`, for users who can't moderate comments: WordPress's search also
+         * matches the author's email and IP address, which only moderators can see. Otherwise this matches the
+         * way WP_Comment_Query searches.
+         *
+         * @param array<string,mixed> $pieces A compacted array of comment query clauses.
+         * @param \WP_Comment_Query   $query  Current instance of WP_Comment_Query, passed by reference.
+         *
+         * @return array<string,mixed> $pieces
+         */
+        public function graphql_wp_comments_query_visible_fields_search(array $pieces, \WP_Comment_Query $query)
+        {
+        }
     }
 }
 namespace WPGraphQL\Data\Connection {
@@ -4753,6 +4769,117 @@ namespace WPGraphQL\Data\Connection {
         }
     }
 }
+namespace WPGraphQL\Data {
+    /**
+     * Class ConnectorCredentials
+     *
+     * Identifies and masks the settings WordPress connectors store their
+     * credentials in.
+     *
+     * WordPress 7.0 added a connectors API: each connector (Akismet, AI providers,
+     * and anything a plugin registers) can name the option holding its API key in
+     * `authentication.setting_name`, and core registers that option with
+     * `show_in_rest => true` so the connectors screen can manage it through
+     * `/wp/v2/settings`. Core masks those values in REST responses. WPGraphQL
+     * reads registered settings too, so it applies the same treatment on its own
+     * surfaces: connector credential settings always require `manage_options`,
+     * and the value is masked even for users who have it.
+     *
+     * Both rules are enforced where the value is read (the capability is also
+     * recorded in the normalized settings map, for the field-level check and its
+     * debug message), so neither the `graphql_normalized_settings` filter nor a
+     * setting's own registration args can relax them. Writes are guarded so the
+     * mask can't replace the stored credential.
+     *
+     * @internal Used by the settings read and write surfaces. Not an extension seam.
+     *
+     * @package WPGraphQL\Data
+     *
+     * @since 2.26.1
+     */
+    final class ConnectorCredentials
+    {
+        /**
+         * The character a masked credential is made of, matching WordPress core's
+         * connector key mask (U+2022, BULLET).
+         */
+        public const MASK_CHARACTER = "•";
+        /**
+         * The capability required to read a connector credential setting.
+         */
+        public const CAPABILITY = 'manage_options';
+        /**
+         * Returns the option names connectors store credentials in, mapped to the
+         * connector's authentication method.
+         *
+         * Returns an empty array on WordPress versions without the connectors API,
+         * and before the connector registry is initialized (core initializes it on
+         * `init`, at priority 15). Requests to the GraphQL endpoint run after
+         * `init`, but a `graphql()` call made earlier than that can't identify
+         * connector credential settings. Core registers its own connector settings
+         * at priority 20, so those aren't in the Schema that early either.
+         *
+         * @return array<string,string> Option name => authentication method.
+         */
+        public static function get_setting_names(): array
+        {
+        }
+        /**
+         * Masks an API key in WordPress core's format: one bullet per character
+         * except the last four, capped at 16 bullets, followed by the last four
+         * characters.
+         *
+         * Unlike core, a key of four characters or fewer is masked entirely rather
+         * than returned as is, since showing its last four characters would show
+         * the whole key. An empty key stays empty.
+         *
+         * @param string $key The API key.
+         */
+        public static function mask_api_key(string $key): string
+        {
+        }
+        /**
+         * Masks a connector credential value.
+         *
+         * An API key string is masked with mask_api_key(). Application password
+         * credentials keep their username and have a non-empty password replaced
+         * with 16 bullets, as core does. Null and false mean no credential is
+         * stored and are returned unchanged. Any other value can't be masked, so
+         * it is replaced with null rather than returned as is.
+         *
+         * @param mixed  $value  The resolved setting value.
+         * @param string $method The connector's authentication method.
+         *
+         * @return mixed
+         */
+        public static function mask_value($value, string $method)
+        {
+        }
+        /**
+         * Prepares an incoming value for a connector credential setting so that
+         * writing back a masked value never replaces the stored credential.
+         *
+         * A client that reads settings and saves them back sends the mask it was
+         * given. For an API key, a value that starts with the mask character means
+         * "unchanged", so `write` is false and the caller skips it. That is checked
+         * by the character rather than by comparing with the mask of the stored
+         * key, because the value a client read may have come from a filter rather
+         * than the stored option, and a real key never contains the character. For
+         * application password credentials, a password equal to the mask is
+         * replaced with the stored password, so the rest of the value (the
+         * username) is still written. Any other value is returned as is.
+         *
+         * @param string $option_name The option name.
+         * @param string $method      The connector's authentication method.
+         * @param mixed  $value       The incoming value.
+         *
+         * @return array{write:bool,value:mixed} Whether to write, and the value to write (null when `write` is false).
+         */
+        public static function prepare_incoming_value(string $option_name, string $method, $value): array
+        {
+        }
+    }
+}
 namespace WPGraphQL\Data\Cursor {
     /**
      * Abstract Cursor
@@ -5428,6 +5555,18 @@ namespace WPGraphQL\Data {
          * grouped settings map) are derived from this single map so a setting cannot
          * appear on one surface and not the other.
          *
+         * Who can read each setting is decided here too. A setting included only
+         * because it is registered with `show_in_rest` (it doesn't declare
+         * `show_in_graphql`) requires `manage_options` unless it is one of
+         * WordPress core's own settings (see get_core_setting_names()) or declares
+         * its own `graphql_capability`. Settings that opt in with
+         * `show_in_graphql => true` are public unless they declare a
+         * `graphql_capability`. Connector credential settings always require
+         * `manage_options` (see ConnectorCredentials). The `graphql_normalized_settings`
+         * filter runs after these defaults, so a site can change them, except that a
+         * connector credential setting can't be made readable without
+         * `manage_options`.
+         *
          * The map is resolvable without a built schema. When a `TypeRegistry` is
          * provided (the schema-build path) settings whose declared type has no
          * corresponding GraphQL type are excluded, since they can't become fields.
@@ -5459,6 +5598,35 @@ namespace WPGraphQL\Data {
          * @since 2.18.0
          */
         protected static function get_setting_field_name(array $setting): string
+        {
+        }
+        /**
+         * The option names of WordPress core's own settings, and of the options
+         * WPGraphQL shims for core (see get_core_shim_settings()).
+         *
+         * These keep the visibility they have always had in WPGraphQL: they are
+         * public, except where get_core_setting_config() restricts one (the
+         * administrator email). Any other setting that reaches the settings map only
+         * because it is registered with `show_in_rest` requires `manage_options`
+         * unless it declares its own `graphql_capability`.
+         *
+         * The list is by option name, not by settings group, because plugins can and
+         * do register their own settings into core's groups (`general`, `reading`,
+         * ...), and those must not inherit core's public visibility. Option names
+         * are unique per site, so a name identifies core's setting exactly.
+         *
+         * Derived from register_initial_settings() (`siteurl` and `admin_email` are
+         * registered on single-site only), plus `site_logo` and `site_icon`, which
+         * core registers alongside its blocks. A test compares the list with
+         * register_initial_settings() on every WordPress version in the test
+         * matrix. A setting a later WordPress release adds reads as requiring
+         * `manage_options` until it's added here, which fails closed.
+         *
+         * @return string[]
+         *
+         * @since 2.26.1
+         */
+        protected static function get_core_setting_names(): array
         {
         }
         /**
@@ -23038,13 +23206,14 @@ namespace GraphQL\Utils {
         /**
          * @param array<string, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeDefinitionNode> $typeDefinitionsMap
          * @param array<string, array<int, \GraphQL\Language\AST\Node&\GraphQL\Language\AST\TypeExtensionNode>> $typeExtensionsMap
+         * @param array<string, \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> $typeOverrides
          *
          * @phpstan-param ResolveType $resolveType
          * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
          *
          * @throws \GraphQL\Error\InvariantViolation
          */
-        public function __construct(array $typeDefinitionsMap, array $typeExtensionsMap, callable $resolveType, ?callable $typeConfigDecorator = null, ?callable $fieldConfigDecorator = null)
+        public function __construct(array $typeDefinitionsMap, array $typeExtensionsMap, callable $resolveType, ?callable $typeConfigDecorator = null, ?callable $fieldConfigDecorator = null, array $typeOverrides = [])
         {
         }
         /** @throws \Exception */
@@ -23443,11 +23612,12 @@ namespace GraphQL\Utils {
     {
         /**
          * @param array<string, bool> $options
+         * @param iterable<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> $types
          *
          * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
          * @phpstan-param BuildSchemaOptions $options
          */
-        public function __construct(\GraphQL\Language\AST\DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null)
+        public function __construct(\GraphQL\Language\AST\DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null, iterable $types = [])
         {
         }
         /**
@@ -23456,6 +23626,7 @@ namespace GraphQL\Utils {
          *
          * @param \GraphQL\Language\AST\DocumentNode|\GraphQL\Language\Source|string $source
          * @param array<string, bool> $options
+         * @param iterable<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> $types
          *
          * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
          * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
@@ -23469,7 +23640,7 @@ namespace GraphQL\Utils {
          * @throws \GraphQL\Error\InvariantViolation
          * @throws \GraphQL\Error\SyntaxError
          */
-        public static function build($source, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null): \GraphQL\Type\Schema
+        public static function build($source, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null, iterable $types = []): \GraphQL\Type\Schema
         {
         }
         /**
@@ -23481,6 +23652,7 @@ namespace GraphQL\Utils {
          * has no resolve methods, so execution will use default resolvers.
          *
          * @param array<string, bool> $options
+         * @param iterable<\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType> $types
          *
          * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
          * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
@@ -23493,7 +23665,7 @@ namespace GraphQL\Utils {
          * @throws \GraphQL\Error\Error
          * @throws \GraphQL\Error\InvariantViolation
          */
-        public static function buildAST(\GraphQL\Language\AST\DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null): \GraphQL\Type\Schema
+        public static function buildAST(\GraphQL\Language\AST\DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [], ?callable $fieldConfigDecorator = null, iterable $types = []): \GraphQL\Type\Schema
         {
         }
         /**
@@ -24331,6 +24503,16 @@ namespace GraphQL\Utils {
          * @phpstan-return CoercedValue|CoercedErrors
          */
         public static function coerceInputValue($value, \GraphQL\Type\Definition\InputType $type, ?array $path = null, ?\GraphQL\Type\Schema $schema = null): array
+        {
+        }
+        /**
+         * @param mixed $value
+         *
+         * @phpstan-param InputPath|null $path
+         *
+         * @phpstan-return CoercedErrors
+         */
+        protected static function ofParseValueError(\Throwable $error, string $typeName, ?array $path, $value): array
         {
         }
     }
@@ -25270,7 +25452,7 @@ namespace GraphQL\Validator\Rules {
         }
         /**
          * @throws \Exception
-         * @throws \GraphQL\Error\Error
+         * @throws \GraphQL\Error\InvariantViolation
          *
          * @return array<string, mixed>
          */
