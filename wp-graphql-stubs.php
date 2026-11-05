@@ -3553,6 +3553,16 @@ namespace WPGraphQL\Data\Connection {
         {
         }
         /**
+         * Whether the `after` or `before` arg holds a cursor that get_offset_for_cursor() can't decode.
+         *
+         * Checks the args after the `graphql_connection_args` filter, so a cursor removed there is not checked.
+         *
+         * @since 2.26.2
+         */
+        protected function has_malformed_cursor(): bool
+        {
+        }
+        /**
          * Returns the offset for a given cursor.
          *
          * Connections that use a string-based offset should override this method.
