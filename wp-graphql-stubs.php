@@ -2698,6 +2698,39 @@ namespace WPGraphQL\Admin {
         {
         }
         /**
+         * Only show Appsero's deactivation feedback form (and only accept its AJAX submit) when the
+         * site has opted in to usage tracking.
+         *
+         * Appsero always registers the form and sends `get_tracking_data()` with the reason — site URL,
+         * admin name/email, environment details, and public IP — without checking `{slug}_allow_tracking`.
+         * Call this after `$insights->init()` so those hooks are replaced.
+         *
+         * `init()` calls this. An extension that also runs with WPGraphQL versions older than this
+         * method should gate its own form instead (Appsero's `tracking_allowed()` checks the same
+         * option), since calling a missing method is a fatal error.
+         *
+         * @since 2.27.0
+         */
+        public function gate_deactivation_feedback(): void
+        {
+        }
+        /**
+         * Render the deactivation feedback form only when tracking is allowed.
+         *
+         * @since 2.27.0
+         */
+        public function maybe_deactivate_scripts(): void
+        {
+        }
+        /**
+         * Accept a deactivation reason submission only when tracking is allowed.
+         *
+         * @since 2.27.0
+         */
+        public function maybe_uninstall_reason_submission(): void
+        {
+        }
+        /**
          * Whether the site has opted in to usage tracking.
          */
         public function is_tracking_allowed(): bool
@@ -2797,7 +2830,7 @@ namespace WPGraphQL {
          * `X-GraphQL-Preview` header or the `preview` object in the request `extensions`.
          * Null when the request does not carry preview context.
          *
-         * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+         * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,postFormat:?string,nonce:?string}|null
          */
         public $preview = null;
         /**
@@ -3071,7 +3104,7 @@ namespace WPGraphQL\Data {
          *
          * @param int                                  $comment_id    The ID of the postObject the comment is connected to
          * @param array<string,mixed>                  $input         The input for the mutation
-         * @param string                               $mutation_name The name of the mutation ( ex: create, update, delete )
+         * @param string                               $mutation_name The name of the mutation (createComment or updateComment)
          * @param \WPGraphQL\AppContext                $context The AppContext passed down to all resolvers
          * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
          *
@@ -6657,6 +6690,24 @@ namespace WPGraphQL\Data {
          * @return array<string,mixed>
          */
         public static function prepare_object(array $input, \WP_Taxonomy $taxonomy, string $mutation_name)
+        {
+        }
+        /**
+         * Fires the action that lets extensions update additional data related to a term object,
+         * such as termmeta, after the term has been created or updated.
+         *
+         * @param int                                  $term_id       The ID of the term being mutated
+         * @param array<string,mixed>                  $input         The input for the mutation
+         * @param \WP_Taxonomy                         $taxonomy      The taxonomy of the term being mutated
+         * @param string                               $mutation_name The name of the mutation (ex: createCategory, updateTag)
+         * @param \WPGraphQL\AppContext                $context       The AppContext passed down to all resolvers
+         * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down to all resolvers
+         *
+         * @return void
+         *
+         * @since 2.27.0
+         */
+        public static function update_additional_term_object_data(int $term_id, array $input, \WP_Taxonomy $taxonomy, string $mutation_name, \WPGraphQL\AppContext $context, \GraphQL\Type\Definition\ResolveInfo $info)
         {
         }
     }
