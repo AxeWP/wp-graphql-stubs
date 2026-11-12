@@ -7801,7 +7801,13 @@ namespace WPGraphQL\Model {
         {
         }
         /**
-         * Setup the global state before each field is resolved so the Model has the necessary context.
+         * Sets up the global state so WordPress treats the modeled object as the current one.
+         *
+         * For models whose is_node_scoped() returns true (Post, Term and User), this runs when
+         * resolution enters the part of the query under the model's node, so every field selected there
+         * (including fields other plugins register, and fields of nested values that are not models)
+         * resolves with this context. For other models it runs around each field that is read, and the
+         * previous state is restored afterwards. See NodeContext.
          *
          * @return void
          */
@@ -7809,9 +7815,44 @@ namespace WPGraphQL\Model {
         {
         }
         /**
-         * Tear-down call that runs after each field is resolved.
+         * Whether the model's setup() applies to its whole part of a query, rather than around each
+         * field read.
          *
-         * This can be used to reset state to where it was before the model was setup.
+         * Return true from a model that represents a node whose context every field selected under it
+         * should see: fields other plugins register on its type, and fields of nested values that are
+         * not models themselves. The model is then set up once when resolution enters its part of the
+         * query, set up again if a field leaves the global post, author or queried object pointing
+         * somewhere else, and torn down (with the previous state restored) when resolution leaves it.
+         * Its fields read anywhere else, such as from PHP, are still set up around each read.
+         *
+         * Post, Term and User return true, and so do subclasses that don't override this. A subclass
+         * whose setup() has to run before each field should return false.
+         *
+         * Node-scoped models nest: another node's setup() can run while this one's is in effect, and
+         * tear_down() runs in the reverse order, so setup() and tear_down() must not depend on running
+         * once at a time (for example, by adding and removing a filter with a shared callback).
+         *
+         * Return false (the default) for a model whose setup() expects to run before each field.
+         *
+         * Either way, the main query and the globals listed by the graphql_model_node_context_globals
+         * filter are saved before setup() and restored after tear_down().
+         *
+         * @return bool
+         *
+         * @since 2.28.0
+         */
+        public function is_node_scoped()
+        {
+        }
+        /**
+         * Resets state that setup() changed.
+         *
+         * Runs when resolution leaves the model's part of the query, for models whose
+         * is_node_scoped() returns true, and after each field read otherwise (including a node-scoped
+         * model's fields read outside its part of the query). The global
+         * main query ($wp_query), the post data globals (such as $post and $authordata) and any globals
+         * added with the graphql_model_node_context_globals filter are restored after this runs, so
+         * subclasses only need to undo other changes their setup() makes, such as filters it adds.
          *
          * @return void
          */
@@ -8152,6 +8193,119 @@ namespace WPGraphQL\Model {
         }
     }
     /**
+     * Points WordPress's global state at the node being resolved, for that node's part of the query.
+     *
+     * Models such as Post, Term and User have a setup() method that makes WordPress treat the modeled
+     * object as the current one: it parses a query for the object on the global main query and sets
+     * globals such as $post, so template tags and filters that read them (get_the_ID(), is_singular(),
+     * get_queried_object(), render_block(), and so on) behave as they would on that object's page.
+     *
+     * That context is scoped to the node's part of the query. Before each field resolves, the context
+     * of every node above it is set up, outermost first, so fields selected under a node see it as the
+     * current object. This includes fields other plugins register on the node and fields of nested
+     * values that are not models themselves, such as a list of blocks. Fields outside any node, like a
+     * root field selected after one, see the state the request started with. Each node is set up when
+     * resolution enters its part of the query and torn down when it leaves, not around each field. It
+     * is set up again if one of its fields leaves the globals pointing somewhere else, such as a block
+     * that loops over other posts, so the node's later fields still see it.
+     *
+     * The nodes are models whose Model::is_node_scoped() returns true: Post, Term and User, and
+     * subclasses that inherit theirs. Reading any other model's fields (or a node's fields from PHP,
+     * or from the resolver of a field on another node) sets the model up around that one field instead,
+     * and restores the previous state afterwards.
+     *
+     * Besides the main query, the state saved and restored is the post data globals and $authordata,
+     * plus any globals added with the graphql_model_node_context_globals filter.
+     *
+     * Callbacks that run later than the field that created them (a connection's Deferred callback,
+     * say) can be bound to the state at the time they were created with bind(), which extensions
+     * reach through graphql_bind_node_context().
+     *
+     * @internal Plumbing behind the model lifecycle. Models customize it through setup(), tear_down()
+     *           and is_node_scoped(), and the graphql_model_node_context_globals filter. Extensions
+     *           bind callbacks through graphql_bind_node_context().
+     *
+     * @since 2.28.0
+     */
+    final class NodeContext
+    {
+        /**
+         * Returns the node context for a request.
+         *
+         * @param \WPGraphQL\AppContext $context The request's AppContext.
+         *
+         * @since 2.28.0
+         */
+        public static function for_request(\WPGraphQL\AppContext $context): self
+        {
+        }
+        /**
+         * Tears down the request's node contexts, restoring the state the request started with.
+         *
+         * @param \WPGraphQL\AppContext $context The request's AppContext.
+         *
+         * @throws \Throwable When a model's tear_down() throws, after every node has been torn down.
+         *
+         * @since 2.28.0
+         */
+        public static function end_request(\WPGraphQL\AppContext $context): void
+        {
+        }
+        /**
+         * Sets up the context of the nodes above a field, before the field resolves.
+         *
+         * @param mixed                                $source The value the field is resolved on.
+         * @param \GraphQL\Type\Definition\ResolveInfo $info   The field's resolve info.
+         *
+         * @since 2.28.0
+         */
+        public function enter($source, \GraphQL\Type\Definition\ResolveInfo $info): void
+        {
+        }
+        /**
+         * Wraps a callback so that, whenever it's called, it runs with the global state as it is now.
+         *
+         * For callbacks that run later than the field that created them, such as a connection's
+         * Deferred callback, which runs after other fields (often of other nodes) have resolved. Bound
+         * while the field resolves, the callback sees the main query and the restored globals as they
+         * were then, so the field's node is the current object, and the state at the time it's called
+         * is restored afterwards, even if it throws.
+         *
+         * Only that saved state is put back. setup() isn't run again, so anything else a model's setup()
+         * does, such as adding filters, isn't in effect inside the callback.
+         *
+         * @param callable $callback The callback to wrap.
+         *
+         * @return callable The wrapped callback, which takes the same arguments and returns the same value.
+         *
+         * @since 2.28.0
+         */
+        public static function bind(callable $callback): callable
+        {
+        }
+        /**
+         * Runs a callback with a model's context set up, unless it already is.
+         *
+         * Used for reading a model's fields. Within the model's part of the query its context is
+         * already applied, so the callback runs as is. Anywhere else, the model is set up around the
+         * callback and the previous state is restored afterwards, even if the callback throws.
+         *
+         * @template T
+         *
+         * @param \WPGraphQL\Model\Model<mixed> $model    The model to set up.
+         * @param callable():T                  $callback The callback to run.
+         *
+         * @return T
+         *
+         * @throws \Throwable When the model's setup() throws, after restoring the previous state.
+         *
+         * @since 2.28.0
+         */
+        public static function run_as(\WPGraphQL\Model\Model $model, callable $callback)
+        {
+        }
+    }
+    /**
      * Class Plugin - Models the Plugin object
      *
      * @property ?string $author
@@ -8277,6 +8431,9 @@ namespace WPGraphQL\Model {
         /**
          * Store the global post to reset during model tear down
          *
+         * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+         * saved and restored around setup() and tear_down(). See NodeContext.
+         *
          * @var \WP_Post
          */
         protected $global_post;
@@ -8310,6 +8467,16 @@ namespace WPGraphQL\Model {
          * @return void
          */
         public function __construct(\WP_Post $post)
+        {
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @return bool
+         *
+         * @since 2.28.0
+         */
+        public function is_node_scoped()
         {
         }
         /**
@@ -8607,6 +8774,9 @@ namespace WPGraphQL\Model {
         /**
          * The global Post instance
          *
+         * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+         * saved and restored around setup() and tear_down(). See NodeContext.
+         *
          * @var \WP_Post
          */
         protected $global_post;
@@ -8622,14 +8792,18 @@ namespace WPGraphQL\Model {
         }
         /**
          * {@inheritDoc}
+         *
+         * @return bool
+         *
+         * @since 2.28.0
          */
-        public function setup()
+        public function is_node_scoped()
         {
         }
         /**
          * {@inheritDoc}
          */
-        public function tear_down()
+        public function setup()
         {
         }
         /**
@@ -8733,11 +8907,17 @@ namespace WPGraphQL\Model {
         /**
          * The Global Post at time of Model generation
          *
+         * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+         * saved and restored around setup() and tear_down(). See NodeContext.
+         *
          * @var \WP_Post
          */
         protected $global_post;
         /**
          * The global authordata at time of Model generation
+         *
+         * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+         * saved and restored around setup() and tear_down(). See NodeContext.
          *
          * @var \WP_User
          */
@@ -8754,14 +8934,18 @@ namespace WPGraphQL\Model {
         }
         /**
          * {@inheritDoc}
+         *
+         * @return bool
+         *
+         * @since 2.28.0
          */
-        public function setup()
+        public function is_node_scoped()
         {
         }
         /**
          * {@inheritDoc}
          */
-        public function tear_down()
+        public function setup()
         {
         }
         /**
@@ -25923,6 +26107,36 @@ namespace {
      * @since  0.2.0
      */
     function graphql(array $request_data = [], bool $return_request = \false)
+    {
+    }
+    /**
+     * Wraps a callback so that, whenever it's called, it runs with the global state as it is now.
+     *
+     * While a field resolves, the post, term or user it's selected under is set up as the current
+     * object (see the Node Context and Global State docs). Code that runs later than the resolver,
+     * such as the callback of a Deferred the resolver returns, would otherwise run with whatever node
+     * was set up most recently. Wrap the callback while the resolver runs, and it sees the resolver's
+     * node instead:
+     *
+     *     'resolve' => static function ( $post ) {
+     *         return new \GraphQL\Deferred(
+     *             graphql_bind_node_context(
+     *                 static function () {
+     *                     return get_the_title(); // The title of the post the field is selected under.
+     *                 }
+     *             )
+     *         );
+     *     },
+     *
+     * The state at the time the callback is called is restored afterwards, even if it throws.
+     *
+     * @param callable $callback The callback to wrap.
+     *
+     * @return callable The wrapped callback, which takes the same arguments and returns the same value.
+     *
+     * @since 2.28.0
+     */
+    function graphql_bind_node_context(callable $callback): callable
     {
     }
     /**
